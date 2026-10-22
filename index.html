@@ -39,7 +39,7 @@ body{background:var(--bg);margin:0}
 #nt-app .wrap{max-width:1120px;margin:0 auto;display:flex;flex-direction:column;gap:24px}
 #nt-app .narrow{max-width:680px;width:100%;margin-inline:auto}
 #nt-app .split{display:grid;grid-template-columns:minmax(0,1fr);gap:24px}
-#nt-app .rgrid{display:grid;grid-template-columns:minmax(0,1fr);grid-template-areas:"hero" "side" "rank" "share" "final" "again";gap:16px}
+#nt-app .rgrid{display:grid;grid-template-columns:minmax(0,1fr);grid-template-areas:"hero" "final" "rank" "share" "again";max-width:760px;margin-inline:auto;width:100%;gap:16px}
 #nt-app .a-hero{grid-area:hero}#nt-app .a-side{grid-area:side;display:flex;flex-direction:column;gap:16px}
 #nt-app .a-rank{grid-area:rank}#nt-app .a-share{grid-area:share}#nt-app .a-again{grid-area:again;justify-self:center}
 /* список школ на старте */
@@ -162,6 +162,13 @@ body{background:var(--bg);margin:0}
 #nt-app .final h3{font-size:20px;line-height:1.3;color:#fff}
 #nt-app .final p{color:#CBD5E1;font-size:14px}
 #nt-app .a-final{grid-area:final}
+#nt-app .sentok{background:rgba(16,185,129,.15);color:#6EE7B7;border:1px solid rgba(16,185,129,.4);border-radius:12px;padding:14px;text-align:center;font-weight:700}
+#nt-app .ntm{position:fixed;inset:0;z-index:50;background:rgba(15,23,42,.55);display:grid;place-items:center;padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+#nt-app .ntm-card{background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:20px;padding:32px 24px 24px;max-width:420px;width:100%;text-align:center;display:flex;flex-direction:column;gap:12px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+#nt-app .ntm-ic{width:64px;height:64px;border-radius:50%;background:var(--grad);color:#fff;display:grid;place-items:center;font-size:30px;font-weight:800;margin:0 auto 4px}
+#nt-app .ntm-card h3{font-size:22px}
+#nt-app .ntm-card p{color:var(--fg-2);font-size:15px}
+@media (prefers-reduced-motion:no-preference){#nt-app .ntm-card{animation:ntin .25s ease}}
 #nt-app .tagok{font-size:12px;color:var(--good);font-weight:600}
 #nt-app .info{background:var(--line-2);border-radius:12px;padding:12px 14px;font-size:14px;color:var(--fg-2)}
 #nt-app .info b{color:var(--fg)}
@@ -185,7 +192,7 @@ body{background:var(--bg);margin:0}
   #nt-app .q{font-size:30px}
   #nt-app .yn button{padding:26px 10px;font-size:20px}
   #nt-app .grades{grid-template-columns:repeat(9,minmax(0,1fr))}
-  #nt-app .rgrid{grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);grid-template-areas:"hero side" "rank side" "share side" "final side" "again side";column-gap:28px;row-gap:20px;align-items:start}
+  #nt-app .rgrid{row-gap:20px}
   #nt-app .a-side{position:sticky;top:20px}
   #nt-app .hero{padding:32px}
   #nt-app .hero .pct{font-size:72px}
@@ -267,7 +274,7 @@ const T = {
     bookEy:"Бесплатная диагностика знаний", bookH:"Интересы подходят. А знаний хватит для поступления?",
     bookSub:(n)=>`Тест показал, к каким школам у ребёнка лежит душа. Но на вступительных экзаменах проверяют знания — математику, логику, английский. На бесплатной диагностике вы узнаете, хватит ли знаний для поступления в эти 3 школы (${n}) и что именно нужно подтянуть.`,
     bookList:["Шансы на поступление в каждую из 3 школ","Пробелы по математике и логике — по темам","План подготовки до экзаменов","Скидка на обучение до 40% по итогам диагностики"],
-    finalH:(n)=>`${n}: хватит ли знаний для поступления?`, finalP:"Интерес — это половина успеха. Вторая половина — подготовка. Диагностика бесплатная и ни к чему не обязывает.", finalBtn:"Записаться на бесплатную диагностику",
+    finalH:(n)=>`${n}: хватит ли знаний для поступления?`, finalP:"Интерес — это половина успеха. Вторая половина — подготовка. Диагностика бесплатная и ни к чему не обязывает.", finalBtn:"Записаться на бесплатную диагностику", sentH:"Заявка отправлена!", sentP:(ph)=>`Специалист Newton Academy свяжется с вами в ближайшее время по номеру +998 ${ph}, ответит на вопросы и подберёт удобное время для бесплатной диагностики.`, sentOk:"Понятно",
     branch:"Филиал", day:"День", time:"Время", tomorrow:"Завтра",
     book:"Узнать шансы на поступление — бесплатно", bookErr:"Выберите филиал, день и время",
     bookNote:"Есть рассрочка. Куратор позвонит, чтобы подтвердить время.",
@@ -300,7 +307,7 @@ const T = {
     bookEy:"Bilimlarni bepul diagnostika qilish", bookH:"Qiziqishlar mos. Bilim kirish uchun yetarlimi?",
     bookSub:(n)=>`Test farzandingiz qaysi maktablarga moyilligini ko'rsatdi. Ammo kirish imtihonlarida bilim tekshiriladi — matematika, mantiq, ingliz tili. Bepul diagnostikada bu 3 ta maktabga (${n}) kirish uchun bilim yetarlimi va nimani kuchaytirish kerakligini bilib olasiz.`,
     bookList:["3 ta maktabning har biriga kirish imkoniyati","Matematika va mantiq bo'yicha bo'shliqlar — mavzular bo'yicha","Imtihonlargacha tayyorgarlik rejasi","Diagnostika natijasiga ko'ra o'qishga 40% gacha chegirma"],
-    finalH:(n)=>`${n}: kirish uchun bilim yetarlimi?`, finalP:"Qiziqish — muvaffaqiyatning yarmi. Ikkinchi yarmi — tayyorgarlik. Diagnostika bepul va hech narsaga majburlamaydi.", finalBtn:"Bepul diagnostikaga yozilish",
+    finalH:(n)=>`${n}: kirish uchun bilim yetarlimi?`, finalP:"Qiziqish — muvaffaqiyatning yarmi. Ikkinchi yarmi — tayyorgarlik. Diagnostika bepul va hech narsaga majburlamaydi.", finalBtn:"Bepul diagnostikaga yozilish", sentH:"Arizangiz yuborildi!", sentP:(ph)=>`Newton Academy mutaxassisi tez orada +998 ${ph} raqami orqali siz bilan bog\'lanadi, savollaringizga javob beradi va bepul diagnostika uchun qulay vaqtni tanlaydi.`, sentOk:"Tushunarli",
     branch:"Filial", day:"Kun", time:"Vaqt", tomorrow:"Ertaga",
     book:"Kirish imkoniyatini bilish — bepul", bookErr:"Filial, kun va vaqtni tanlang",
     bookNote:"Bo'lib to'lash mavjud. Kurator vaqtni tasdiqlash uchun qo'ng'iroq qiladi.",
@@ -521,12 +528,12 @@ function leadData(event){
   const b=BRANCHES.find(x=>x.id===S.branch);
   return { event, name:S.name, role:S.role||"—", phone:"+998"+S.phone, grade:S.grade, lang:S.lang,
     top_school:sch(top).ru.n, top_pct:sc[top], top3:top3().map(id=>shortRu(id)+" "+sc[id]+"%").join(", "), ranking:r.map(id=>sch(id).ru.n+" "+sc[id]+"%").join("; "),
-    branch:b?b.n:"", slot:S.day&&S.time?S.day+" "+S.time:"", status:{lead:"тест пройден",booking:"записан на диагностику",left:"ушёл без записи",deep:"уточнил школу"}[event],
+    branch:b?b.n:"", slot:S.day&&S.time?S.day+" "+S.time:"", status:{lead:"тест пройден",booking:"хочет на диагностику",left:"ушёл без записи",deep:"уточнил школу"}[event],
     tags:["тест_школы","топ: "+sch(top).ru.n,"топ-3: "+top3().map(shortRu).join(" / "),"класс: "+S.grade,S.lang,S.booked?"записан":"без записи"].join(", "),
     source:CONFIG.SOURCE, ...UTM };
 }
 function tgText(d){
-  const head={lead:"🟢 Новая заявка — тест «Какая школа подходит»",booking:"🔥 Записался на бесплатную диагностику",left:"⚠️ Ушёл без записи — позвонить в первую очередь",deep:"🔎 Уточнил школу"}[d.event];
+  const head={lead:"🟢 Новая заявка — тест «Какая школа подходит»",booking:"🔥 Хочет на бесплатную диагностику — позвонить и записать",left:"⚠️ Ушёл без записи — позвонить в первую очередь",deep:"🔎 Уточнил школу"}[d.event];
   const roleRu={dad:"папа",mom:"мама"}[S.role]||"роль не указана";
   const top=ranked()[0];
   const L=[head,"",`👤 ${d.name} (${roleRu})`,`📞 +998 ${fmtPhone(S.phone)}`,`🎓 ${d.grade} класс · язык ${d.lang.toUpperCase()}`,`🏆 Топ-3: ${d.top3}`,`📊 Все: ${d.ranking}`];
@@ -703,27 +710,6 @@ function resultV(){
       <p>${flat?t("flat"):t("heroP")}</p>
     </div>
 
-    <aside class="a-side">
-    <div class="card stack" id="nt-book">
-      ${S.booked?`<div class="done"><b>${t("doneH")}</b><span>${t("doneP")(b.n, dObj?dObj.wd+", "+dObj.dm:S.day, S.time)}</span></div>`:`
-      <div class="stack tight"><span class="eyebrow" style="color:var(--accent)">${t("bookEy")}</span><h3 style="font-size:20px;line-height:1.3">${t("bookH")}</h3><p class="sub" style="font-size:14px">${t("bookSub")(n3)}</p></div>
-      <ul class="blist">${t("bookList").map(x=>`<li>${x}</li>`).join("")}</ul>
-      <div><span class="lbl">${t("branch")}</span>
-        <div class="branches">${BRANCHES.map(x=>`<button class="chip" type="button" id="nt-b-${x.id}" data-br="${x.id}" aria-pressed="${S.branch===x.id}">${x.n}<small>${x[S.lang]}</small></button>`).join("")}</div></div>
-      <div><span class="lbl">${t("day")}</span>
-        <div class="days">${days.map(x=>`<button class="chip" type="button" id="nt-day-${x.id}" data-day="${x.id}" aria-pressed="${S.day===x.id}">${x.wd}<small>${x.dm}</small></button>`).join("")}</div></div>
-      <div><span class="lbl">${t("time")}</span>
-        <div class="chips">${TIMES.map(x=>`<button class="chip" type="button" id="nt-t-${x.replace(":","")}" data-time="${x}" aria-pressed="${S.time===x}">${x}</button>`).join("")}</div></div>
-      ${S.bookErr?`<div class="err center" style="margin:0">${t("bookErr")}</div>`:""}
-      <button class="btn grad" type="button" id="nt-bookbtn">${t("book")}</button>
-      <p class="note center">${t("bookNote")}</p>`}
-    </div>
-
-    <div class="card count">
-      <b class="g">${m}</b>
-      <div class="stack tight"><h3>${t("cntH")(m)}</h3><p class="sub" style="font-size:14px">${t("cntP")(S.grade)}</p></div>
-    </div>
-    </aside>
 
     <div class="card stack a-rank">
       <h3>${t("rankH")}</h3>
@@ -741,11 +727,17 @@ function resultV(){
       <textarea id="nt-sharetext" readonly aria-label="share" style="position:absolute;left:-9999px">${esc(shareText+" "+shareUrl)}</textarea>
     </div>
 
-    ${S.booked?"":`<div class="final a-final">
+    <div class="final a-final" id="nt-book">
       <h3>${t("finalH")(n3)}</h3>
-      <p>${t("finalP")}</p>
-      <button class="btn grad" type="button" id="nt-tobook">${t("finalBtn")}</button>
-    </div>`}
+      <p>${S.booked?t("sentP")(fmtPhone(S.phone)):t("finalP")}</p>
+      ${S.booked?`<div class="sentok">✓ ${t("sentH")}</div>`:`<button class="btn grad" type="button" id="nt-tobook">${t("finalBtn")}</button>`}
+    </div>
+    ${S.modal?`<div class="ntm" role="dialog" aria-modal="true" aria-labelledby="nt-mh"><div class="ntm-card">
+      <div class="ntm-ic">✓</div>
+      <h3 id="nt-mh">${t("sentH")}</h3>
+      <p>${t("sentP")(fmtPhone(S.phone))}</p>
+      <button class="btn grad" type="button" id="nt-mok">${t("sentOk")}</button>
+    </div></div>`:""}
     <button class="back a-again" type="button" id="nt-again">${t("again")}</button>
   </div>`;
 }
@@ -775,13 +767,13 @@ const PT = {
   ru:{ title:"Результат теста", sub:"Какая спецшкола Ташкента подходит ребёнку", parent:"Родитель", grade:"Класс", date:"Дата", top:"3 школы, которые подходят ребёнку",
        rank:"Совместимость со всеми школами", ans:"Ответы о ребёнке", yes:"Да", no:"Нет", deep:"Уточнено дополнительным тестом",
        next:"Что дальше", steps:[["Бесплатная диагностика","Проверим уровень по математике и логике, покажем пробелы."],["Подбор группы","Группы до 12 человек по уровню, обучение на узбекском или русском."],["Подготовка ~10 месяцев","3 занятия в неделю, ежемесячная диагностика, куратор в Telegram."]],
-       booked:(b,d,tm)=>`Вы записаны на диагностику: ${b} · ${d} · ${tm}. Узнаете, хватает ли знаний для поступления в эти 3 школы.`, notBooked:"На бесплатной диагностике узнаете, хватает ли знаний для поступления в эти 3 школы. Скидка на обучение до 40%, есть рассрочка.",
+       sent:"Заявка на бесплатную диагностику отправлена — специалист Newton Academy свяжется с вами. Узнаете, хватает ли знаний для поступления в эти 3 школы.", notBooked:"На бесплатной диагностике узнаете, хватает ли знаний для поступления в эти 3 школы. Скидка на обучение до 40%, есть рассрочка.",
        note:"Тест показывает, насколько интересы и характер ребёнка совпадают с профилем школы. Это не экзамен и не гарантия поступления.",
        legend:["70–100% — отлично подходит","45–69% — подходит, нужна подготовка","до 45% — подходит меньше"], file:"Newton-rezultat-testa" },
   uz:{ title:"Test natijasi", sub:"Farzandga Toshkentdagi qaysi ixtisoslashtirilgan maktab mos", parent:"Ota-ona", grade:"Sinf", date:"Sana", top:"Farzandingizga mos 3 ta maktab",
        rank:"Barcha maktablar bilan moslik", ans:"Farzand haqidagi javoblar", yes:"Ha", no:"Yo'q", deep:"Qo'shimcha test bilan aniqlashtirildi",
        next:"Keyingi qadamlar", steps:[["Bepul diagnostika","Matematika va mantiq bo'yicha darajani tekshiramiz, bo'shliqlarni ko'rsatamiz."],["Guruh tanlash","Darajaga qarab 12 kishigacha guruhlar, o'zbek yoki rus tilida."],["~10 oy tayyorgarlik","Haftada 3 dars, har oy diagnostika, Telegramda kurator."]],
-       booked:(b,d,tm)=>`Diagnostikaga yozildingiz: ${b} · ${d} · ${tm}. Bu 3 ta maktabga kirish uchun bilim yetarlimi — bilib olasiz.`, notBooked:"Bepul diagnostikada bu 3 ta maktabga kirish uchun bilim yetarlimi — bilib olasiz. O'qishga 40% gacha chegirma, bo'lib to'lash mavjud.",
+       sent:"Bepul diagnostikaga ariza yuborildi — Newton Academy mutaxassisi siz bilan bog'lanadi. Bu 3 ta maktabga kirish uchun bilim yetarlimi — bilib olasiz.", notBooked:"Bepul diagnostikada bu 3 ta maktabga kirish uchun bilim yetarlimi — bilib olasiz. O'qishga 40% gacha chegirma, bo'lib to'lash mavjud.",
        note:"Test farzandingizning qiziqishlari va xarakteri maktab yo'nalishiga qanchalik mosligini ko'rsatadi. Bu imtihon emas va kirishga kafolat bermaydi.",
        legend:["70–100% — juda mos","45–69% — mos, tayyorgarlik kerak","45% gacha — kamroq mos"], file:"Newton-test-natijasi" }
 };
@@ -870,7 +862,7 @@ function pdfHTML(){
       <div><div class="lbl">${L.rank}</div>${rowsH}</div>
       <div class="two">
         <div class="cnt"><b>${m}</b><span>${t("cntH")(m)}</span></div>
-        <div class="cta"><b>${t("bookH")}</b><span>${S.booked&&b?L.booked(b.n+" ("+b[S.lang]+")", dObj?dObj.dm:S.day, S.time):L.notBooked}</span></div>
+        <div class="cta"><b>${t("bookH")}</b><span>${S.booked?L.sent:L.notBooked}</span></div>
       </div>
     </div>
     ${foot}
@@ -970,7 +962,9 @@ function bind(){
     go("result");
   });
   on("#nt-share", ()=>track("Share",{channel:"telegram"}));
-  on("#nt-tobook", ()=>{ const bk=$("#nt-book"); if(bk) bk.scrollIntoView({block:"start",behavior:"smooth"}); track("FinalCTA"); });
+  on("#nt-tobook", ()=>{ if(S.booked) return; S.booked=true; S.modal=true; send("booking"); track("Schedule",{source:"result"},true); render(); });
+  on("#nt-mok", ()=>{ S.modal=false; render(); });
+  const ov=$(".ntm"); if(ov){ ov.onclick=e=>{ if(e.target===ov){ S.modal=false; render(); } }; const ok=$("#nt-mok"); if(ok) ok.focus(); }
   const pb=$("#nt-pdf"); if(pb) pb.onclick=()=>downloadPdf(pb);
   on("#nt-copy", ()=>{
     const txt=$("#nt-sharetext").value; const ok=()=>{ S.copied=true; render(); track("Share",{channel:"copy"}); };
