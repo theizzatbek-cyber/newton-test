@@ -1,0 +1,994 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Qaysi maktab mos? — Newton Academy test</title>
+<meta name="description" content="Toshkentdagi qaysi ixtisoslashtirilgan maktab farzandingizga mos? 16 ta savol, 3 daqiqa — 8 ta maktab bo'yicha reyting. Newton Academy.">
+<meta property="og:title" content="Какая спецшкола Ташкента подходит вашему ребёнку?">
+<meta property="og:description" content="16 вопросов «да / нет», 3 минуты — рейтинг 8 спецшкол и 3 школы, которые подходят ребёнку. Newton Academy.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#0F172A">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%234F46E5'/%3E%3Cstop offset='.5' stop-color='%23A855F7'/%3E%3Cstop offset='1' stop-color='%23EC4899'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='url(%23g)'/%3E%3Ctext x='32' y='44' font-family='Arial' font-weight='700' font-size='34' text-anchor='middle' fill='white'%3EN%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap">
+<style>
+/* Layout: одна колонка 600px. Путь: старт → класс → 16 вопросов → номер → рейтинг → запись в филиал */
+:root{
+  --bg:#FAFAFA; --card:#FFFFFF; --line:#E2E8F0; --line-2:#F1F5F9;
+  --fg:#0F172A; --fg-2:#475569; --muted:#94A3B8;
+  --good:#10B981; --bad:#EF4444; --mid:#F59E0B;
+  --accent:#4F46E5; --accent-soft:#EEF2FF; --dark:#0F172A; --on-dark:#FFFFFF; --on-dark-2:#A5B4FC;
+  --foot:#0F172A; --foot-fg:#CBD5E1; --foot-mute:#64748B; --foot-line:#1E293B;
+  --grad:linear-gradient(135deg,#4F46E5 0%,#A855F7 50%,#EC4899 100%);
+  --font:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0B1020; --card:#131A2E; --line:#243049; --line-2:#1A2338;
+  --fg:#E8ECF5; --fg-2:#A7B1C7; --muted:#6B7690; --accent:#8B8CF8; --accent-soft:#1E2246; --dark:#1A2340; --foot:#060912; --foot-line:#1A2338; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0B1020; --card:#131A2E; --line:#243049; --line-2:#1A2338;
+  --fg:#E8ECF5; --fg-2:#A7B1C7; --muted:#6B7690; --accent:#8B8CF8; --accent-soft:#1E2246; --dark:#1A2340; --foot:#060912; --foot-line:#1A2338; color-scheme:dark}
+body{background:var(--bg);margin:0}
+#nt-app,#nt-app *{box-sizing:border-box}
+#nt-app{background:var(--bg);color:var(--fg);font-family:var(--font);font-size:16px;line-height:1.5;text-align:left;
+  display:flex;flex-direction:column;min-height:100vh}
+#nt-app .main{flex:1;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+#nt-app button{-webkit-appearance:none;appearance:none;touch-action:manipulation;font-family:var(--font)}
+#nt-app .wrap{max-width:1120px;margin:0 auto;display:flex;flex-direction:column;gap:24px}
+#nt-app .narrow{max-width:680px;width:100%;margin-inline:auto}
+#nt-app .split{display:grid;grid-template-columns:minmax(0,1fr);gap:24px}
+#nt-app .rgrid{display:grid;grid-template-columns:minmax(0,1fr);grid-template-areas:"hero" "side" "rank" "share" "final" "again";gap:16px}
+#nt-app .a-hero{grid-area:hero}#nt-app .a-side{grid-area:side;display:flex;flex-direction:column;gap:16px}
+#nt-app .a-rank{grid-area:rank}#nt-app .a-share{grid-area:share}#nt-app .a-again{grid-area:again;justify-self:center}
+/* список школ на старте */
+#nt-app .slist{display:flex;flex-direction:column}
+#nt-app .sitem{display:grid;grid-template-columns:40px minmax(0,1fr);gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--line-2)}
+#nt-app .sitem:first-child{border-top:0;padding-top:0}
+#nt-app .sitem b{display:block;font-size:14px;line-height:1.3}
+#nt-app .sitem small{display:block;font-size:12px;color:var(--fg-2);line-height:1.35}
+/* подвал */
+#nt-app .foot{background:var(--foot);color:var(--foot-fg);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px calc(20px + env(safe-area-inset-bottom,0px))}
+#nt-app .foot .wrap{gap:16px}
+#nt-app .frow{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px 24px}
+#nt-app .fbrand{font-weight:800;font-size:17px;letter-spacing:-.02em;color:#fff}
+#nt-app .fbrand span{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+#nt-app .ftag{font-size:13px;color:var(--foot-fg);max-width:420px;margin-top:2px}
+#nt-app .flinks{display:flex;flex-wrap:wrap;gap:8px}
+#nt-app .flinks a{color:#fff;text-decoration:none;font-size:13px;font-weight:600;border:1px solid var(--foot-line);border-radius:999px;padding:7px 13px}
+#nt-app .flinks a:hover{border-color:#475569}
+#nt-app .fstats{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px}
+#nt-app .fstats b{font-family:var(--mono);color:#fff}
+#nt-app .fbottom{border-top:1px solid var(--foot-line);padding-top:14px;font-size:12px;color:var(--foot-mute);display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 16px}
+#nt-app .top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+#nt-app .brand{font-weight:800;letter-spacing:-.02em;font-size:18px}
+#nt-app .g,#nt-app .brand span{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+#nt-app .lang{display:flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--card)}
+#nt-app .lang button{border:0;background:none;color:var(--fg-2);font-weight:600;font-size:13px;padding:6px 12px;border-radius:999px;cursor:pointer}
+#nt-app .lang button[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
+#nt-app .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px}
+#nt-app h1{font-size:clamp(26px,6.6vw,34px);line-height:1.12;letter-spacing:-.03em;margin:0;text-wrap:balance}
+#nt-app h2{font-size:21px;line-height:1.25;letter-spacing:-.02em;margin:0;text-wrap:balance}
+#nt-app h3{font-size:17px;letter-spacing:-.01em;margin:0}
+#nt-app p{margin:0}
+#nt-app .sub{color:var(--fg-2)}
+#nt-app .eyebrow{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+#nt-app .stack{display:flex;flex-direction:column;gap:16px}
+#nt-app .tight{gap:8px}
+#nt-app .center{text-align:center}
+#nt-app .facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+#nt-app .fact{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px}
+#nt-app .fact b{display:block;font:700 22px var(--mono);letter-spacing:-.02em}
+#nt-app .fact span{font-size:12px;color:var(--fg-2);line-height:1.3;display:block}
+#nt-app .trust{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--fg-2)}
+#nt-app .trust span::before{content:"✓ ";color:var(--good);font-weight:700}
+#nt-app label,#nt-app .lbl{font-size:14px;font-weight:600;display:block;margin-bottom:6px}
+#nt-app .opt{font-weight:500;color:var(--muted)}
+#nt-app input{width:100%;font:500 16px var(--font);color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:13px 14px;outline:none}
+#nt-app input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+#nt-app .err{color:var(--bad);font-size:13px;margin-top:6px}
+#nt-app .chips{display:flex;flex-wrap:wrap;gap:8px}
+#nt-app .chip{font-weight:600;font-size:15px;padding:11px 14px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer;min-width:48px}
+#nt-app .chip[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+#nt-app .chip:disabled{opacity:.4;cursor:default}
+#nt-app .grades{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+#nt-app .grades .chip{font:700 20px var(--mono);padding:16px 0;min-width:0}
+#nt-app .branches{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+#nt-app .branches .chip{text-align:left;padding:11px 12px;font-size:14px;min-width:0}
+#nt-app .branches .chip small{display:block;font-weight:500;color:var(--fg-2);font-size:12px}
+#nt-app .days{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+#nt-app .days .chip{flex:none;text-align:center;padding:9px 12px;font-size:14px}
+#nt-app .days .chip small{display:block;font-weight:500;font-size:12px;color:var(--fg-2)}
+#nt-app .btn{font-weight:700;font-size:16px;border:0;border-radius:12px;padding:15px 18px;cursor:pointer;background:var(--fg);color:var(--bg);width:100%;text-align:center;text-decoration:none;display:block}
+#nt-app .btn.grad{background:var(--grad);color:#fff}
+#nt-app .btn.ghost{background:transparent;color:var(--fg);border:1px solid var(--line)}
+#nt-app .btn.tg{background:#229ED9;color:#fff}
+#nt-app .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#nt-app .note{font-size:12px;color:var(--muted)}
+#nt-app button:focus-visible,#nt-app input:focus-visible,#nt-app a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* вопрос */
+#nt-app .prog{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+#nt-app .prog i{display:block;height:100%;background:var(--grad);border-radius:3px;transition:width .3s ease}
+#nt-app .qhead{display:flex;justify-content:space-between;align-items:center;gap:10px}
+#nt-app .qnum{font:700 13px var(--mono);color:var(--muted)}
+#nt-app .q{font-size:clamp(20px,5vw,24px);font-weight:700;line-height:1.3;letter-spacing:-.015em;text-wrap:balance;min-height:3.9em}
+#nt-app .yn{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#nt-app .yn button{font-weight:800;font-size:18px;padding:20px 10px;border-radius:14px;cursor:pointer;border:1.5px solid var(--line);background:var(--bg);color:var(--fg)}
+#nt-app .yn button.yes:hover{border-color:var(--good);color:var(--good)}
+#nt-app .yn button.no:hover{border-color:var(--bad);color:var(--bad)}
+#nt-app .back{background:none;border:0;color:var(--fg-2);font-weight:600;font-size:14px;cursor:pointer;padding:4px 0;align-self:flex-start}
+#nt-app .ic{width:40px;height:40px;border-radius:11px;display:grid;place-items:center;font:700 12px var(--mono);color:#fff;flex:none}
+/* замок */
+#nt-app .teaser{position:relative;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:var(--card);padding:14px}
+#nt-app .teaser .rows{filter:blur(5px);user-select:none;display:flex;flex-direction:column;gap:10px}
+#nt-app .teaser .lock{position:absolute;inset:0;display:grid;place-items:center;font-weight:700;font-size:14px;color:var(--fg)}
+#nt-app .teaser .lock span{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:8px 14px}
+/* рейтинг */
+#nt-app .hero{background:var(--dark);color:var(--on-dark);border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:14px}
+#nt-app .hero .eyebrow{color:var(--on-dark-2)}
+#nt-app .hero .big{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap}
+#nt-app .hero .pct{font:700 56px/1 var(--mono);letter-spacing:-.04em}
+#nt-app .hero .pct small{font-size:26px}
+#nt-app .hero .nm{font-size:20px;font-weight:800;letter-spacing:-.015em;line-height:1.25;flex:1;min-width:180px}
+#nt-app .hero p{color:#CBD5E1;font-size:14px}
+#nt-app .rlist{display:flex;flex-direction:column}
+#nt-app .rrow{display:grid;grid-template-columns:24px minmax(0,1fr) 52px;gap:10px;align-items:center;padding:12px 0;border-top:1px solid var(--line-2)}
+#nt-app .rrow:first-child{border-top:0}
+#nt-app .rrow .n{font:700 13px var(--mono);color:var(--muted)}
+#nt-app .rrow .t{min-width:0}
+#nt-app .rrow .t b{display:block;font-size:14px;line-height:1.3}
+#nt-app .bar{height:6px;border-radius:3px;background:var(--line-2);overflow:hidden;margin-top:6px}
+#nt-app .bar i{display:block;height:100%;border-radius:3px}
+#nt-app .rrow .p{font:700 15px var(--mono);text-align:right}
+#nt-app .link{background:none;border:0;color:var(--accent);font-weight:600;font-size:13px;cursor:pointer;padding:4px 0 0}
+#nt-app .t3list{display:flex;flex-direction:column}
+#nt-app .t3{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:12px;align-items:center;padding:14px 0;border-top:1px solid rgba(255,255,255,.1)}
+#nt-app .t3:first-child{border-top:0;padding-top:4px}
+#nt-app .t3n{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font:700 13px var(--mono);background:rgba(255,255,255,.1);color:#fff}
+#nt-app .t3:first-child .t3n{background:var(--grad)}
+#nt-app .t3 b{display:block;font-size:16px;line-height:1.3}
+#nt-app .t3 small{display:block;font-size:13px;color:#94A3B8;margin-top:2px}
+#nt-app .t3p{font:700 28px var(--mono);letter-spacing:-.03em;white-space:nowrap}
+#nt-app .t3p small{display:inline;color:inherit;margin:0}
+#nt-app .fit{display:inline-block;font-size:11px;font-weight:700;color:var(--good);border:1px solid var(--good);border-radius:999px;padding:1px 8px;margin-left:6px;vertical-align:1px;text-transform:uppercase;letter-spacing:.04em}
+#nt-app .rrow.rest b{color:var(--fg-2);font-weight:600}
+#nt-app .rsep{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:14px 0 2px;border-top:1px solid var(--line)}
+#nt-app .blist{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
+#nt-app .blist li{display:grid;grid-template-columns:22px 1fr;gap:8px;font-size:14px;line-height:1.4}
+#nt-app .blist li::before{content:"✓";width:22px;height:22px;border-radius:7px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-weight:800;font-size:12px}
+#nt-app .final{background:var(--dark);color:var(--on-dark);border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:12px;position:relative;overflow:hidden}
+#nt-app .final::before{content:"";position:absolute;inset:0 0 auto 0;height:4px;background:var(--grad)}
+#nt-app .final h3{font-size:20px;line-height:1.3;color:#fff}
+#nt-app .final p{color:#CBD5E1;font-size:14px}
+#nt-app .a-final{grid-area:final}
+#nt-app .tagok{font-size:12px;color:var(--good);font-weight:600}
+#nt-app .info{background:var(--line-2);border-radius:12px;padding:12px 14px;font-size:14px;color:var(--fg-2)}
+#nt-app .info b{color:var(--fg)}
+#nt-app .count{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center}
+#nt-app .count b{font:700 34px/1 var(--mono);letter-spacing:-.03em}
+#nt-app .done{display:flex;flex-direction:column;gap:6px;background:var(--accent-soft);border-radius:12px;padding:16px}
+#nt-app .done b{font-size:16px}
+@media (min-width:900px){
+  #nt-app .main{padding-block:28px 64px;display:flex}
+  #nt-app .main>.wrap{flex:1;width:100%}
+  #nt-app #nt-view{flex:1;display:flex;flex-direction:column;justify-content:center}
+  #nt-app .wrap{gap:32px}
+  #nt-app .split{grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:48px;align-items:start}
+  #nt-app .split.mid{align-items:center}
+  #nt-app h1{font-size:clamp(36px,4vw,52px)}
+  #nt-app h2{font-size:28px}
+  #nt-app .lead-big{font-size:18px;max-width:34em}
+  #nt-app .intro-cta{max-width:360px}
+  #nt-app .card{padding:32px}
+  #nt-app .narrow .card{padding:40px}
+  #nt-app .q{font-size:30px}
+  #nt-app .yn button{padding:26px 10px;font-size:20px}
+  #nt-app .grades{grid-template-columns:repeat(9,minmax(0,1fr))}
+  #nt-app .rgrid{grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);grid-template-areas:"hero side" "rank side" "share side" "final side" "again side";column-gap:28px;row-gap:20px;align-items:start}
+  #nt-app .a-side{position:sticky;top:20px}
+  #nt-app .hero{padding:32px}
+  #nt-app .hero .pct{font-size:72px}
+  #nt-app .hero .nm{font-size:24px}
+  #nt-app .branches{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #nt-app .foot{padding-block:32px}
+}
+@media (max-width:420px){#nt-app .row2{grid-template-columns:1fr}#nt-app .card,#nt-app .hero{padding:20px}#nt-app .fact b{font-size:19px}#nt-app .hero .pct{font-size:48px}}
+@media (prefers-reduced-motion:no-preference){#nt-app .screen{animation:ntin .25s ease}}
+@keyframes ntin{from{opacity:.4;transform:translateY(6px)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+
+
+<div id="nt-app"><div class="main"><div class="wrap">
+  <div class="top">
+    <div class="brand">Newton <span>Academy</span></div>
+    <div class="lang" role="group" aria-label="Til / Язык">
+      <button id="nt-l-uz" type="button" data-l="uz">UZ</button>
+      <button id="nt-l-ru" type="button" data-l="ru">RU</button>
+    </div>
+  </div>
+  <div id="nt-view"></div>
+</div></div>
+<footer class="foot"><div class="wrap" id="nt-foot"></div></footer>
+</div>
+
+<script>
+(function(){
+"use strict";
+/* ============================ НАСТРОЙКИ ============================
+   Заполните перед размещением на Tilda.                                */
+const CONFIG = {
+  TG_BOT_TOKEN: "",        // токен бота от @BotFather
+  TG_CHAT_ID:   "",        // id группы РОПов, напр. "-1001234567890"
+  WEBHOOK_URL:  "",        // Albato/Make → amoCRM (сделка + теги)
+  SHEETS_URL:   "https://script.google.com/macros/s/AKfycbwoXSpxphSYrtyNn2b7n_K6K4QGcaEYbE1w89dZHoSIHdw5WWEH9JleJ3P0TpDW3Atv/exec",        // адрес веб-приложения Google Apps Script (см. newton-sheets-apps-script.gs)
+  PAGE_URL:     "",        // адрес страницы теста, для кнопки «Отправить второму родителю»
+  YM_ID:        0,         // номер счётчика Яндекс.Метрики (если есть)
+  EXAM_MONTH:   7,         // месяц экзаменов в Президентские школы (июль)
+  SOURCE:       "school-fit-test"
+};
+/* Пиксель Meta (fbq), GTM (dataLayer) и Метрика (ym) подхватываются сами, если уже стоят на сайте.
+   События: ViewContent → TestStart → TestHalf → TestComplete → Lead → Schedule (+ Share, DeepCheck). */
+
+const BRANCHES = [
+  {id:"rakat",   n:"Rakat",     ru:"Яккасарай, главный офис", uz:"Yakkasaroy, bosh ofis"},
+  {id:"ganga",   n:"Ganga",     ru:"Шайхонтохур",             uz:"Shayxontohur"},
+  {id:"sergeli", n:"Sergeli",   ru:"Сергели",                 uz:"Sergeli"},
+  {id:"chilonzor",n:"Chilonzor",ru:"Чиланзар",                uz:"Chilonzor"},
+  {id:"parkent", n:"Parkent",   ru:"Мирзо-Улугбек",           uz:"Mirzo Ulug'bek"}
+];
+const TIMES = ["10:00","12:00","15:00","17:00","19:00"];
+
+/* ============================ ТЕКСТЫ ============================ */
+const T = {
+  ru:{
+    h1a:"Какая спецшкола Ташкента ", h1b:"подходит вашему ребёнку?",
+    lead:"16 вопросов «да / нет» о характере и интересах ребёнка — без примеров и задач. Сразу получите рейтинг 8 школ: от Президентской до Аль-Хорезми.",
+    fa:"школ в рейтинге", fb:"вопросов", fc:"минуты",
+    start:"Начать тест", startNote:"Бесплатно · номер телефона не нужен для старта",
+    trust:["3000+ учеников","группы до 12","куратор в Telegram","рассрочка"],
+    gradeQ:"В каком классе сейчас ребёнок?", gradeSub:"От класса зависит, сколько времени есть на подготовку.",
+    of:"из", yes:"Да", no:"Нет", back:"← Назад",
+    gateH:"Результат готов", gateHi:()=>"Мы нашли 3 школы, которые подходят вашему ребёнку по интересам",
+    gateSub:"Укажите номер — покажем рейтинг и отправим его куратору, чтобы подобрать бесплатную диагностику.",
+    lock:"🔒 Откроется после ввода номера",
+    name:"Ваше имя", namePh:"Например, Дилноза", phone:"Номер телефона", phonePh:"90 123 45 67",
+    who:"Кем вы приходитесь ребёнку", opt:"(необязательно)", dad:"Папа", mom:"Мама",
+    errName:"Введите имя", errPhone:"Номер должен быть из 9 цифр, например 90 123 45 67", fix:"Заполните поля, отмеченные красным",
+    show:"Показать результат", tgContact:"Поделиться номером из Telegram",
+    privacy:"Номер видит только куратор Newton Academy. Не передаём третьим лицам и не рассылаем спам.",
+    topEy:"3 школы, которые подходят ребёнку", heroP:"Эти школы лучше всего совпадают с интересами и характером ребёнка. Остальные подходят меньше.", fitTag:"подходит", restH:"Подходят меньше", rankH:"Подходимость по всем 8 школам", deep:"Уточнить — ещё 8 вопросов", deepOk:"✓ уточнено",
+    flat:"Ярко выраженного профиля пока нет — для ребёнка этого возраста это нормально. На бесплатной диагностике подберём направление по знаниям.",
+    fitHi:"Отлично подходит", fitMid:"Подходит, нужна подготовка", fitLo:"Есть варианты точнее",
+    cntH:(m)=>`${m} ${pl(m,"месяц","месяца","месяцев")} до экзаменов`,
+    cntP:(g)=>`Экзамены — в июле, документы принимают с мая. Средний срок подготовки в Newton — 10 месяцев${g<=3?". У вас есть запас — самое время начать без спешки.":"."}`,
+    bookEy:"Бесплатная диагностика знаний", bookH:"Интересы подходят. А знаний хватит для поступления?",
+    bookSub:(n)=>`Тест показал, к каким школам у ребёнка лежит душа. Но на вступительных экзаменах проверяют знания — математику, логику, английский. На бесплатной диагностике вы узнаете, хватит ли знаний для поступления в эти 3 школы (${n}) и что именно нужно подтянуть.`,
+    bookList:["Шансы на поступление в каждую из 3 школ","Пробелы по математике и логике — по темам","План подготовки до экзаменов","Скидка на обучение до 40% по итогам диагностики"],
+    finalH:(n)=>`${n}: хватит ли знаний для поступления?`, finalP:"Интерес — это половина успеха. Вторая половина — подготовка. Диагностика бесплатная и ни к чему не обязывает.", finalBtn:"Записаться на бесплатную диагностику",
+    branch:"Филиал", day:"День", time:"Время", tomorrow:"Завтра",
+    book:"Узнать шансы на поступление — бесплатно", bookErr:"Выберите филиал, день и время",
+    bookNote:"Есть рассрочка. Куратор позвонит, чтобы подтвердить время.",
+    doneH:"Вы записаны!", doneP:(b,d,t)=>`${b} · ${d} · ${t}. Куратор Newton Academy позвонит в течение 15 минут, чтобы подтвердить запись.`,
+    shareH:"Сохраните и отправьте результат", pdf:"Скачать результат в PDF", pdfWait:"Готовим PDF…", pdfErr:"Не удалось создать PDF. Проверьте интернет и попробуйте ещё раз.", shareBtn:"Отправить в Telegram", copy:"Скопировать", copied:"Скопировано",
+    shareTxt:(n)=>`Мы прошли тест Newton Academy: по интересам нашему ребёнку подходят 3 школы — ${n}. Пройди тоже, займёт 3 минуты:`,
+    again:"Пройти тест заново", about:"О школе:", inList:"Школы в рейтинге", ftag:"Готовим детей 1–9 классов к Президентским и специализированным школам Узбекистана", fst:["учеников","филиалов в Ташкенте","мес. — средний срок подготовки"], fsite:"Сайт", rights:"Все права защищены", week:["Вс","Пн","Вт","Ср","Чт","Пт","Сб"]
+  },
+  uz:{
+    h1a:"Toshkentdagi qaysi ixtisoslashtirilgan maktab ", h1b:"farzandingizga mos?",
+    lead:"Farzandingizning xarakteri va qiziqishlari haqida 16 ta «ha / yo'q» savol — misol va masalalarsiz. Darhol 8 ta maktab reytingini olasiz: Prezident maktabidan Al-Xorazmiygacha.",
+    fa:"ta maktab reytingda", fb:"ta savol", fc:"daqiqa",
+    start:"Testni boshlash", startNote:"Bepul · boshlash uchun telefon raqami shart emas",
+    trust:["3000+ o'quvchi","guruhda 12 tagacha","Telegramda kurator","bo'lib to'lash"],
+    gradeQ:"Farzandingiz hozir nechanchi sinfda?", gradeSub:"Tayyorgarlik uchun qancha vaqt borligi sinfga bog'liq.",
+    of:"/", yes:"Ha", no:"Yo'q", back:"← Orqaga",
+    gateH:"Natija tayyor", gateHi:()=>"Farzandingizga qiziqishlari bo'yicha mos keladigan 3 ta maktabni topdik",
+    gateSub:"Raqamingizni kiriting — reytingni ko'rsatamiz va bepul diagnostikani belgilash uchun kuratorga yuboramiz.",
+    lock:"🔒 Raqam kiritilgandan keyin ochiladi",
+    name:"Ismingiz", namePh:"Masalan, Dilnoza", phone:"Telefon raqamingiz", phonePh:"90 123 45 67",
+    who:"Farzandingizga kim bo'lasiz", opt:"(majburiy emas)", dad:"Dadasi", mom:"Onasi",
+    errName:"Ismingizni kiriting", errPhone:"Raqam 9 ta raqamdan iborat bo'lishi kerak, masalan 90 123 45 67", fix:"Qizil bilan belgilangan maydonlarni to'ldiring",
+    show:"Natijani ko'rish", tgContact:"Telegramdagi raqamni yuborish",
+    privacy:"Raqamingizni faqat Newton Academy kuratori ko'radi. Uchinchi shaxslarga berilmaydi, spam yuborilmaydi.",
+    topEy:"Farzandingizga mos 3 ta maktab", heroP:"Bu maktablar farzandingizning qiziqishlari va xarakteriga eng ko'p mos keladi. Qolganlari kamroq mos.", fitTag:"mos", restH:"Kamroq mos", rankH:"8 ta maktab bo'yicha moslik", deep:"Aniqlashtirish — yana 8 ta savol", deepOk:"✓ aniqlashtirildi",
+    flat:"Hozircha aniq yo'nalish ko'rinmayapti — bu yoshdagi bola uchun bu normal holat. Bepul diagnostikada bilimiga qarab yo'nalish tanlaymiz.",
+    fitHi:"Juda mos", fitMid:"Mos, tayyorgarlik kerak", fitLo:"Aniqroq variantlar bor",
+    cntH:(m)=>`Imtihonlargacha ${m} oy`,
+    cntP:(g)=>`Imtihonlar — iyulda, hujjatlar maydan qabul qilinadi. Newtonda o'rtacha tayyorgarlik muddati — 10 oy${g<=3?". Vaqtingiz bor — shoshilmasdan boshlash uchun eng to'g'ri payt.":"."}`,
+    bookEy:"Bilimlarni bepul diagnostika qilish", bookH:"Qiziqishlar mos. Bilim kirish uchun yetarlimi?",
+    bookSub:(n)=>`Test farzandingiz qaysi maktablarga moyilligini ko'rsatdi. Ammo kirish imtihonlarida bilim tekshiriladi — matematika, mantiq, ingliz tili. Bepul diagnostikada bu 3 ta maktabga (${n}) kirish uchun bilim yetarlimi va nimani kuchaytirish kerakligini bilib olasiz.`,
+    bookList:["3 ta maktabning har biriga kirish imkoniyati","Matematika va mantiq bo'yicha bo'shliqlar — mavzular bo'yicha","Imtihonlargacha tayyorgarlik rejasi","Diagnostika natijasiga ko'ra o'qishga 40% gacha chegirma"],
+    finalH:(n)=>`${n}: kirish uchun bilim yetarlimi?`, finalP:"Qiziqish — muvaffaqiyatning yarmi. Ikkinchi yarmi — tayyorgarlik. Diagnostika bepul va hech narsaga majburlamaydi.", finalBtn:"Bepul diagnostikaga yozilish",
+    branch:"Filial", day:"Kun", time:"Vaqt", tomorrow:"Ertaga",
+    book:"Kirish imkoniyatini bilish — bepul", bookErr:"Filial, kun va vaqtni tanlang",
+    bookNote:"Bo'lib to'lash mavjud. Kurator vaqtni tasdiqlash uchun qo'ng'iroq qiladi.",
+    doneH:"Siz yozildingiz!", doneP:(b,d,t)=>`${b} · ${d} · ${t}. Newton Academy kuratori yozilishni tasdiqlash uchun 15 daqiqa ichida qo'ng'iroq qiladi.`,
+    shareH:"Natijani saqlang va yuboring", pdf:"Natijani PDF ko'rinishida yuklab olish", pdfWait:"PDF tayyorlanmoqda…", pdfErr:"PDF yaratib bo'lmadi. Internetni tekshirib, qayta urinib ko'ring.", shareBtn:"Telegramda yuborish", copy:"Nusxa olish", copied:"Nusxa olindi",
+    shareTxt:(n)=>`Newton Academy testidan o'tdik: qiziqishlariga ko'ra farzandimizga 3 ta maktab mos keladi — ${n}. Sen ham o'tib ko'r, 3 daqiqa vaqt oladi:`,
+    again:"Testni qaytadan topshirish", about:"Maktab haqida:", inList:"Reytingdagi maktablar", ftag:"1–9-sinf o'quvchilarini Prezident va ixtisoslashtirilgan maktablarga tayyorlaymiz", fst:["o'quvchi","filial Toshkentda","oy — o'rtacha tayyorgarlik"], fsite:"Sayt", rights:"Barcha huquqlar himoyalangan", week:["Ya","Du","Se","Ch","Pa","Ju","Sh"]
+  }
+};
+function pl(n,a,b,c){const m10=n%10,m100=n%100;return m10===1&&m100!==11?a:(m10>=2&&m10<=4&&(m100<10||m100>=20))?b:c}
+
+/* ============================ ОБЩИЙ ТЕСТ ============================
+   y — баллы школам за «Да», n — за «Нет». Ключи: prez, khorezmi, ulugbek, ibnsino, filolog, tabiiy, iiv, qodiriy */
+const MAIN = [
+  {ru:"Ребёнку интереснее решать задачи, чем читать и писать тексты?", uz:"Farzandingizga matn o'qish va yozishdan ko'ra masala yechish qiziqroqmi?", y:{ulugbek:2,khorezmi:2,prez:1}, n:{filolog:2,qodiriy:2,ibnsino:1,tabiiy:1}},
+  {ru:"Математика — самый любимый предмет ребёнка?", uz:"Matematika — farzandingizning eng sevimli fanimi?", y:{ulugbek:3,khorezmi:2,prez:2}},
+  {ru:"Живая природа — животные, растения, тело человека — увлекает его больше, чем техника и компьютеры?", uz:"Tirik tabiat — hayvonlar, o'simliklar, inson tanasi — uni texnika va kompyuterdan ko'ra ko'proq qiziqtiradimi?", y:{tabiiy:3,ibnsino:2}, n:{khorezmi:2,ulugbek:1}},
+  {ru:"Говорит, что хочет стать врачом, или интересуется медициной?", uz:"Shifokor bo'lishni xohlashini aytadimi yoki tibbiyotga qiziqadimi?", y:{ibnsino:3,tabiiy:1}},
+  {ru:"Любит программировать, собирать роботов или разбираться, как устроены приложения?", uz:"Dasturlash, robot yig'ish yoki ilovalar qanday ishlashini o'rganishni yoqtiradimi?", y:{khorezmi:3,prez:1}},
+  {ru:"Спрашивает про физику: почему летают самолёты, что такое электричество, как устроен космос?", uz:"Fizika haqida so'raydimi: samolyot nega uchadi, elektr nima, koinot qanday tuzilgan?", y:{ulugbek:3,khorezmi:2,prez:1,tabiiy:1}},
+  {ru:"Любит опыты с веществами, наблюдать за природой или собирать коллекции?", uz:"Moddalar bilan tajriba, tabiatni kuzatish yoki kolleksiya yig'ishni yoqtiradimi?", y:{tabiiy:3,ibnsino:2}},
+  {ru:"Легко запоминает иностранные слова и с удовольствием учит английский?", uz:"Chet tilidagi so'zlarni oson eslab qoladimi va ingliz tilini zavq bilan o'rganadimi?", y:{filolog:3,prez:2}},
+  {ru:"Сочиняет стихи или истории, любит узбекскую литературу?", uz:"She'r yoki hikoya yozadimi, o'zbek adabiyotini yoqtiradimi?", y:{qodiriy:3,filolog:1}},
+  {ru:"Читает книги сам, без напоминаний?", uz:"Eslatmasdan o'zi kitob o'qiydimi?", y:{qodiriy:2,filolog:2,prez:1}},
+  {ru:"Любит спорт, строгий режим и форму?", uz:"Sport, qat'iy tartib va formani yoqtiradimi?", y:{iiv:3}},
+  {ru:"Готов жить в интернате, вдали от семьи?", uz:"Oiladan uzoqda, internatda yashashga tayyormi?", y:{iiv:3,prez:1}},
+  {ru:"Мечтает служить: в полиции, армии или спасателем?", uz:"Politsiya, armiya yoki qutqaruv xizmatida ishlashni orzu qiladimi?", y:{iiv:3}},
+  {ru:"Лидер в классе: выступает, участвует в конкурсах и проектах?", uz:"Sinfda yetakchimi: chiqish qiladi, tanlov va loyihalarda qatnashadimi?", y:{prez:3,qodiriy:1,iiv:1}},
+  {ru:"Хорошо учится сразу по многим предметам, а не по одному любимому?", uz:"Bitta sevimli fan emas, bir nechta fanlardan birdaniga yaxshi o'qiydimi?", y:{prez:3}, n:{ulugbek:1,khorezmi:1,filolog:1,qodiriy:1,tabiiy:1,ibnsino:1}},
+  {ru:"Спокойно относится к крови и уколам?", uz:"Qon va ukolga xotirjam qaraydimi?", y:{ibnsino:2,tabiiy:1}}
+];
+const SHORT = {prez:["Президентская школа","Prezident maktabi"],khorezmi:["Аль-Хорезми","Al-Xorazmiy"],ulugbek:["Мирзо Улугбек","Mirzo Ulug'bek"],ibnsino:["Ибн Сино","Ibn Sino"],filolog:["Филологическая школа","Filologiya maktabi"],tabiiy:["Школа естественных наук","Tabiiy fanlar maktabi"],iiv:["Школа-интернат МВД","IIV maktab-internati"],qodiriy:["Школа Абдуллы Кадыри","Abdulla Qodiriy maktabi"]};
+const short = id => SHORT[id][S.lang==="ru"?0:1];
+const shortRu = id => SHORT[id][0];
+const top3 = () => ranked().slice(0,3);
+const and3 = (ids, ru) => ids.map(ru?shortRu:short).join(", ");
+/* что проверять на диагностике по каждой школе — для скрипта РОПа */
+const FOCUS = {prez:"математике и английскому",khorezmi:"математике и логике",ulugbek:"математике",ibnsino:"биологии и химии",filolog:"языкам",tabiiy:"естественным наукам",iiv:"математике и логике",qodiriy:"родному языку и литературе"};
+
+const SCHOOLS = [
+  { id:"prez", color:"#4F46E5", tag:"PM",
+    ru:{n:"Президентская школа в Ташкенте", d:"STEAM, английский, критическое мышление", i:"Обучение на английском, упор на исследовательские проекты. Экзамен: 1 этап — математика, 2 этап — английский, логика и критическое мышление."},
+    uz:{n:"Toshkentdagi Prezident maktabi", d:"STEAM, ingliz tili, tanqidiy fikrlash", i:"Ta'lim ingliz tilida, tadqiqot loyihalariga urg'u. Imtihon: 1-bosqich — matematika, 2-bosqich — ingliz tili, mantiq va tanqidiy fikrlash."},
+    q:[
+      ["Ребёнок любит задачи, где нужно подумать, а не просто вспомнить правило?","Farzandingiz qoidani eslash emas, o'ylashni talab qiladigan masalalarni yoqtiradimi?",1],
+      ["С интересом занимается английским или уже неплохо на нём говорит?","Ingliz tiliga qiziqadimi yoki allaqachon yaxshi gapira oladimi?",1],
+      ["Часто спрашивает «почему?» и умеет отстаивать своё мнение?","Tez-tez «nega?» deb so'raydimi va o'z fikrini himoya qila oladimi?",1],
+      ["Любит работать в команде и выступать перед людьми?","Jamoada ishlash va odamlar oldida chiqishni yoqtiradimi?",1],
+      ["Готов к большой нагрузке — учёбе с утра до вечера?","Katta yuklamaga — ertalabdan kechgacha o'qishga tayyormi?",1],
+      ["Сам доводит начатое дело до конца, без напоминаний?","Boshlagan ishini eslatmasdan o'zi oxiriga yetkazadimi?",1],
+      ["Быстро бросает, если что-то не получилось с первого раза?","Birinchi urinishda chiqmasa, tez tashlab qo'yadimi?",0],
+      ["Интересуется сразу многим: наукой, технологиями, искусством?","Bir vaqtning o'zida ko'p narsaga qiziqadimi: fan, texnologiya, san'at?",1]
+    ]},
+  { id:"khorezmi", color:"#0EA5E9", tag:"IT",
+    ru:{n:"Школа имени Мухаммада аль-Хорезми", d:"Информатика, программирование, математика", i:"Углублённое изучение информатики, программирования и математики. Подходит детям, которых тянет к технологиям."},
+    uz:{n:"Muhammad al-Xorazmiy nomidagi maktab", d:"Informatika, dasturlash, matematika", i:"Informatika, dasturlash va matematika chuqur o'qitiladi. Texnologiyaga qiziqadigan bolalar uchun."},
+    q:[
+      ["За компьютером ему интересно не только играть, но и понять, как всё устроено?","Kompyuterda faqat o'ynash emas, qanday ishlashini tushunish ham qiziqmi?",1],
+      ["Уже пробовал программировать: Scratch, Python, роботы?","Dasturlashni sinab ko'rganmi: Scratch, Python, robotlar?",1],
+      ["Математика — один из его любимых предметов?","Matematika — sevimli fanlaridan birimi?",1],
+      ["Любит головоломки, логические игры, кубик Рубика?","Boshqotirmalar, mantiqiy o'yinlar, Rubik kubigini yoqtiradimi?",1],
+      ["Может долго сидеть над одной задачей, пока не решит?","Bitta masala ustida yechmaguncha uzoq o'tira oladimi?",1],
+      ["Разбирает игрушки и технику, чтобы понять, как они работают?","O'yinchoq va texnikani qanday ishlashini bilish uchun ochib ko'radimi?",1],
+      ["Сочинения и пересказы даются ему легче и нравятся больше, чем задачи?","Insho va hikoya qilish unga masalalardan osonroq va yoqimliroqmi?",0],
+      ["Мечтает создать свою игру, сайт или приложение?","O'z o'yini, sayti yoki ilovasini yaratishni orzu qiladimi?",1]
+    ]},
+  { id:"ulugbek", color:"#6366F1", tag:"FM",
+    ru:{n:"Школа имени Мирзо Улугбека", d:"Математика и физика", i:"Углублённое изучение математики и физики, сильная олимпиадная подготовка."},
+    uz:{n:"Mirzo Ulug'bek nomidagi maktab", d:"Matematika va fizika", i:"Matematika va fizika chuqur o'qitiladi, kuchli olimpiada tayyorgarligi."},
+    q:[
+      ["Решает примеры быстрее большинства одноклассников?","Misollarni ko'pchilik sinfdoshlaridan tezroq yechadimi?",1],
+      ["Спрашивает, почему небо голубое или как летают самолёты?","Osmon nega moviy yoki samolyot qanday uchishini so'raydimi?",1],
+      ["Любит олимпиадные и нестандартные задачи?","Olimpiada va nostandart masalalarni yoqtiradimi?",1],
+      ["Сам смотрит научные видео или читает энциклопедии?","Ilmiy videolarni o'zi ko'radimi yoki ensiklopediya o'qiydimi?",1],
+      ["Нравится собирать конструкторы, механизмы, модели?","Konstruktor, mexanizm va modellar yig'ishni yoqtiradimi?",1],
+      ["Аккуратен и точен в вычислениях?","Hisob-kitobda puxta va aniqmi?",1],
+      ["Быстро устаёт от цифр и теряет интерес к математике?","Raqamlardan tez charchab, matematikaga qiziqishi so'nadimi?",0],
+      ["Интересуется космосом, звёздами и планетами?","Koinot, yulduzlar va sayyoralarga qiziqadimi?",1]
+    ]},
+  { id:"ibnsino", color:"#10B981", tag:"MD",
+    ru:{n:"Школа имени Абу Али ибн Сино", d:"Химия, биология, медицина", i:"Углублённое изучение химии и биологии, ориентир на медицинские вузы."},
+    uz:{n:"Abu Ali ibn Sino nomidagi maktab", d:"Kimyo, biologiya, tibbiyot", i:"Kimyo va biologiya chuqur o'qitiladi, tibbiyot oliygohlariga yo'naltirilgan."},
+    q:[
+      ["Интересуется, как устроен организм человека?","Inson organizmi qanday tuzilganiga qiziqadimi?",1],
+      ["Хочет стать врачом, стоматологом или фармацевтом?","Shifokor, stomatolog yoki farmatsevt bo'lishni xohlaydimi?",1],
+      ["Заботится о других, когда кто-то заболел?","Kimdir kasal bo'lsa, unga g'amxo'rlik qiladimi?",1],
+      ["Легко запоминает термины и сложные названия?","Atama va murakkab nomlarni oson eslab qoladimi?",1],
+      ["Терпелив и внимателен к мелочам?","Sabrli va mayda narsalarga e'tiborlimi?",1],
+      ["Готов много учить и повторять, чтобы знать предмет назубок?","Fanni puxta bilish uchun ko'p o'qib, takrorlashga tayyormi?",1],
+      ["Боится или брезгует всего, что связано с кровью и уколами?","Qon va ukol bilan bog'liq narsalardan qo'rqadimi yoki jirkanadimi?",0],
+      ["Любит смотреть передачи о врачах и о том, как лечат болезни?","Shifokorlar va kasalliklarni davolash haqidagi ko'rsatuvlarni yoqtiradimi?",1]
+    ]},
+  { id:"filolog", color:"#EC4899", tag:"FL",
+    ru:{n:"Государственная специализированная филологическая школа", d:"Иностранные языки и литература", i:"Углублённое изучение иностранных и родного языков, литературы. Подходит детям, которым легко даются языки."},
+    uz:{n:"Davlat ixtisoslashtirilgan filologiya maktabi", d:"Xorijiy tillar va adabiyot", i:"Xorijiy va ona tili, adabiyot chuqur o'qitiladi. Tillarni oson o'zlashtiradigan bolalar uchun."},
+    q:[
+      ["Легко запоминает новые слова, в том числе на других языках?","Yangi so'zlarni, jumladan boshqa tillardagi so'zlarni oson eslab qoladimi?",1],
+      ["Любит читать книги, даже когда это не задают?","Vazifa berilmasa ham kitob o'qishni yoqtiradimi?",1],
+      ["Смотрит мультфильмы или видео на английском или другом языке?","Multfilm yoki videolarni ingliz yoki boshqa tilda ko'radimi?",1],
+      ["Хорошо и интересно пересказывает прочитанное?","O'qiganini yaxshi va qiziqarli qilib aytib beradimi?",1],
+      ["Замечает ошибки в текстах и вывесках?","Matn va peshlavhalardagi xatolarni payqaydimi?",1],
+      ["Хочет стать переводчиком, журналистом или дипломатом?","Tarjimon, jurnalist yoki diplomat bo'lishni xohlaydimi?",1],
+      ["Чтение и письмо для него скучнее, чем задачи и опыты?","O'qish va yozish unga masala va tajribalardan zerikarliroqmi?",0],
+      ["Легко общается с новыми людьми и любит разговаривать?","Yangi odamlar bilan oson muloqot qiladimi va suhbatlashishni yoqtiradimi?",1]
+    ]},
+  { id:"tabiiy", color:"#14B8A6", tag:"TF",
+    ru:{n:"Государственная специализированная школа естественных наук", d:"Химия, биология, экология", i:"Углублённое изучение естественных наук: химии, биологии и смежных предметов, много лабораторных работ."},
+    uz:{n:"Tabiiy fanlar davlat ixtisoslashtirilgan maktabi", d:"Kimyo, biologiya, ekologiya", i:"Tabiiy fanlar — kimyo, biologiya va turdosh fanlar chuqur o'qitiladi, laboratoriya ishlari ko'p."},
+    q:[
+      ["Любит природу, животных и растения?","Tabiat, hayvonlar va o'simliklarni yoqtiradimi?",1],
+      ["Нравится смешивать вещества и смотреть, что получится?","Moddalarni aralashtirib, nima chiqishini kuzatishni yoqtiradimi?",1],
+      ["Выращивал растения, держит питомца или собирает коллекцию камней, жуков?","O'simlik o'stirganmi, uy hayvoni bormi yoki tosh, qo'ng'iz to'playdimi?",1],
+      ["Задаёт вопросы о погоде, вулканах, океанах?","Ob-havo, vulqonlar, okeanlar haqida savol beradimi?",1],
+      ["Любит наблюдать и записывать, что изменилось?","Kuzatib, nima o'zgarganini yozib borishni yoqtiradimi?",1],
+      ["Переживает за экологию и чистоту природы?","Ekologiya va tabiat tozaligi haqida qayg'uradimi?",1],
+      ["Ему скучно в музеях природы и зоопарках?","Tabiat muzeylari va hayvonot bog'larida unga zerikarlimi?",0],
+      ["Хочет стать учёным, биологом или химиком?","Olim, biolog yoki kimyogar bo'lishni xohlaydimi?",1]
+    ]},
+  { id:"iiv", color:"#F59E0B", tag:"IIV",
+    ru:{n:"Специализированная школа-интернат при МВД", d:"Дисциплина, спорт, военно-патриотическое воспитание", i:"Интернат с военно-патриотическим воспитанием, готовит к лицеям системы МВД. Приоритет при приёме — дети сотрудников МВД."},
+    uz:{n:"IIV huzuridagi ixtisoslashtirilgan maktab-internat", d:"Intizom, sport, harbiy-vatanparvarlik tarbiyasi", i:"Harbiy-vatanparvarlik tarbiyasiga ega internat, IIV litseylariga tayyorlaydi. Qabulda IIV xodimlarining farzandlariga ustuvorlik beriladi."},
+    q:[
+      ["Любит спорт и занимается регулярно?","Sportni yoqtiradimi va muntazam shug'ullanadimi?",1],
+      ["Спокойно живёт по строгому распорядку дня?","Qat'iy kun tartibida xotirjam yashay oladimi?",1],
+      ["Часто становится лидером среди сверстников?","Tengdoshlari orasida ko'pincha yetakchi bo'ladimi?",1],
+      ["Интересуется историей и героями, например Амиром Темуром?","Tarix va qahramonlarga, masalan Amir Temurga qiziqadimi?",1],
+      ["Готов жить и учиться вдали от дома?","Uydan uzoqda yashab o'qishga tayyormi?",1],
+      ["Сам заправляет кровать и следит за своими вещами?","O'rnini o'zi yig'adimi va narsalariga o'zi qaraydimi?",1],
+      ["Тяжело принимает замечания и указания старших?","Kattalarning tanbehi va ko'rsatmalarini qiyin qabul qiladimi?",0],
+      ["Мечтает стать полицейским, военным или спасателем?","Politsiyachi, harbiy yoki qutqaruvchi bo'lishni orzu qiladimi?",1]
+    ]},
+  { id:"qodiriy", color:"#A855F7", tag:"IJ",
+    ru:{n:"Творческая школа имени Абдуллы Кадыри", d:"Узбекский язык, литература, творчество", i:"Углублённое изучение узбекского языка и литературы, кружки юных писателей и журналистов. Приём в 5–8 классы через творческий экзамен."},
+    uz:{n:"Abdulla Qodiriy nomidagi ijod maktabi", d:"O'zbek tili, adabiyot, ijod", i:"O'zbek tili va adabiyoti chuqur o'qitiladi, yosh yozuvchi va jurnalistlar to'garaklari bor. 5–8-sinflarga ijodiy imtihon orqali qabul qilinadi."},
+    q:[
+      ["Сочиняет стихи, рассказы или придумывает свои истории?","She'r, hikoya yozadimi yoki o'z hikoyalarini to'qiydimi?",1],
+      ["Любит читать узбекскую литературу и сказки?","O'zbek adabiyoti va ertaklarini o'qishni yoqtiradimi?",1],
+      ["Выразительно читает стихи и не стесняется выступать?","She'rni ifodali o'qiydimi va chiqish qilishdan uyalmaydimi?",1],
+      ["Ведёт дневник, блог или любит писать сочинения?","Kundalik, blog yuritadimi yoki insho yozishni yoqtiradimi?",1],
+      ["Тонко чувствует слова и замечает красивые выражения?","So'zlarni nozik his qiladimi va chiroyli iboralarni payqaydimi?",1],
+      ["Хочет стать писателем, журналистом или ведущим?","Yozuvchi, jurnalist yoki boshlovchi bo'lishni xohlaydimi?",1],
+      ["Ему трудно рассказать о своих мыслях и чувствах?","O'z fikr va his-tuyg'ularini aytib berish unga qiyinmi?",0],
+      ["Интересуется историей Узбекистана и великими людьми?","O'zbekiston tarixi va buyuk insonlarga qiziqadimi?",1]
+    ]}
+];
+
+/* ============================ СОСТОЯНИЕ ============================ */
+const S = { lang:"uz", screen:"intro", grade:0, i:0, ans:[], deep:{}, dschool:null, di:0, dans:[],
+  role:"", name:"", phone:"", errs:{}, lead:false, branch:"", day:"", time:"", booked:false, bookErr:false, left:false, copied:false };
+const ROOT = () => document.getElementById("nt-app");
+const $ = s => ROOT().querySelector(s);
+const $$ = s => ROOT().querySelectorAll(s);
+const t = k => T[S.lang][k];
+const esc = s => String(s).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const digits = v => v.replace(/\D/g,"").replace(/^998(?=\d{9})/,"").slice(0,9);
+const fmtPhone = d => [d.slice(0,2),d.slice(2,5),d.slice(5,7),d.slice(7,9)].filter(Boolean).join(" ");
+const sch = id => SCHOOLS.find(s=>s.id===id);
+const col = p => p>=70?"var(--good)":p>=45?"var(--mid)":"var(--muted)";
+const TG = (window.Telegram && window.Telegram.WebApp) || null;
+
+/* UTM и язык */
+const QS = (()=>{ try{ return new URLSearchParams(location.search); }catch(e){ return new URLSearchParams(); } })();
+const UTM = {}; ["utm_source","utm_medium","utm_campaign","utm_content","utm_term"].forEach(k=>{ const v=QS.get(k); if(v) UTM[k]=v; });
+(function pickLang(){
+  const p=(QS.get("lang")||"").toLowerCase();
+  const u=Object.values(UTM).join(" ").toLowerCase();
+  let saved=""; try{ saved=localStorage.getItem("nt-lang")||""; }catch(e){}
+  const tgl = TG && TG.initDataUnsafe && TG.initDataUnsafe.user && TG.initDataUnsafe.user.language_code;
+  if(p==="ru"||p==="uz") S.lang=p;
+  else if(/(^|[^a-z])ru([^a-z]|$)/.test(u)) S.lang="ru";
+  else if(/(^|[^a-z])uz([^a-z]|$)/.test(u)) S.lang="uz";
+  else if(saved==="ru"||saved==="uz") S.lang=saved;
+  else if(tgl==="ru") S.lang="ru";
+})();
+
+/* ============================ ПОДСЧЁТ ============================ */
+function mainScores(){
+  const got={}, max={};
+  SCHOOLS.forEach(s=>{got[s.id]=0;max[s.id]=0;});
+  MAIN.forEach((q,k)=>{
+    const a=S.ans[k];
+    SCHOOLS.forEach(s=>{
+      const wy=(q.y||{})[s.id]||0, wn=(q.n||{})[s.id]||0, w=Math.max(wy,wn);
+      if(!w) return; max[s.id]+=w;
+      if(a===1) got[s.id]+=wy; else if(a===0) got[s.id]+=wn;
+    });
+  });
+  const out={}; SCHOOLS.forEach(s=>{ out[s.id]=max[s.id]?Math.round(got[s.id]/max[s.id]*100):0; }); return out;
+}
+function scores(){
+  const m=mainScores(), out={};
+  SCHOOLS.forEach(s=>{ out[s.id]= S.deep[s.id]==null ? m[s.id] : Math.round((m[s.id]+S.deep[s.id])/2); });
+  return out;
+}
+const ranked = () => { const sc=scores(); return SCHOOLS.map(s=>s.id).sort((a,b)=>sc[b]-sc[a]); };
+function monthsToExam(){
+  const d=new Date(), y = d.getMonth()+1 >= CONFIG.EXAM_MONTH ? d.getFullYear()+1 : d.getFullYear();
+  return Math.max(1, (y-d.getFullYear())*12 + (CONFIG.EXAM_MONTH-1) - d.getMonth());
+}
+function nextDays(){
+  const out=[], d=new Date();
+  for(let k=1;k<=6;k++){ const x=new Date(d.getFullYear(),d.getMonth(),d.getDate()+k);
+    out.push({id:x.getFullYear()+"-"+String(x.getMonth()+1).padStart(2,"0")+"-"+String(x.getDate()).padStart(2,"0"), dm:String(x.getDate()).padStart(2,"0")+"."+String(x.getMonth()+1).padStart(2,"0"), wd:k===1?t("tomorrow"):t("week")[x.getDay()]}); }
+  return out;
+}
+
+/* ============================ АНАЛИТИКА ============================ */
+function track(ev, params, standard){
+  params=Object.assign({content_name:CONFIG.SOURCE}, params||{});
+  try{ if(typeof window.fbq==="function") window.fbq(standard?"track":"trackCustom", ev, params); }catch(e){}
+  try{ (window.dataLayer=window.dataLayer||[]).push(Object.assign({event:"nt_"+ev}, params)); }catch(e){}
+  try{ if(CONFIG.YM_ID && typeof window.ym==="function") window.ym(CONFIG.YM_ID,"reachGoal","nt_"+ev, params); }catch(e){}
+}
+
+/* ============================ ЛИДЫ ============================ */
+function leadData(event){
+  const sc=scores(), r=ranked(), top=r[0];
+  const b=BRANCHES.find(x=>x.id===S.branch);
+  return { event, name:S.name, role:S.role||"—", phone:"+998"+S.phone, grade:S.grade, lang:S.lang,
+    top_school:sch(top).ru.n, top_pct:sc[top], top3:top3().map(id=>shortRu(id)+" "+sc[id]+"%").join(", "), ranking:r.map(id=>sch(id).ru.n+" "+sc[id]+"%").join("; "),
+    branch:b?b.n:"", slot:S.day&&S.time?S.day+" "+S.time:"", status:{lead:"тест пройден",booking:"записан на диагностику",left:"ушёл без записи",deep:"уточнил школу"}[event],
+    tags:["тест_школы","топ: "+sch(top).ru.n,"топ-3: "+top3().map(shortRu).join(" / "),"класс: "+S.grade,S.lang,S.booked?"записан":"без записи"].join(", "),
+    source:CONFIG.SOURCE, ...UTM };
+}
+function tgText(d){
+  const head={lead:"🟢 Новая заявка — тест «Какая школа подходит»",booking:"🔥 Записался на бесплатную диагностику",left:"⚠️ Ушёл без записи — позвонить в первую очередь",deep:"🔎 Уточнил школу"}[d.event];
+  const roleRu={dad:"папа",mom:"мама"}[S.role]||"роль не указана";
+  const top=ranked()[0];
+  const L=[head,"",`👤 ${d.name} (${roleRu})`,`📞 +998 ${fmtPhone(S.phone)}`,`🎓 ${d.grade} класс · язык ${d.lang.toUpperCase()}`,`🏆 Топ-3: ${d.top3}`,`📊 Все: ${d.ranking}`];
+  if(d.branch) L.push(`📍 ${d.branch}, ${d.slot}`);
+  L.push("",`💬 Скрипт: «Здравствуйте, ${d.name}! Вы прошли тест Newton Academy — по интересам ребёнку подходят 3 школы: ${and3(top3(),true)}. ${d.branch?"Подтверждаю диагностику в "+d.branch+", "+d.slot+": проверим, хватает ли знаний для поступления в эти школы.":"Давайте на бесплатной диагностике проверим, хватает ли знаний для поступления в эти 3 школы — начнём с "+FOCUS[top]+"."}»`);
+  const u=Object.entries(UTM).map(([k,v])=>k+"="+v).join(" "); L.push("","UTM: "+(u||"—"));
+  return L.join("\n");
+}
+/* одна строка в Google Sheets на одного родителя: обновляется по ID на каждом шаге */
+const newSid = () => Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+let SID = newSid();
+function sheetRow(){
+  const sc=scores(), r=ranked(), b=BRANCHES.find(x=>x.id===S.branch);
+  const status = S.booked?"записан на диагностику":S.lead?(S.left?"ушёл без записи":"оставил номер"):"прошёл тест без номера";
+  const row = {"ID":SID,"Статус":status,"Имя":S.name||"","Кто":({dad:"папа",mom:"мама"})[S.role]||"","Телефон":S.phone?"+998 "+fmtPhone(S.phone):"",
+    "Класс":S.grade||"","Язык":S.lang.toUpperCase(),"Топ-3":r.slice(0,3).map(id=>shortRu(id)+" "+sc[id]+"%").join(", "),"1 место":sch(r[0]).ru.n,"1 место, %":sc[r[0]]};
+  SCHOOLS.forEach(s=>{ row[s.ru.n+", %"]=sc[s.id]; });
+  row["Филиал"]=b?b.n:""; row["Диагностика"]=S.day&&S.time?S.day+" "+S.time:"";
+  MAIN.forEach((q,k)=>{ row[(k+1)+". "+q.ru]= S.ans[k]===1?"Да":S.ans[k]===0?"Нет":""; });
+  row["Уточнено"]=Object.keys(S.deep).map(id=>sch(id).ru.n+" "+S.deep[id]+"%").join("; ");
+  ["utm_source","utm_medium","utm_campaign","utm_content","utm_term"].forEach(k=>row[k]=UTM[k]||"");
+  return row;
+}
+function toSheets(beacon){
+  if(!CONFIG.SHEETS_URL) return;
+  const row=sheetRow(), body=new URLSearchParams(row); body.append("_order", JSON.stringify(Object.keys(row)));
+  try{ if(beacon && navigator.sendBeacon){ navigator.sendBeacon(CONFIG.SHEETS_URL, body); return; }
+    fetch(CONFIG.SHEETS_URL,{method:"POST",mode:"no-cors",body,keepalive:true}).catch(()=>{}); }catch(e){}
+}
+function send(event, beacon){
+  toSheets(beacon);
+  if(event==="complete") return;
+  const d=leadData(event), text=tgText(d);
+  const post=(url, body)=>{ try{
+    if(beacon && navigator.sendBeacon){ navigator.sendBeacon(url, body); return; }
+    fetch(url,{method:"POST",mode:"no-cors",body,keepalive:true}).catch(()=>{});
+  }catch(e){} };
+  if(CONFIG.TG_BOT_TOKEN && CONFIG.TG_CHAT_ID) post("https://api.telegram.org/bot"+CONFIG.TG_BOT_TOKEN+"/sendMessage", new URLSearchParams({chat_id:CONFIG.TG_CHAT_ID,text}));
+  if(CONFIG.WEBHOOK_URL) post(CONFIG.WEBHOOK_URL, new URLSearchParams(d));
+}
+function onLeave(){ if(S.lead && !S.booked && !S.left){ S.left=true; send("left", true); } }
+window.addEventListener("pagehide", onLeave);
+document.addEventListener("visibilitychange", ()=>{ if(document.visibilityState==="hidden") onLeave(); });
+
+/* ============================ ЭКРАНЫ ============================ */
+function render(){
+  document.documentElement.lang = S.lang;
+  ["uz","ru"].forEach(l=>{ const b=document.getElementById("nt-l-"+l); if(b) b.setAttribute("aria-pressed", S.lang===l); });
+  const v=$("#nt-view");
+  v.innerHTML = ({intro:introV, grade:gradeV, quiz:quizV, gate:gateV, result:resultV, deep:deepV})[S.screen]();
+  if(v.firstElementChild) v.firstElementChild.classList.add("screen");
+  const f=$("#nt-foot"); if(f) f.innerHTML=footV();
+  bind();
+}
+const top0 = () => { ROOT().scrollIntoView({block:"start"}); };
+
+function footV(){
+  return `<div class="frow">
+      <div class="fbrand">Newton Academy</div>
+      <div class="flinks"><a href="https://instagram.com/newton.uz" target="_blank" rel="noopener">Instagram</a><a href="https://t.me/newtonews" target="_blank" rel="noopener">Telegram · @newtonews</a></div>
+    </div>`;
+}
+
+function introV(){
+  return `<div class="split mid">
+  <div class="stack" style="gap:20px">
+    <div class="stack tight">
+      <h1>${t("h1a")}<span class="g">${t("h1b")}</span></h1>
+    </div>
+    <div class="facts">
+      <div class="fact"><b>${SCHOOLS.length}</b><span>${t("fa")}</span></div>
+      <div class="fact"><b>${MAIN.length}</b><span>${t("fb")}</span></div>
+      <div class="fact"><b>3</b><span>${t("fc")}</span></div>
+    </div>
+    <div class="stack tight intro-cta">
+      <button class="btn grad" type="button" id="nt-start">${t("start")}</button>
+      <p class="note center">${t("startNote")}</p>
+    </div>
+    <div class="trust">${t("trust").map(x=>`<span>${x}</span>`).join("")}</div>
+  </div>
+  <div class="card stack">
+    <span class="eyebrow">${t("inList")}</span>
+    <div class="slist">${SCHOOLS.map(s=>`<div class="sitem"><span class="ic" style="background:${s.color}">${s.tag}</span><span style="min-width:0"><b>${esc(s[S.lang].n)}</b><small>${esc(s[S.lang].d)}</small></span></div>`).join("")}</div>
+  </div>
+  </div>`;
+}
+
+function progress(k){ const total=MAIN.length+1; return `<div class="prog"><i style="width:${Math.round(k/total*100)}%"></i></div>`; }
+
+function gradeV(){
+  return `<div class="narrow"><div class="card stack">
+    <div class="qhead"><span class="eyebrow">Newton test</span><span class="qnum">1 ${t("of")} ${MAIN.length+1}</span></div>
+    ${progress(1)}
+    <div class="stack tight"><p class="q" style="min-height:0">${t("gradeQ")}</p><p class="sub">${t("gradeSub")}</p></div>
+    <div class="grades">${[1,2,3,4,5,6,7,8,9].map(g=>`<button class="chip" type="button" id="nt-g${g}" data-g="${g}" aria-pressed="${S.grade===g}">${g}</button>`).join("")}</div>
+    <button class="back" type="button" id="nt-back">${t("back")}</button>
+  </div></div>`;
+}
+
+function quizV(){
+  const q=MAIN[S.i];
+  return `<div class="narrow"><div class="card stack">
+    <div class="qhead"><span class="eyebrow">Newton test</span><span class="qnum">${S.i+2} ${t("of")} ${MAIN.length+1}</span></div>
+    ${progress(S.i+2)}
+    <p class="q">${q[S.lang]}</p>
+    <div class="yn">
+      <button class="yes" type="button" id="nt-yes" data-a="1">${t("yes")}</button>
+      <button class="no" type="button" id="nt-no" data-a="0">${t("no")}</button>
+    </div>
+    <button class="back" type="button" id="nt-back">${t("back")}</button>
+  </div></div>`;
+}
+
+function rows(list, blurNames){
+  const sc=scores();
+  return list.map((id,k)=>{ const s=sch(id), p=sc[id], fit=k<3;
+    return `${!blurNames&&k===3?`<div class="rsep">${t("restH")}</div>`:""}<div class="rrow${fit?"":" rest"}"><span class="n">${k+1}</span>
+      <div class="t"><b>${blurNames?"██████████ ████":esc(s[S.lang].n)}${!blurNames&&fit?`<span class="fit">${t("fitTag")}</span>`:""}</b><div class="bar"><i style="width:${Math.max(p,2)}%;background:${k===0?"var(--grad)":fit?s.color:"var(--muted)"};${fit?"":"opacity:.45"}"></i></div>
+      ${blurNames?"":(S.deep[id]!=null?`<span class="tagok">${t("deepOk")}</span>`:`<button class="link" type="button" id="nt-d-${id}" data-deep="${id}">${t("deep")}</button>`)}</div>
+      <span class="p" style="color:${fit?"var(--good)":"var(--muted)"}">${p}%</span></div>`; }).join("");
+}
+
+function gateV(){
+  const sc=scores(), hi=SCHOOLS.filter(s=>sc[s.id]>=70).length, e=S.errs;
+  return `<div class="split">
+  <div class="stack">
+    <div class="stack tight">
+      <span class="eyebrow">${t("gateH")} ✓</span>
+      <h2>${t("gateHi")(hi)}</h2>
+      <p class="sub">${t("gateSub")}</p>
+    </div>
+    <div class="teaser" aria-hidden="true"><div class="rows">${rows(ranked().slice(0,3), true)}</div><div class="lock"><span>${t("lock")}</span></div></div>
+  </div>
+    <form class="card stack" id="nt-lead" novalidate>
+      ${TG && typeof TG.requestContact==="function" ? `<button class="btn tg" type="button" id="nt-tgc">${t("tgContact")}</button>`:""}
+      <div>
+        <label for="nt-name">${t("name")}</label>
+        <input id="nt-name" autocomplete="given-name" placeholder="${t("namePh")}" value="${esc(S.name)}">
+        ${e.name?`<div class="err">${t("errName")}</div>`:""}
+      </div>
+      <div>
+        <label for="nt-phone">${t("phone")}</label>
+        <div style="position:relative">
+          <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-weight:600;color:var(--fg-2)">+998</span>
+          <input id="nt-phone" inputmode="tel" autocomplete="tel-national" placeholder="${t("phonePh")}" value="${fmtPhone(S.phone)}" style="padding-left:62px;font-family:var(--mono)">
+        </div>
+        ${e.phone?`<div class="err">${t("errPhone")}</div>`:""}
+      </div>
+      <div>
+        <span class="lbl">${t("who")} <span class="opt">${t("opt")}</span></span>
+        <div class="chips">
+          <button class="chip" type="button" id="nt-r-mom" data-role="mom" aria-pressed="${S.role==="mom"}">${t("mom")}</button>
+          <button class="chip" type="button" id="nt-r-dad" data-role="dad" aria-pressed="${S.role==="dad"}">${t("dad")}</button>
+        </div>
+      </div>
+      ${Object.keys(e).length?`<div class="err center" style="margin:0">${t("fix")}</div>`:""}
+      <button class="btn grad" type="submit" id="nt-submit">${t("show")}</button>
+      <p class="note">${t("privacy")}</p>
+    </form>
+  </div>`;
+}
+
+function resultV(){
+  const sc=scores(), r=ranked(), top=r[0], s=sch(top), p=sc[top], m=monthsToExam();
+  const flat = p<50;
+  const b=BRANCHES.find(x=>x.id===S.branch), days=nextDays(), dObj=days.find(x=>x.id===S.day);
+  const shareUrl = CONFIG.PAGE_URL || (location.href.split("?")[0].split("#")[0]);
+  const T3=top3(), n3=and3(T3);
+  const shareText = t("shareTxt")(n3);
+  return `<div class="rgrid">
+    <div class="hero a-hero">
+      <span class="eyebrow">${S.name?esc(S.name)+" · ":""}${S.grade} ${S.lang==="ru"?"класс":"-sinf"} · ${t("topEy")}</span>
+      <div class="t3list">${T3.map((id,k)=>`<div class="t3"><span class="t3n">${k+1}</span><div style="min-width:0"><b>${esc(sch(id)[S.lang].n)}</b><small>${esc(sch(id)[S.lang].d)}</small></div><span class="t3p">${sc[id]}<small style="font-size:15px">%</small></span></div>`).join("")}</div>
+      <p>${flat?t("flat"):t("heroP")}</p>
+    </div>
+
+    <aside class="a-side">
+    <div class="card stack" id="nt-book">
+      ${S.booked?`<div class="done"><b>${t("doneH")}</b><span>${t("doneP")(b.n, dObj?dObj.wd+", "+dObj.dm:S.day, S.time)}</span></div>`:`
+      <div class="stack tight"><span class="eyebrow" style="color:var(--accent)">${t("bookEy")}</span><h3 style="font-size:20px;line-height:1.3">${t("bookH")}</h3><p class="sub" style="font-size:14px">${t("bookSub")(n3)}</p></div>
+      <ul class="blist">${t("bookList").map(x=>`<li>${x}</li>`).join("")}</ul>
+      <div><span class="lbl">${t("branch")}</span>
+        <div class="branches">${BRANCHES.map(x=>`<button class="chip" type="button" id="nt-b-${x.id}" data-br="${x.id}" aria-pressed="${S.branch===x.id}">${x.n}<small>${x[S.lang]}</small></button>`).join("")}</div></div>
+      <div><span class="lbl">${t("day")}</span>
+        <div class="days">${days.map(x=>`<button class="chip" type="button" id="nt-day-${x.id}" data-day="${x.id}" aria-pressed="${S.day===x.id}">${x.wd}<small>${x.dm}</small></button>`).join("")}</div></div>
+      <div><span class="lbl">${t("time")}</span>
+        <div class="chips">${TIMES.map(x=>`<button class="chip" type="button" id="nt-t-${x.replace(":","")}" data-time="${x}" aria-pressed="${S.time===x}">${x}</button>`).join("")}</div></div>
+      ${S.bookErr?`<div class="err center" style="margin:0">${t("bookErr")}</div>`:""}
+      <button class="btn grad" type="button" id="nt-bookbtn">${t("book")}</button>
+      <p class="note center">${t("bookNote")}</p>`}
+    </div>
+
+    <div class="card count">
+      <b class="g">${m}</b>
+      <div class="stack tight"><h3>${t("cntH")(m)}</h3><p class="sub" style="font-size:14px">${t("cntP")(S.grade)}</p></div>
+    </div>
+    </aside>
+
+    <div class="card stack a-rank">
+      <h3>${t("rankH")}</h3>
+      <div class="rlist">${rows(r,false)}</div>
+    </div>
+
+    <div class="card stack a-share">
+      <h3>${t("shareH")}</h3>
+      <button class="btn" type="button" id="nt-pdf">⬇ ${t("pdf")}</button>
+      <div class="err center" id="nt-pdfmsg" style="margin:0" aria-live="polite"></div>
+      <div class="row2">
+        <a class="btn tg" id="nt-share" href="https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}" target="_blank" rel="noopener">${t("shareBtn")}</a>
+        <button class="btn ghost" type="button" id="nt-copy">${S.copied?t("copied"):t("copy")}</button>
+      </div>
+      <textarea id="nt-sharetext" readonly aria-label="share" style="position:absolute;left:-9999px">${esc(shareText+" "+shareUrl)}</textarea>
+    </div>
+
+    ${S.booked?"":`<div class="final a-final">
+      <h3>${t("finalH")(n3)}</h3>
+      <p>${t("finalP")}</p>
+      <button class="btn grad" type="button" id="nt-tobook">${t("finalBtn")}</button>
+    </div>`}
+    <button class="back a-again" type="button" id="nt-again">${t("again")}</button>
+  </div>`;
+}
+
+function deepV(){
+  const s=sch(S.dschool), q=s.q[S.di];
+  return `<div class="narrow"><div class="card stack">
+    <div class="qhead" style="justify-content:flex-start"><span class="ic" style="background:${s.color}">${s.tag}</span>
+      <span style="flex:1;min-width:0;font-size:14px;font-weight:600;color:var(--fg-2)">${esc(s[S.lang].n)}</span>
+      <span class="qnum">${S.di+1} ${t("of")} ${s.q.length}</span></div>
+    <div class="prog"><i style="width:${Math.round((S.di+1)/s.q.length*100)}%"></i></div>
+    <p class="q">${q[S.lang==="ru"?0:1]}</p>
+    <div class="yn">
+      <button class="yes" type="button" id="nt-yes" data-da="1">${t("yes")}</button>
+      <button class="no" type="button" id="nt-no" data-da="0">${t("no")}</button>
+    </div>
+    <button class="back" type="button" id="nt-back">${t("back")}</button>
+  </div></div>`;
+}
+
+/* ============================ PDF-РЕЗУЛЬТАТ ============================
+   Две страницы A4 рисуются из HTML (html2canvas) и собираются в PDF (jsPDF). Библиотеки грузятся только по клику. */
+const PDF_LIBS=["https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js","https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"];
+const _libs={};
+function loadLib(src){ return _libs[src] || (_libs[src]=new Promise((res,rej)=>{ const s=document.createElement("script"); s.src=src; s.async=true; s.onload=res; s.onerror=()=>{ delete _libs[src]; rej(new Error("load")); }; document.head.appendChild(s); })); }
+const PT = {
+  ru:{ title:"Результат теста", sub:"Какая спецшкола Ташкента подходит ребёнку", parent:"Родитель", grade:"Класс", date:"Дата", top:"3 школы, которые подходят ребёнку",
+       rank:"Совместимость со всеми школами", ans:"Ответы о ребёнке", yes:"Да", no:"Нет", deep:"Уточнено дополнительным тестом",
+       next:"Что дальше", steps:[["Бесплатная диагностика","Проверим уровень по математике и логике, покажем пробелы."],["Подбор группы","Группы до 12 человек по уровню, обучение на узбекском или русском."],["Подготовка ~10 месяцев","3 занятия в неделю, ежемесячная диагностика, куратор в Telegram."]],
+       booked:(b,d,tm)=>`Вы записаны на диагностику: ${b} · ${d} · ${tm}. Узнаете, хватает ли знаний для поступления в эти 3 школы.`, notBooked:"На бесплатной диагностике узнаете, хватает ли знаний для поступления в эти 3 школы. Скидка на обучение до 40%, есть рассрочка.",
+       note:"Тест показывает, насколько интересы и характер ребёнка совпадают с профилем школы. Это не экзамен и не гарантия поступления.",
+       legend:["70–100% — отлично подходит","45–69% — подходит, нужна подготовка","до 45% — подходит меньше"], file:"Newton-rezultat-testa" },
+  uz:{ title:"Test natijasi", sub:"Farzandga Toshkentdagi qaysi ixtisoslashtirilgan maktab mos", parent:"Ota-ona", grade:"Sinf", date:"Sana", top:"Farzandingizga mos 3 ta maktab",
+       rank:"Barcha maktablar bilan moslik", ans:"Farzand haqidagi javoblar", yes:"Ha", no:"Yo'q", deep:"Qo'shimcha test bilan aniqlashtirildi",
+       next:"Keyingi qadamlar", steps:[["Bepul diagnostika","Matematika va mantiq bo'yicha darajani tekshiramiz, bo'shliqlarni ko'rsatamiz."],["Guruh tanlash","Darajaga qarab 12 kishigacha guruhlar, o'zbek yoki rus tilida."],["~10 oy tayyorgarlik","Haftada 3 dars, har oy diagnostika, Telegramda kurator."]],
+       booked:(b,d,tm)=>`Diagnostikaga yozildingiz: ${b} · ${d} · ${tm}. Bu 3 ta maktabga kirish uchun bilim yetarlimi — bilib olasiz.`, notBooked:"Bepul diagnostikada bu 3 ta maktabga kirish uchun bilim yetarlimi — bilib olasiz. O'qishga 40% gacha chegirma, bo'lib to'lash mavjud.",
+       note:"Test farzandingizning qiziqishlari va xarakteri maktab yo'nalishiga qanchalik mosligini ko'rsatadi. Bu imtihon emas va kirishga kafolat bermaydi.",
+       legend:["70–100% — juda mos","45–69% — mos, tayyorgarlik kerak","45% gacha — kamroq mos"], file:"Newton-test-natijasi" }
+};
+function pdfHTML(){
+  const L=PT[S.lang], sc=scores(), r=ranked(), top=r[0], s=sch(top), m=monthsToExam();
+  const now=new Date(), dstr=String(now.getDate()).padStart(2,"0")+"."+String(now.getMonth()+1).padStart(2,"0")+"."+now.getFullYear();
+  const b=BRANCHES.find(x=>x.id===S.branch), dObj=nextDays().find(x=>x.id===S.day);
+  const pc=p=>p>=70?"#059669":p>=45?"#D97706":"#94A3B8";
+  const grad="linear-gradient(135deg,#4F46E5 0%,#A855F7 50%,#EC4899 100%)";
+  const head=(n)=>`<div class="hd"><div class="logo">Newton Academy</div><div class="pg-n">${n} / 2</div></div>`;
+  const foot=`<div class="ft"><span>Newton Academy</span><span>Instagram @newton.uz · Telegram @newtonews</span></div>`;
+  const rowsH=r.map((id,k)=>{ const x=sch(id), p=sc[id], fit=k<3; return `<div class="rr"><span class="rn">${k+1}</span><span class="rt" style="${fit?"":"color:#64748B;font-weight:500"}">${esc(x[S.lang].n)}${fit?` <i>● ${t("fitTag")}</i>`:""}${S.deep[id]!=null?' <i>✓</i>':""}</span><span class="rb"><span style="width:${Math.max(p,2)}%;background:${k===0?grad:fit?x.color:"#CBD5E1"}"></span></span><span class="rp" style="color:${fit?"#059669":"#94A3B8"}">${p}%</span></div>`; }).join("");
+  const ansH=MAIN.map((q,k)=>{ const a=S.ans[k]; return `<div class="aq"><span class="an">${k+1}</span><span class="at">${esc(q[S.lang])}</span><span class="ay ${a===1?"y":"n"}">${a===1?L.yes:L.no}</span></div>`; }).join("");
+  const deepIds=Object.keys(S.deep);
+  return `<style>
+.ntpdf,.ntpdf *{box-sizing:border-box;margin:0;padding:0}
+.ntpdf{font-family:"Inter",Arial,sans-serif;color:#0F172A}
+.ntpdf .pg{width:794px;height:1123px;background:#FFFFFF;position:relative;overflow:hidden;display:flex;flex-direction:column}
+.ntpdf .band{background:#0F172A;color:#FFFFFF;padding:36px 48px 30px}
+.ntpdf .hd{display:flex;justify-content:space-between;align-items:center}
+.ntpdf .logo{font-weight:800;font-size:18px;letter-spacing:-.02em}
+.ntpdf .pg-n{font:600 12px "JetBrains Mono",monospace;color:#94A3B8}
+.ntpdf .gl{height:4px;background:${grad};border-radius:2px;width:72px;margin:22px 0 16px}
+.ntpdf h1{font-size:30px;line-height:1.15;letter-spacing:-.03em;font-weight:800}
+.ntpdf .sb{font-size:15px;color:#CBD5E1;margin-top:6px}
+.ntpdf .meta{display:flex;gap:28px;margin-top:22px}
+.ntpdf .meta div{font-size:11px;color:#94A3B8;text-transform:uppercase;letter-spacing:.08em;font-weight:700}
+.ntpdf .meta b{display:block;font-size:15px;color:#FFFFFF;text-transform:none;letter-spacing:0;margin-top:3px}
+.ntpdf .body{padding:28px 48px 0;flex:1;display:flex;flex-direction:column;gap:22px}
+.ntpdf .lbl{font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#64748B;margin-bottom:10px}
+.ntpdf .t3w{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.ntpdf .t3c{border:1px solid #E2E8F0;border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:6px}
+.ntpdf .t3c.first{border:2px solid #4F46E5;background:#F5F3FF}
+.ntpdf .t3k{width:26px;height:26px;border-radius:8px;background:#0F172A;color:#fff;font:700 12px "JetBrains Mono",monospace;display:flex;align-items:center;justify-content:center}
+.ntpdf .t3c.first .t3k{background:${grad}}
+.ntpdf .t3pc{font:700 36px/1 "JetBrains Mono",monospace;color:#4F46E5;letter-spacing:-.03em;margin-top:4px}
+.ntpdf .t3pc small{font-size:18px}
+.ntpdf .t3nm{font-size:14px;font-weight:800;line-height:1.3}
+.ntpdf .t3d{font-size:11.5px;color:#475569;line-height:1.4}
+.ntpdf .topc{border:1px solid #E2E8F0;border-radius:16px;padding:22px 24px;display:flex;gap:22px;align-items:center}
+.ntpdf .big{font:700 64px/1 "JetBrains Mono",monospace;letter-spacing:-.04em;color:#4F46E5}
+.ntpdf .big small{font-size:28px}
+.ntpdf .tn{font-size:21px;font-weight:800;letter-spacing:-.015em;line-height:1.25}
+.ntpdf .td{font-size:13px;color:#475569;margin-top:6px;line-height:1.5}
+.ntpdf .rr{display:grid;grid-template-columns:22px 1fr 190px 48px;gap:12px;align-items:center;padding:9px 0;border-top:1px solid #F1F5F9;font-size:13.5px}
+.ntpdf .rr:first-of-type{border-top:0}
+.ntpdf .rn{font:700 12px "JetBrains Mono",monospace;color:#94A3B8}
+.ntpdf .rt{font-weight:600;line-height:1.3}
+.ntpdf .rt i{font-style:normal;color:#059669;font-size:12px}
+.ntpdf .rb{height:8px;background:#F1F5F9;border-radius:4px;overflow:hidden;display:block}
+.ntpdf .rb span{display:block;height:100%;border-radius:4px}
+.ntpdf .rp{font:700 14px "JetBrains Mono",monospace;text-align:right}
+.ntpdf .leg{display:flex;gap:18px;font-size:11px;color:#64748B;margin-top:8px}
+.ntpdf .leg span::before{content:"";display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px;vertical-align:0}
+.ntpdf .leg span:nth-child(1)::before{background:#059669}.ntpdf .leg span:nth-child(2)::before{background:#D97706}.ntpdf .leg span:nth-child(3)::before{background:#94A3B8}
+.ntpdf .two{display:grid;grid-template-columns:200px 1fr;gap:14px}
+.ntpdf .cnt{background:#EEF2FF;border-radius:14px;padding:18px;text-align:center}
+.ntpdf .cnt b{display:block;font:700 46px/1 "JetBrains Mono",monospace;color:#4F46E5}
+.ntpdf .cnt span{font-size:12px;color:#334155;display:block;margin-top:6px;line-height:1.35}
+.ntpdf .cta{background:#0F172A;color:#FFFFFF;border-radius:14px;padding:18px 20px;display:flex;flex-direction:column;justify-content:center;gap:6px}
+.ntpdf .cta b{font-size:15px}
+.ntpdf .cta span{font-size:12.5px;color:#CBD5E1;line-height:1.45}
+.ntpdf .aq{display:grid;grid-template-columns:22px 1fr 48px;gap:12px;align-items:center;padding:8px 0;border-top:1px solid #F1F5F9;font-size:13px;line-height:1.35}
+.ntpdf .aq:first-of-type{border-top:0}
+.ntpdf .an{font:700 11px "JetBrains Mono",monospace;color:#94A3B8}
+.ntpdf .ay{font-size:12px;font-weight:700;text-align:center;border-radius:999px;padding:3px 0}
+.ntpdf .ay.y{background:#D1FAE5;color:#047857}.ntpdf .ay.n{background:#F1F5F9;color:#64748B}
+.ntpdf .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.ntpdf .st{border:1px solid #E2E8F0;border-radius:14px;padding:16px}
+.ntpdf .st em{font:700 13px "JetBrains Mono",monospace;font-style:normal;color:#FFFFFF;background:${grad};border-radius:8px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+.ntpdf .st b{display:block;font-size:14px;margin-bottom:4px}
+.ntpdf .st span{font-size:12px;color:#475569;line-height:1.45;display:block}
+.ntpdf .nt{font-size:11px;color:#94A3B8;line-height:1.5}
+.ntpdf .ft{margin-top:auto;background:#0F172A;color:#CBD5E1;padding:16px 48px;display:flex;justify-content:space-between;font-size:12px}
+.ntpdf .ft span:first-child{color:#FFFFFF;font-weight:800}
+</style>
+<div class="ntpdf">
+  <div class="pg">
+    <div class="band">${head(1)}<div class="gl"></div>
+      <h1>${L.title}</h1><div class="sb">${L.sub}</div>
+      <div class="meta"><div>${L.parent}<b>${esc(S.name||"—")}</b></div><div>${L.grade}<b>${S.grade}</b></div><div>${L.date}<b>${dstr}</b></div></div>
+    </div>
+    <div class="body">
+      <div><div class="lbl">${L.top}</div>
+        <div class="t3w">${r.slice(0,3).map((id,k)=>`<div class="t3c${k===0?" first":""}"><div class="t3k">${k+1}</div><div class="t3pc">${sc[id]}<small>%</small></div><div class="t3nm">${esc(sch(id)[S.lang].n)}</div><div class="t3d">${esc(sch(id)[S.lang].d)}</div></div>`).join("")}</div></div>
+      <div><div class="lbl">${L.rank}</div>${rowsH}</div>
+      <div class="two">
+        <div class="cnt"><b>${m}</b><span>${t("cntH")(m)}</span></div>
+        <div class="cta"><b>${t("bookH")}</b><span>${S.booked&&b?L.booked(b.n+" ("+b[S.lang]+")", dObj?dObj.dm:S.day, S.time):L.notBooked}</span></div>
+      </div>
+    </div>
+    ${foot}
+  </div>
+  <div class="pg">
+    <div class="band" style="padding-bottom:26px">${head(2)}<div class="gl"></div><h1 style="font-size:24px">${L.ans}</h1></div>
+    <div class="body">
+      <div>${ansH}</div>
+      ${deepIds.length?`<div class="nt" style="color:#475569">✓ ${L.deep}: ${deepIds.map(id=>esc(sch(id)[S.lang].n)+" — "+S.deep[id]+"%").join("; ")}</div>`:""}
+      <div><div class="lbl">${L.next}</div><div class="steps">${L.steps.map((x,k)=>`<div class="st"><em>${k+1}</em><b>${x[0]}</b><span>${x[1]}</span></div>`).join("")}</div></div>
+      <div class="nt">${L.note}</div>
+    </div>
+    ${foot}
+  </div>
+</div>`;
+}
+async function downloadPdf(btn){
+  if(S.pdfBusy) return; S.pdfBusy=true; S.pdfMsg="";
+  const label=btn?btn.textContent:""; if(btn){ btn.disabled=true; btn.textContent=t("pdfWait"); }
+  let host=null;
+  try{
+    for(const src of PDF_LIBS) await loadLib(src);
+    host=document.createElement("div");
+    host.setAttribute("aria-hidden","true");
+    host.style.cssText="position:fixed;left:-12000px;top:0;width:794px;z-index:-1;pointer-events:none";
+    host.innerHTML=pdfHTML(); document.body.appendChild(host);
+    try{ if(document.fonts && document.fonts.ready) await document.fonts.ready; }catch(e){}
+    const doc=new window.jspdf.jsPDF({unit:"pt",format:"a4",compress:true});
+    const pages=host.querySelectorAll(".pg");
+    for(let k=0;k<pages.length;k++){
+      const cv=await window.html2canvas(pages[k],{scale:2,backgroundColor:"#FFFFFF",logging:false,useCORS:true});
+      if(k) doc.addPage();
+      doc.addImage(cv.toDataURL("image/jpeg",0.92),"JPEG",0,0,595.28,841.89);
+    }
+    const fname=PT[S.lang].file+"-"+(S.name||"").replace(/[^\wА-Яа-яЁёʻ'-]+/g,"_").slice(0,30)+".pdf";
+    let handled=false;
+    try{ if(window.claude && typeof window.claude.use==="function"){ const dl=await window.claude.use("downloads");
+      if(dl){ try{ await dl.save({filename:fname,data:doc.output("blob")}); }catch(e){} handled=true; } } }catch(e){}
+    if(!handled) doc.save(fname);
+    track("Download",{format:"pdf"});
+  }catch(e){ S.pdfMsg=t("pdfErr"); }
+  finally{ if(host) host.remove(); S.pdfBusy=false; if(btn){ btn.disabled=false; btn.textContent=label; } if(S.pdfMsg){ const m=$("#nt-pdfmsg"); if(m) m.textContent=S.pdfMsg; } }
+}
+
+/* ============================ СОБЫТИЯ ============================ */
+function go(scr){ S.screen=scr; render(); top0(); }
+function keepForm(){ const n=$("#nt-name"); if(n) S.name=n.value; const p=$("#nt-phone"); if(p) S.phone=digits(p.value); }
+function bind(){
+  const on=(sel,fn)=>{ const el=$(sel); if(el) el.onclick=fn; };
+  on("#nt-start", ()=>{ track("TestStart"); go("grade"); });
+  $$("[data-g]").forEach(b=>b.onclick=()=>{ S.grade=+b.dataset.g; S.i=0; go("quiz"); });
+  $$("[data-a]").forEach(b=>b.onclick=()=>{
+    S.ans[S.i]=+b.dataset.a;
+    if(S.i===7) track("TestHalf");
+    if(S.i<MAIN.length-1){ S.i++; render(); }
+    else { track("TestComplete",{top:sch(ranked()[0]).ru.n}); send("complete"); go(S.lead?"result":"gate"); }
+  });
+  on("#nt-back", ()=>{
+    if(S.screen==="grade") go("intro");
+    else if(S.screen==="quiz"){ if(S.i===0) go("grade"); else { S.i--; render(); } }
+    else if(S.screen==="deep"){ if(S.di===0) go("result"); else { S.di--; S.dans.pop(); render(); } }
+  });
+  /* форма */
+  const f=$("#nt-lead");
+  if(f){
+    const ph=$("#nt-phone");
+    ph.oninput=()=>{ S.phone=digits(ph.value); ph.value=fmtPhone(S.phone); };
+    $("#nt-name").oninput=e=>{ S.name=e.target.value; };
+    $$("[data-role]").forEach(b=>b.onclick=()=>{ keepForm(); S.role = S.role===b.dataset.role ? "" : b.dataset.role; render(); });
+    on("#nt-tgc", ()=>{ try{ TG.requestContact((ok, res)=>{
+      const c = res && res.responseUnsafe && res.responseUnsafe.contact;
+      if(c){ S.phone=digits(c.phone_number||""); if(!S.name) S.name=c.first_name||""; render(); }
+    }); }catch(e){} });
+    f.onsubmit=e=>{
+      e.preventDefault(); keepForm(); S.errs={};
+      if(S.name.trim().length<2) S.errs.name=1;
+      if(S.phone.length!==9) S.errs.phone=1;
+      if(Object.keys(S.errs).length) return render();
+      S.name=S.name.trim(); S.lead=true; send("lead"); track("Lead",{top:sch(ranked()[0]).ru.n,grade:S.grade},true); go("result");
+    };
+  }
+  /* результат */
+  $$("[data-br]").forEach(b=>b.onclick=()=>{ S.branch=b.dataset.br; S.bookErr=false; render(); });
+  $$("[data-day]").forEach(b=>b.onclick=()=>{ S.day=b.dataset.day; S.bookErr=false; render(); });
+  $$("[data-time]").forEach(b=>b.onclick=()=>{ S.time=b.dataset.time; S.bookErr=false; render(); });
+  on("#nt-bookbtn", ()=>{
+    if(!S.branch||!S.day||!S.time){ S.bookErr=true; render(); return; }
+    S.booked=true; send("booking"); track("Schedule",{branch:S.branch},true); render();
+    const bk=$("#nt-book"); if(bk) bk.scrollIntoView({block:"center"});
+  });
+  $$("[data-deep]").forEach(b=>b.onclick=()=>{ S.dschool=b.dataset.deep; S.di=0; S.dans=[]; track("DeepCheck",{school:S.dschool}); go("deep"); });
+  $$("[data-da]").forEach(b=>b.onclick=()=>{
+    const s=sch(S.dschool); S.dans.push(+b.dataset.da===s.q[S.di][2]?1:0);
+    if(S.di<s.q.length-1){ S.di++; render(); return; }
+    S.deep[S.dschool]=Math.round(S.dans.reduce((x,y)=>x+y,0)/s.q.length*100);
+    if(S.lead) send("deep");
+    go("result");
+  });
+  on("#nt-share", ()=>track("Share",{channel:"telegram"}));
+  on("#nt-tobook", ()=>{ const bk=$("#nt-book"); if(bk) bk.scrollIntoView({block:"start",behavior:"smooth"}); track("FinalCTA"); });
+  const pb=$("#nt-pdf"); if(pb) pb.onclick=()=>downloadPdf(pb);
+  on("#nt-copy", ()=>{
+    const txt=$("#nt-sharetext").value; const ok=()=>{ S.copied=true; render(); track("Share",{channel:"copy"}); };
+    try{ navigator.clipboard.writeText(txt).then(ok, ()=>{ fallbackCopy(); ok(); }); }catch(e){ fallbackCopy(); ok(); }
+  });
+  on("#nt-again", ()=>{ SID=newSid(); S.booked=false; S.left=false; S.branch=""; S.day=""; S.time=""; S.ans=[]; S.i=0; S.deep={}; S.grade=0; S.copied=false; go("grade"); });
+}
+function fallbackCopy(){ const ta=$("#nt-sharetext"); if(!ta) return; ta.style.left="0"; ta.select(); try{ document.execCommand("copy"); }catch(e){} ta.style.left="-9999px"; }
+
+function init(){
+  $$("[data-l]").forEach(b=>b.onclick=()=>{ keepForm(); S.lang=b.dataset.l; try{localStorage.setItem("nt-lang",S.lang)}catch(e){} render(); });
+  if(TG){ try{ TG.ready(); TG.expand(); }catch(e){} }
+  track("ViewContent",{},true);
+  render();
+}
+if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",init); else init();
+})();
+</script>
+
+</body>
+</html>
