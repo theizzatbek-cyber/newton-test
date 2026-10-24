@@ -8,200 +8,194 @@
 <meta property="og:title" content="Какая спецшкола Ташкента подходит вашему ребёнку?">
 <meta property="og:description" content="16 вопросов «да / нет», 3 минуты — рейтинг 8 спецшкол и 3 школы, которые подходят ребёнку. Newton Academy.">
 <meta property="og:type" content="website">
-<meta name="theme-color" content="#0F172A">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%234F46E5'/%3E%3Cstop offset='.5' stop-color='%23A855F7'/%3E%3Cstop offset='1' stop-color='%23EC4899'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='url(%23g)'/%3E%3Ctext x='32' y='44' font-family='Arial' font-weight='700' font-size='34' text-anchor='middle' fill='white'%3EN%3C/text%3E%3C/svg%3E">
+<meta name="theme-color" content="#D4FA33">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%23644BEF'/%3E%3Ctext x='32' y='44' font-family='Arial' font-weight='800' font-size='34' text-anchor='middle' fill='%23D4FA33'%3EN%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap">
 <style>
-/* Layout: одна колонка 600px. Путь: старт → класс → 16 вопросов → номер → рейтинг → запись в филиал */
+/* Layout: светлый фон, модульные блоки со скруглением 28–36px. Старт: лаймовый hero → тёмная полоса фактов → заголовок раздела + сетка карточек школ. Квиз: одна карточка 760px. */
 :root{
-  --bg:#FAFAFA; --card:#FFFFFF; --line:#E2E8F0; --line-2:#F1F5F9;
-  --fg:#0F172A; --fg-2:#475569; --muted:#94A3B8;
-  --good:#10B981; --bad:#EF4444; --mid:#F59E0B;
-  --accent:#4F46E5; --accent-soft:#EEF2FF; --dark:#0F172A; --on-dark:#FFFFFF; --on-dark-2:#A5B4FC;
-  --foot:#0F172A; --foot-fg:#CBD5E1; --foot-mute:#64748B; --foot-line:#1E293B;
-  --grad:linear-gradient(135deg,#4F46E5 0%,#A855F7 50%,#EC4899 100%);
-  --font:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  --lime:#D4FA33; --violet:#644BEF; --violet-hover:#5236E3; --ink:#181424; --white:#FFFFFF;
+  --bg:#F6F5F9; --card:#FFFFFF; --line:#E4E1EC; --line-2:#EFEDF4;
+  --fg:#181424; --fg-2:#4B4659; --muted:#8A8597;
+  --accent:#644BEF; --accent-soft:#EEEBFE; --dark:#181424; --on-dark:#FFFFFF; --on-dark-2:#D4FA33;
+  --good:#644BEF; --bad:#D93D45; --mid:#644BEF; --grad:#644BEF;
+  --font:"Montserrat",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"Montserrat",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --r-xl:32px; --r-lg:24px; --r-md:16px;
+  color-scheme:light;
 }
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#0B1020; --card:#131A2E; --line:#243049; --line-2:#1A2338;
-  --fg:#E8ECF5; --fg-2:#A7B1C7; --muted:#6B7690; --accent:#8B8CF8; --accent-soft:#1E2246; --dark:#1A2340; --foot:#060912; --foot-line:#1A2338; color-scheme:dark}}
-:root[data-theme="dark"]{
-  --bg:#0B1020; --card:#131A2E; --line:#243049; --line-2:#1A2338;
-  --fg:#E8ECF5; --fg-2:#A7B1C7; --muted:#6B7690; --accent:#8B8CF8; --accent-soft:#1E2246; --dark:#1A2340; --foot:#060912; --foot-line:#1A2338; color-scheme:dark}
 body{background:var(--bg);margin:0}
 #nt-app,#nt-app *{box-sizing:border-box}
-#nt-app{background:var(--bg);color:var(--fg);font-family:var(--font);font-size:16px;line-height:1.5;text-align:left;
-  display:flex;flex-direction:column;min-height:100vh}
-#nt-app .main{flex:1;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px}
+#nt-app{background:var(--bg);color:var(--fg);font-family:var(--font);font-size:16px;line-height:1.55;font-weight:500;text-align:left;
+  display:flex;flex-direction:column;min-height:100vh;font-variant-numeric:tabular-nums}
+#nt-app .main{flex:1;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 64px}
 #nt-app button{-webkit-appearance:none;appearance:none;touch-action:manipulation;font-family:var(--font)}
-#nt-app .wrap{max-width:1120px;margin:0 auto;display:flex;flex-direction:column;gap:24px}
-#nt-app .narrow{max-width:680px;width:100%;margin-inline:auto}
-#nt-app .split{display:grid;grid-template-columns:minmax(0,1fr);gap:24px}
-#nt-app .rgrid{display:grid;grid-template-columns:minmax(0,1fr);grid-template-areas:"hero" "final" "rank" "share" "again";max-width:760px;margin-inline:auto;width:100%;gap:16px}
-#nt-app .a-hero{grid-area:hero}#nt-app .a-side{grid-area:side;display:flex;flex-direction:column;gap:16px}
-#nt-app .a-rank{grid-area:rank}#nt-app .a-share{grid-area:share}#nt-app .a-again{grid-area:again;justify-self:center}
-/* список школ на старте */
-#nt-app .slist{display:flex;flex-direction:column}
-#nt-app .sitem{display:grid;grid-template-columns:40px minmax(0,1fr);gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--line-2)}
-#nt-app .sitem:first-child{border-top:0;padding-top:0}
-#nt-app .sitem b{display:block;font-size:14px;line-height:1.3}
-#nt-app .sitem small{display:block;font-size:12px;color:var(--fg-2);line-height:1.35}
-/* подвал */
-#nt-app .foot{background:var(--foot);color:var(--foot-fg);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px calc(20px + env(safe-area-inset-bottom,0px))}
-#nt-app .foot .wrap{gap:16px}
-#nt-app .frow{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px 24px}
-#nt-app .fbrand{font-weight:800;font-size:17px;letter-spacing:-.02em;color:#fff}
-#nt-app .fbrand span{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
-#nt-app .ftag{font-size:13px;color:var(--foot-fg);max-width:420px;margin-top:2px}
-#nt-app .flinks{display:flex;flex-wrap:wrap;gap:8px}
-#nt-app .flinks a{color:#fff;text-decoration:none;font-size:13px;font-weight:600;border:1px solid var(--foot-line);border-radius:999px;padding:7px 13px}
-#nt-app .flinks a:hover{border-color:#475569}
-#nt-app .fstats{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px}
-#nt-app .fstats b{font-family:var(--mono);color:#fff}
-#nt-app .fbottom{border-top:1px solid var(--foot-line);padding-top:14px;font-size:12px;color:var(--foot-mute);display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 16px}
-#nt-app .top{display:flex;align-items:center;justify-content:space-between;gap:12px}
-#nt-app .brand{font-weight:800;letter-spacing:-.02em;font-size:18px}
-#nt-app .g,#nt-app .brand span{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
-#nt-app .lang{display:flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--card)}
-#nt-app .lang button{border:0;background:none;color:var(--fg-2);font-weight:600;font-size:13px;padding:6px 12px;border-radius:999px;cursor:pointer}
-#nt-app .lang button[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
-#nt-app .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px}
-#nt-app h1{font-size:clamp(26px,6.6vw,34px);line-height:1.12;letter-spacing:-.03em;margin:0;text-wrap:balance}
-#nt-app h2{font-size:21px;line-height:1.25;letter-spacing:-.02em;margin:0;text-wrap:balance}
-#nt-app h3{font-size:17px;letter-spacing:-.01em;margin:0}
+#nt-app .wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:24px}
+#nt-app .narrow{max-width:760px;width:100%;margin-inline:auto}
+#nt-app .split{display:grid;grid-template-columns:minmax(0,1fr);gap:20px}
 #nt-app p{margin:0}
+/* шапка */
+#nt-app .top{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px}
+#nt-app .brand{font-weight:800;letter-spacing:-.02em;font-size:19px;color:var(--ink)}
+#nt-app .brand span{color:var(--violet)}
+#nt-app .lang{display:flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--card)}
+#nt-app .lang button{border:0;background:none;color:var(--fg-2);font-weight:700;font-size:13px;padding:7px 14px;border-radius:999px;cursor:pointer}
+#nt-app .lang button[aria-pressed="true"]{background:var(--ink);color:var(--white)}
+/* типографика */
+#nt-app h1{font-size:clamp(24px,6.4vw,44px);line-height:1.05;letter-spacing:-.035em;font-weight:800;margin:0;text-wrap:balance;overflow-wrap:break-word}
+#nt-app h2{font-size:clamp(26px,3.6vw,40px);line-height:1.1;letter-spacing:-.03em;font-weight:800;margin:0;text-wrap:balance}
+#nt-app h3{font-size:20px;line-height:1.25;letter-spacing:-.015em;font-weight:700;margin:0;text-wrap:balance}
+#nt-app .sec-h{font-size:clamp(32px,5.6vw,68px);line-height:1;letter-spacing:-.04em;font-weight:800;margin:24px 0 4px;text-wrap:balance}
 #nt-app .sub{color:var(--fg-2)}
-#nt-app .eyebrow{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+#nt-app .eyebrow{font-size:12px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
 #nt-app .stack{display:flex;flex-direction:column;gap:16px}
 #nt-app .tight{gap:8px}
 #nt-app .center{text-align:center}
-#nt-app .facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-#nt-app .fact{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px}
-#nt-app .fact b{display:block;font:700 22px var(--mono);letter-spacing:-.02em}
-#nt-app .fact span{font-size:12px;color:var(--fg-2);line-height:1.3;display:block}
-#nt-app .trust{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--fg-2)}
-#nt-app .trust span::before{content:"✓ ";color:var(--good);font-weight:700}
-#nt-app label,#nt-app .lbl{font-size:14px;font-weight:600;display:block;margin-bottom:6px}
-#nt-app .opt{font-weight:500;color:var(--muted)}
-#nt-app input{width:100%;font:500 16px var(--font);color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:13px 14px;outline:none}
-#nt-app input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
-#nt-app .err{color:var(--bad);font-size:13px;margin-top:6px}
-#nt-app .chips{display:flex;flex-wrap:wrap;gap:8px}
-#nt-app .chip{font-weight:600;font-size:15px;padding:11px 14px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer;min-width:48px}
-#nt-app .chip[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
-#nt-app .chip:disabled{opacity:.4;cursor:default}
-#nt-app .grades{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
-#nt-app .grades .chip{font:700 20px var(--mono);padding:16px 0;min-width:0}
-#nt-app .branches{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-#nt-app .branches .chip{text-align:left;padding:11px 12px;font-size:14px;min-width:0}
-#nt-app .branches .chip small{display:block;font-weight:500;color:var(--fg-2);font-size:12px}
-#nt-app .days{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
-#nt-app .days .chip{flex:none;text-align:center;padding:9px 12px;font-size:14px}
-#nt-app .days .chip small{display:block;font-weight:500;font-size:12px;color:var(--fg-2)}
-#nt-app .btn{font-weight:700;font-size:16px;border:0;border-radius:12px;padding:15px 18px;cursor:pointer;background:var(--fg);color:var(--bg);width:100%;text-align:center;text-decoration:none;display:block}
-#nt-app .btn.grad{background:var(--grad);color:#fff}
-#nt-app .btn.ghost{background:transparent;color:var(--fg);border:1px solid var(--line)}
-#nt-app .btn.tg{background:#229ED9;color:#fff}
+#nt-app .note{font-size:13px;color:var(--muted);font-weight:500}
+#nt-app .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-xl);padding:24px}
+/* кнопки */
+#nt-app .btn{font-weight:700;font-size:16px;border:0;border-radius:999px;padding:17px 26px;cursor:pointer;background:var(--ink);color:var(--white);width:100%;text-align:center;text-decoration:none;display:block;line-height:1.25;transition:background .15s ease,transform .15s ease}
+#nt-app .btn:hover{transform:translateY(-1px)}
+#nt-app .btn.grad,#nt-app .btn.tg{background:var(--violet);color:var(--white)}
+#nt-app .btn.grad:hover,#nt-app .btn.tg:hover{background:var(--violet-hover)}
+#nt-app .btn.lime{background:var(--lime);color:var(--ink)}
+#nt-app .btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+#nt-app .btn.ghost:hover{border-color:var(--ink)}
 #nt-app .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-#nt-app .note{font-size:12px;color:var(--muted)}
-#nt-app button:focus-visible,#nt-app input:focus-visible,#nt-app a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-/* вопрос */
-#nt-app .prog{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
-#nt-app .prog i{display:block;height:100%;background:var(--grad);border-radius:3px;transition:width .3s ease}
-#nt-app .qhead{display:flex;justify-content:space-between;align-items:center;gap:10px}
-#nt-app .qnum{font:700 13px var(--mono);color:var(--muted)}
-#nt-app .q{font-size:clamp(20px,5vw,24px);font-weight:700;line-height:1.3;letter-spacing:-.015em;text-wrap:balance;min-height:3.9em}
-#nt-app .yn{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-#nt-app .yn button{font-weight:800;font-size:18px;padding:20px 10px;border-radius:14px;cursor:pointer;border:1.5px solid var(--line);background:var(--bg);color:var(--fg)}
-#nt-app .yn button.yes:hover{border-color:var(--good);color:var(--good)}
-#nt-app .yn button.no:hover{border-color:var(--bad);color:var(--bad)}
-#nt-app .back{background:none;border:0;color:var(--fg-2);font-weight:600;font-size:14px;cursor:pointer;padding:4px 0;align-self:flex-start}
-#nt-app .ic{width:40px;height:40px;border-radius:11px;display:grid;place-items:center;font:700 12px var(--mono);color:#fff;flex:none}
-/* замок */
-#nt-app .teaser{position:relative;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:var(--card);padding:14px}
-#nt-app .teaser .rows{filter:blur(5px);user-select:none;display:flex;flex-direction:column;gap:10px}
-#nt-app .teaser .lock{position:absolute;inset:0;display:grid;place-items:center;font-weight:700;font-size:14px;color:var(--fg)}
-#nt-app .teaser .lock span{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:8px 14px}
-/* рейтинг */
-#nt-app .hero{background:var(--dark);color:var(--on-dark);border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:14px}
-#nt-app .hero .eyebrow{color:var(--on-dark-2)}
-#nt-app .hero .big{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap}
-#nt-app .hero .pct{font:700 56px/1 var(--mono);letter-spacing:-.04em}
-#nt-app .hero .pct small{font-size:26px}
-#nt-app .hero .nm{font-size:20px;font-weight:800;letter-spacing:-.015em;line-height:1.25;flex:1;min-width:180px}
-#nt-app .hero p{color:#CBD5E1;font-size:14px}
-#nt-app .rlist{display:flex;flex-direction:column}
-#nt-app .rrow{display:grid;grid-template-columns:24px minmax(0,1fr) 52px;gap:10px;align-items:center;padding:12px 0;border-top:1px solid var(--line-2)}
-#nt-app .rrow:first-child{border-top:0}
-#nt-app .rrow .n{font:700 13px var(--mono);color:var(--muted)}
-#nt-app .rrow .t{min-width:0}
-#nt-app .rrow .t b{display:block;font-size:14px;line-height:1.3}
-#nt-app .bar{height:6px;border-radius:3px;background:var(--line-2);overflow:hidden;margin-top:6px}
-#nt-app .bar i{display:block;height:100%;border-radius:3px}
-#nt-app .rrow .p{font:700 15px var(--mono);text-align:right}
-#nt-app .link{background:none;border:0;color:var(--accent);font-weight:600;font-size:13px;cursor:pointer;padding:4px 0 0}
+#nt-app button:focus-visible,#nt-app input:focus-visible,#nt-app a:focus-visible{outline:3px solid var(--violet);outline-offset:2px}
+/* старт: лаймовый блок */
+#nt-app .hero-l{background:var(--lime);color:var(--ink);border-radius:var(--r-xl);padding:clamp(28px,5vw,64px);display:grid;grid-template-columns:minmax(0,1fr);gap:32px}
+#nt-app .hero-l .lead{font-size:clamp(16px,1.6vw,19px);font-weight:500;color:var(--ink);max-width:34em;opacity:.85}
+#nt-app .hero-l .btn{max-width:340px}
+#nt-app .hfacts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-content:end}
+#nt-app .hfact{border-top:1.5px solid rgba(24,20,36,.18);padding-top:12px}
+#nt-app .hfact b{display:block;font-size:clamp(36px,5vw,64px);line-height:1;font-weight:800;letter-spacing:-.04em}
+#nt-app .hfact span{display:block;font-size:13px;font-weight:600;margin-top:6px;line-height:1.3}
+/* полоса доверия */
+#nt-app .tband{background:var(--ink);color:var(--white);border-radius:var(--r-xl);padding:22px 24px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 20px}
+#nt-app .tband span{font-size:15px;font-weight:600;display:flex;gap:10px;align-items:baseline}
+#nt-app .tband span::before{content:"";width:8px;height:8px;border-radius:2px;background:var(--lime);flex:none;transform:translateY(-2px)}
+/* сетка школ */
+#nt-app .sgrid{display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
+#nt-app .sc{border-radius:28px;padding:24px;display:flex;flex-direction:column;gap:10px}
+#nt-app .sc b{font-size:14px;line-height:1.3;font-weight:800;text-transform:uppercase;letter-spacing:.02em}
+#nt-app .sc small{font-size:14px;line-height:1.45;font-weight:500}
+#nt-app .sc.v-violet{background:var(--violet);color:var(--white)}
+#nt-app .sc.v-violet small{color:rgba(255,255,255,.85)}
+#nt-app .sc.v-white{background:var(--card);border:1px solid var(--line);color:var(--ink)}
+#nt-app .sc.v-white small{color:var(--fg-2)}
+/* поля */
+#nt-app label,#nt-app .lbl{font-size:14px;font-weight:700;display:block;margin-bottom:8px}
+#nt-app .opt{font-weight:500;opacity:.7}
+#nt-app input{width:100%;font:500 16px var(--font);color:var(--ink);background:var(--white);border:1.5px solid transparent;border-radius:var(--r-md);padding:16px;outline:none;min-height:56px}
+#nt-app input:focus{border-color:var(--violet);box-shadow:0 0 0 3px rgba(100,75,239,.18)}
+#nt-app .err{color:var(--bad);font-size:13px;font-weight:600;margin-top:6px}
+#nt-app .chips{display:flex;flex-wrap:wrap;gap:8px}
+#nt-app .chip{font-weight:700;font-size:15px;padding:12px 18px;border-radius:var(--r-md);border:1.5px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;min-width:48px;transition:border-color .15s ease,background .15s ease}
+#nt-app .chip:hover{border-color:var(--violet)}
+#nt-app .chip[aria-pressed="true"]{background:var(--violet);border-color:var(--violet);color:var(--white)}
+#nt-app .grades{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+#nt-app .grades .chip{font-size:22px;font-weight:800;padding:18px 0;min-width:0;border-radius:20px}
+/* квиз */
+#nt-app .qcard{background:var(--card);border:1px solid var(--line);border-radius:var(--r-xl);padding:24px;display:flex;flex-direction:column;gap:20px}
+#nt-app .qhead{display:flex;justify-content:space-between;align-items:center;gap:12px}
+#nt-app .qnum{font-size:13px;font-weight:700;color:var(--ink);background:var(--line-2);border-radius:999px;padding:6px 12px;white-space:nowrap}
+#nt-app .qschool{font-size:14px;font-weight:700;color:var(--violet);min-width:0}
+#nt-app .prog{height:8px;border-radius:99px;background:var(--line-2);overflow:hidden}
+#nt-app .prog i{display:block;height:100%;background:var(--violet);border-radius:99px;transition:width .3s ease}
+#nt-app .q{font-size:clamp(22px,3.2vw,32px);font-weight:700;line-height:1.22;letter-spacing:-.02em;text-wrap:balance;min-height:3.7em}
+#nt-app .yn{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+#nt-app .yn button{font-weight:800;font-size:20px;padding:24px 10px;border-radius:var(--r-lg);cursor:pointer;border:2px solid var(--line);background:var(--bg);color:var(--ink);transition:border-color .15s ease,background .15s ease,color .15s ease}
+#nt-app .yn button:hover{border-color:var(--violet)}
+#nt-app .yn button[aria-pressed="true"]{background:var(--violet);border-color:var(--violet);color:var(--white)}
+#nt-app .back{background:none;border:0;color:var(--fg-2);font-weight:700;font-size:14px;cursor:pointer;padding:6px 0;align-self:flex-start}
+#nt-app .back:hover{color:var(--ink)}
+/* экран номера */
+#nt-app .formcard{background:var(--lime);color:var(--ink);border-radius:var(--r-xl);padding:clamp(24px,3.4vw,40px);display:flex;flex-direction:column;gap:18px}
+#nt-app .formcard .note{color:var(--ink);opacity:.7}
+#nt-app .teaser{position:relative;border-radius:var(--r-xl);overflow:hidden;border:1px solid var(--line);background:var(--card);padding:20px 24px}
+#nt-app .teaser .rows{filter:blur(5px);user-select:none;display:flex;flex-direction:column}
+#nt-app .teaser .lock{position:absolute;inset:0;display:grid;place-items:center;font-weight:700;font-size:14px}
+#nt-app .teaser .lock span{background:var(--ink);color:var(--white);border-radius:999px;padding:10px 18px}
+/* результат */
+#nt-app .rgrid{display:grid;grid-template-columns:minmax(0,1fr);grid-template-areas:"hero" "final" "rank" "share" "again";gap:16px;max-width:820px;margin-inline:auto;width:100%}
+#nt-app .a-hero{grid-area:hero}#nt-app .a-final{grid-area:final}#nt-app .a-rank{grid-area:rank}#nt-app .a-share{grid-area:share}#nt-app .a-again{grid-area:again;justify-self:center}
+#nt-app .hero{background:var(--ink);color:var(--white);border-radius:var(--r-xl);padding:clamp(24px,3.6vw,40px);display:flex;flex-direction:column;gap:16px}
+#nt-app .hero .eyebrow{color:var(--lime)}
+#nt-app .hero p{color:#C9C4D6;font-size:15px}
 #nt-app .t3list{display:flex;flex-direction:column}
-#nt-app .t3{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:12px;align-items:center;padding:14px 0;border-top:1px solid rgba(255,255,255,.1)}
+#nt-app .t3{display:grid;grid-template-columns:36px minmax(0,1fr) auto;gap:14px;align-items:center;padding:16px 0;border-top:1px solid rgba(255,255,255,.12)}
 #nt-app .t3:first-child{border-top:0;padding-top:4px}
-#nt-app .t3n{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font:700 13px var(--mono);background:rgba(255,255,255,.1);color:#fff}
-#nt-app .t3:first-child .t3n{background:var(--grad)}
-#nt-app .t3 b{display:block;font-size:16px;line-height:1.3}
-#nt-app .t3 small{display:block;font-size:13px;color:#94A3B8;margin-top:2px}
-#nt-app .t3p{font:700 28px var(--mono);letter-spacing:-.03em;white-space:nowrap}
-#nt-app .t3p small{display:inline;color:inherit;margin:0}
-#nt-app .fit{display:inline-block;font-size:11px;font-weight:700;color:var(--good);border:1px solid var(--good);border-radius:999px;padding:1px 8px;margin-left:6px;vertical-align:1px;text-transform:uppercase;letter-spacing:.04em}
+#nt-app .t3n{width:36px;height:36px;border-radius:12px;display:grid;place-items:center;font-size:15px;font-weight:800;background:rgba(255,255,255,.12);color:var(--white)}
+#nt-app .t3:first-child .t3n{background:var(--lime);color:var(--ink)}
+#nt-app .t3 b{display:block;font-size:17px;line-height:1.3;font-weight:700}
+#nt-app .t3 small{display:block;font-size:13px;color:#B5B0C4;margin-top:3px;font-weight:500}
+#nt-app .t3p{font-size:clamp(26px,3.4vw,36px);font-weight:800;letter-spacing:-.03em;color:var(--lime);white-space:nowrap}
+#nt-app .t3p small{display:inline;font-size:.5em;color:inherit;margin:0}
+#nt-app .final{background:var(--violet);color:var(--white);border-radius:var(--r-xl);padding:clamp(24px,3.6vw,40px);display:flex;flex-direction:column;gap:14px}
+#nt-app .final h3{font-size:clamp(22px,2.8vw,30px);line-height:1.18;letter-spacing:-.025em;font-weight:800;color:var(--white)}
+#nt-app .final p{color:rgba(255,255,255,.88);font-size:15px}
+#nt-app .final .btn{background:var(--lime);color:var(--ink);max-width:420px}
+#nt-app .final .btn:hover{background:#C6EE1F}
+#nt-app .sentok{background:rgba(255,255,255,.14);color:var(--white);border-radius:var(--r-md);padding:14px 18px;font-weight:700;max-width:420px}
+#nt-app .rlist{display:flex;flex-direction:column}
+#nt-app .rrow{display:grid;grid-template-columns:24px minmax(0,1fr) 56px;gap:12px;align-items:center;padding:14px 0;border-top:1px solid var(--line-2)}
+#nt-app .rrow:first-child{border-top:0}
+#nt-app .rrow .n{font-size:13px;font-weight:700;color:var(--muted)}
+#nt-app .rrow .t{min-width:0}
+#nt-app .rrow .t b{display:block;font-size:15px;line-height:1.3;font-weight:700}
 #nt-app .rrow.rest b{color:var(--fg-2);font-weight:600}
-#nt-app .rsep{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:14px 0 2px;border-top:1px solid var(--line)}
-#nt-app .blist{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
-#nt-app .blist li{display:grid;grid-template-columns:22px 1fr;gap:8px;font-size:14px;line-height:1.4}
-#nt-app .blist li::before{content:"✓";width:22px;height:22px;border-radius:7px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-weight:800;font-size:12px}
-#nt-app .final{background:var(--dark);color:var(--on-dark);border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:12px;position:relative;overflow:hidden}
-#nt-app .final::before{content:"";position:absolute;inset:0 0 auto 0;height:4px;background:var(--grad)}
-#nt-app .final h3{font-size:20px;line-height:1.3;color:#fff}
-#nt-app .final p{color:#CBD5E1;font-size:14px}
-#nt-app .a-final{grid-area:final}
-#nt-app .sentok{background:rgba(16,185,129,.15);color:#6EE7B7;border:1px solid rgba(16,185,129,.4);border-radius:12px;padding:14px;text-align:center;font-weight:700}
-#nt-app .ntm{position:fixed;inset:0;z-index:50;background:rgba(15,23,42,.55);display:grid;place-items:center;padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
-#nt-app .ntm-card{background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:20px;padding:32px 24px 24px;max-width:420px;width:100%;text-align:center;display:flex;flex-direction:column;gap:12px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
-#nt-app .ntm-ic{width:64px;height:64px;border-radius:50%;background:var(--grad);color:#fff;display:grid;place-items:center;font-size:30px;font-weight:800;margin:0 auto 4px}
-#nt-app .ntm-card h3{font-size:22px}
+#nt-app .bar{height:8px;border-radius:99px;background:var(--line-2);overflow:hidden;margin-top:8px}
+#nt-app .bar i{display:block;height:100%;border-radius:99px}
+#nt-app .rrow .p{font-size:16px;font-weight:800;text-align:right}
+#nt-app .fit{display:inline-block;font-size:11px;font-weight:700;color:var(--violet);border:1.5px solid var(--violet);border-radius:999px;padding:1px 9px;margin-left:8px;vertical-align:1px;text-transform:uppercase;letter-spacing:.04em}
+#nt-app .rsep{font-size:12px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);padding:16px 0 4px;border-top:1px solid var(--line)}
+#nt-app .link{background:none;border:0;color:var(--violet);font-weight:700;font-size:13px;cursor:pointer;padding:6px 0 0}
+#nt-app .tagok{font-size:12px;color:var(--violet);font-weight:700}
+#nt-app .err.center{text-align:center}
+/* окно заявки */
+#nt-app .ntm{position:fixed;inset:0;z-index:50;background:rgba(24,20,36,.55);display:grid;place-items:center;padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+#nt-app .ntm-card{background:var(--card);color:var(--ink);border-radius:var(--r-xl);padding:36px 28px 28px;max-width:440px;width:100%;text-align:center;display:flex;flex-direction:column;gap:12px}
+#nt-app .ntm-ic{width:64px;height:64px;border-radius:50%;background:var(--lime);color:var(--ink);display:grid;place-items:center;font-size:28px;font-weight:800;margin:0 auto 6px}
+#nt-app .ntm-card h3{font-size:24px;font-weight:800}
 #nt-app .ntm-card p{color:var(--fg-2);font-size:15px}
-@media (prefers-reduced-motion:no-preference){#nt-app .ntm-card{animation:ntin .25s ease}}
-#nt-app .tagok{font-size:12px;color:var(--good);font-weight:600}
-#nt-app .info{background:var(--line-2);border-radius:12px;padding:12px 14px;font-size:14px;color:var(--fg-2)}
-#nt-app .info b{color:var(--fg)}
-#nt-app .count{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center}
-#nt-app .count b{font:700 34px/1 var(--mono);letter-spacing:-.03em}
-#nt-app .done{display:flex;flex-direction:column;gap:6px;background:var(--accent-soft);border-radius:12px;padding:16px}
-#nt-app .done b{font-size:16px}
-@media (min-width:900px){
-  #nt-app .main{padding-block:28px 64px;display:flex}
-  #nt-app .main>.wrap{flex:1;width:100%}
-  #nt-app #nt-view{flex:1;display:flex;flex-direction:column;justify-content:center}
-  #nt-app .wrap{gap:32px}
-  #nt-app .split{grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:48px;align-items:start}
-  #nt-app .split.mid{align-items:center}
-  #nt-app h1{font-size:clamp(36px,4vw,52px)}
-  #nt-app h2{font-size:28px}
-  #nt-app .lead-big{font-size:18px;max-width:34em}
-  #nt-app .intro-cta{max-width:360px}
-  #nt-app .card{padding:32px}
-  #nt-app .narrow .card{padding:40px}
-  #nt-app .q{font-size:30px}
-  #nt-app .yn button{padding:26px 10px;font-size:20px}
+/* подвал */
+#nt-app .foot{background:var(--ink);color:#C9C4D6;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px calc(24px + env(safe-area-inset-bottom,0px))}
+#nt-app .foot .wrap{gap:16px}
+#nt-app .frow{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px 24px}
+#nt-app .fbrand{font-weight:800;font-size:18px;letter-spacing:-.02em;color:var(--white)}
+#nt-app .flinks{display:flex;flex-wrap:wrap;gap:8px}
+#nt-app .flinks a{color:var(--white);text-decoration:none;font-size:13px;font-weight:700;border:1.5px solid rgba(255,255,255,.22);border-radius:999px;padding:8px 16px}
+#nt-app .flinks a:hover{border-color:var(--lime);color:var(--lime)}
+/* превью-переключатель шагов (только в превью) */
+#nt-app .pvbar{position:fixed;z-index:40;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));display:flex;align-items:center;gap:8px;background:var(--white);color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:6px 6px 6px 16px;box-shadow:0 10px 30px rgba(24,20,36,.22);font-size:13px;font-weight:700;max-width:calc(100% - 32px)}
+#nt-app .pvbar .pvdot{width:8px;height:8px;border-radius:50%;background:var(--violet);flex:none}
+#nt-app .pvbar select{appearance:none;-webkit-appearance:none;font:700 13px var(--font);color:var(--ink);background:var(--lime);border:0;border-radius:999px;padding:9px 34px 9px 14px;cursor:pointer;min-width:0;max-width:220px;background-image:linear-gradient(45deg,transparent 50%,#181424 50%),linear-gradient(135deg,#181424 50%,transparent 50%);background-position:calc(100% - 18px) 55%,calc(100% - 13px) 55%;background-size:5px 5px,5px 5px;background-repeat:no-repeat}
+#nt-app .pvbar select:focus-visible{outline:3px solid var(--violet);outline-offset:2px}
+#nt-app:has(.pvbar) .foot{padding-bottom:calc(88px + env(safe-area-inset-bottom,0px))}
+@media (min-width:640px){
+  #nt-app .sgrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #nt-app .sc{min-height:170px}
+  #nt-app .tband{grid-template-columns:repeat(4,minmax(0,1fr))}
+  #nt-app .qcard{padding:40px}
+}
+@media (min-width:960px){
+  #nt-app .main{padding-block:28px 88px}
+  #nt-app .wrap{gap:28px}
+  #nt-app h1{font-size:clamp(44px,4.6vw,64px);max-width:22ch}
+  #nt-app .hero-l{grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:56px;align-items:end;min-height:440px}
+  #nt-app .hfacts{grid-template-columns:minmax(0,1fr);gap:18px}
+  #nt-app .sgrid{grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+  #nt-app .sec-h{text-align:center;margin-top:56px}
+  #nt-app .split{grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:28px;align-items:start}
   #nt-app .grades{grid-template-columns:repeat(9,minmax(0,1fr))}
-  #nt-app .rgrid{row-gap:20px}
-  #nt-app .a-side{position:sticky;top:20px}
-  #nt-app .hero{padding:32px}
-  #nt-app .hero .pct{font-size:72px}
-  #nt-app .hero .nm{font-size:24px}
-  #nt-app .branches{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #nt-app .yn button{padding:30px 10px;font-size:22px}
   #nt-app .foot{padding-block:32px}
 }
-@media (max-width:420px){#nt-app .row2{grid-template-columns:1fr}#nt-app .card,#nt-app .hero{padding:20px}#nt-app .fact b{font-size:19px}#nt-app .hero .pct{font-size:48px}}
-@media (prefers-reduced-motion:no-preference){#nt-app .screen{animation:ntin .25s ease}}
+@media (max-width:420px){#nt-app .row2{grid-template-columns:1fr}#nt-app .hfact span{font-size:12px}#nt-app .qcard{padding:22px}}
+@media (prefers-reduced-motion:no-preference){#nt-app .screen{animation:ntin .25s ease}#nt-app .ntm-card{animation:ntin .25s ease}}
+@media (prefers-reduced-motion:reduce){#nt-app .btn,#nt-app .prog i{transition:none}#nt-app .btn:hover{transform:none}}
 @keyframes ntin{from{opacity:.4;transform:translateY(6px)}to{opacity:1;transform:none}}
 </style>
 </head>
@@ -209,6 +203,7 @@ body{background:var(--bg);margin:0}
 
 
 <div id="nt-app"><div class="main"><div class="wrap">
+  <div class="pvbar" id="nt-pv"></div>
   <div class="top">
     <div class="brand">Newton <span>Academy</span></div>
     <div class="lang" role="group" aria-label="Til / Язык">
@@ -234,7 +229,8 @@ const CONFIG = {
   PAGE_URL:     "",        // адрес страницы теста, для кнопки «Отправить второму родителю»
   YM_ID:        0,         // номер счётчика Яндекс.Метрики (если есть)
   EXAM_MONTH:   7,         // месяц экзаменов в Президентские школы (июль)
-  SOURCE:       "school-fit-test"
+  SOURCE:       "school-fit-test",
+  PREVIEW:      false         // true — режим превью: заявки не отправляются, внизу переключатель шагов
 };
 /* Пиксель Meta (fbq), GTM (dataLayer) и Метрика (ym) подхватываются сами, если уже стоят на сайте.
    События: ViewContent → TestStart → TestHalf → TestComplete → Lead → Schedule (+ Share, DeepCheck). */
@@ -558,12 +554,13 @@ function sheetRow(){
   return row;
 }
 function toSheets(beacon){
-  if(!CONFIG.SHEETS_URL) return;
+  if(CONFIG.PREVIEW || !CONFIG.SHEETS_URL) return;
   const row=sheetRow(), body=new URLSearchParams(row); body.append("_order", JSON.stringify(Object.keys(row)));
   try{ if(beacon && navigator.sendBeacon){ navigator.sendBeacon(CONFIG.SHEETS_URL, body); return; }
     fetch(CONFIG.SHEETS_URL,{method:"POST",mode:"no-cors",body,keepalive:true}).catch(()=>{}); }catch(e){}
 }
 function send(event, beacon){
+  if(CONFIG.PREVIEW) return;
   toSheets(beacon);
   if(event==="complete") return;
   const d=leadData(event), text=tgText(d);
@@ -598,33 +595,30 @@ function footV(){
 }
 
 function introV(){
-  return `<div class="split mid">
-  <div class="stack" style="gap:20px">
-    <div class="stack tight">
-      <h1>${t("h1a")}<span class="g">${t("h1b")}</span></h1>
-    </div>
-    <div class="facts">
-      <div class="fact"><b>${SCHOOLS.length}</b><span>${t("fa")}</span></div>
-      <div class="fact"><b>${MAIN.length}</b><span>${t("fb")}</span></div>
-      <div class="fact"><b>3</b><span>${t("fc")}</span></div>
-    </div>
-    <div class="stack tight intro-cta">
+  const pattern=["v-violet","v-white","v-violet","v-white","v-white","v-violet","v-white","v-violet"];
+  return `<div class="stack" style="gap:16px">
+  <section class="hero-l">
+    <div class="stack" style="gap:24px">
+      <h1>${t("h1a")}${t("h1b")}</h1>
+      <p class="lead">${t("startNote")}</p>
       <button class="btn grad" type="button" id="nt-start">${t("start")}</button>
-      <p class="note center">${t("startNote")}</p>
     </div>
-    <div class="trust">${t("trust").map(x=>`<span>${x}</span>`).join("")}</div>
-  </div>
-  <div class="card stack">
-    <span class="eyebrow">${t("inList")}</span>
-    <div class="slist">${SCHOOLS.map(s=>`<div class="sitem"><span class="ic" style="background:${s.color}">${s.tag}</span><span style="min-width:0"><b>${esc(s[S.lang].n)}</b><small>${esc(s[S.lang].d)}</small></span></div>`).join("")}</div>
-  </div>
+    <div class="hfacts">
+      <div class="hfact"><b>${SCHOOLS.length}</b><span>${t("fa")}</span></div>
+      <div class="hfact"><b>${MAIN.length}</b><span>${t("fb")}</span></div>
+      <div class="hfact"><b>3</b><span>${t("fc")}</span></div>
+    </div>
+  </section>
+  <div class="tband">${t("trust").map(x=>`<span>${x}</span>`).join("")}</div>
+  <h2 class="sec-h">${t("inList")}</h2>
+  <div class="sgrid">${SCHOOLS.map((s,k)=>`<div class="sc ${pattern[k%8]}"><b>${esc(s[S.lang].n)}</b><small>${esc(s[S.lang].d)}</small></div>`).join("")}</div>
   </div>`;
 }
 
 function progress(k){ const total=MAIN.length+1; return `<div class="prog"><i style="width:${Math.round(k/total*100)}%"></i></div>`; }
 
 function gradeV(){
-  return `<div class="narrow"><div class="card stack">
+  return `<div class="narrow"><div class="qcard">
     <div class="qhead"><span class="eyebrow">Newton test</span><span class="qnum">1 ${t("of")} ${MAIN.length+1}</span></div>
     ${progress(1)}
     <div class="stack tight"><p class="q" style="min-height:0">${t("gradeQ")}</p><p class="sub">${t("gradeSub")}</p></div>
@@ -634,14 +628,14 @@ function gradeV(){
 }
 
 function quizV(){
-  const q=MAIN[S.i];
-  return `<div class="narrow"><div class="card stack">
+  const q=MAIN[S.i], a=S.ans[S.i];
+  return `<div class="narrow"><div class="qcard">
     <div class="qhead"><span class="eyebrow">Newton test</span><span class="qnum">${S.i+2} ${t("of")} ${MAIN.length+1}</span></div>
     ${progress(S.i+2)}
     <p class="q">${q[S.lang]}</p>
     <div class="yn">
-      <button class="yes" type="button" id="nt-yes" data-a="1">${t("yes")}</button>
-      <button class="no" type="button" id="nt-no" data-a="0">${t("no")}</button>
+      <button class="yes" type="button" id="nt-yes" data-a="1" aria-pressed="${a===1}">${t("yes")}</button>
+      <button class="no" type="button" id="nt-no" data-a="0" aria-pressed="${a===0}">${t("no")}</button>
     </div>
     <button class="back" type="button" id="nt-back">${t("back")}</button>
   </div></div>`;
@@ -651,9 +645,9 @@ function rows(list, blurNames){
   const sc=scores();
   return list.map((id,k)=>{ const s=sch(id), p=sc[id], fit=k<3;
     return `${!blurNames&&k===3?`<div class="rsep">${t("restH")}</div>`:""}<div class="rrow${fit?"":" rest"}"><span class="n">${k+1}</span>
-      <div class="t"><b>${blurNames?"██████████ ████":esc(s[S.lang].n)}${!blurNames&&fit?`<span class="fit">${t("fitTag")}</span>`:""}</b><div class="bar"><i style="width:${Math.max(p,2)}%;background:${k===0?"var(--grad)":fit?s.color:"var(--muted)"};${fit?"":"opacity:.45"}"></i></div>
+      <div class="t"><b>${blurNames?"██████████ ████":esc(s[S.lang].n)}${!blurNames&&fit?`<span class="fit">${t("fitTag")}</span>`:""}</b><div class="bar"><i style="width:${Math.max(p,2)}%;background:${fit?"var(--violet)":"#C9C5D4"}"></i></div>
       ${blurNames?"":(S.deep[id]!=null?`<span class="tagok">${t("deepOk")}</span>`:`<button class="link" type="button" id="nt-d-${id}" data-deep="${id}">${t("deep")}</button>`)}</div>
-      <span class="p" style="color:${fit?"var(--good)":"var(--muted)"}">${p}%</span></div>`; }).join("");
+      <span class="p" style="color:${fit?"var(--violet)":"var(--muted)"}">${p}%</span></div>`; }).join("");
 }
 
 function gateV(){
@@ -661,13 +655,13 @@ function gateV(){
   return `<div class="split">
   <div class="stack">
     <div class="stack tight">
-      <span class="eyebrow">${t("gateH")} ✓</span>
+      <span class="eyebrow" style="color:var(--violet)">${t("gateH")}</span>
       <h2>${t("gateHi")(hi)}</h2>
       <p class="sub">${t("gateSub")}</p>
     </div>
     <div class="teaser" aria-hidden="true"><div class="rows">${rows(ranked().slice(0,3), true)}</div><div class="lock"><span>${t("lock")}</span></div></div>
   </div>
-    <form class="card stack" id="nt-lead" novalidate>
+    <form class="formcard" id="nt-lead" novalidate>
       ${TG && typeof TG.requestContact==="function" ? `<button class="btn tg" type="button" id="nt-tgc">${t("tgContact")}</button>`:""}
       <div>
         <label for="nt-name">${t("name")}</label>
@@ -677,8 +671,8 @@ function gateV(){
       <div>
         <label for="nt-phone">${t("phone")}</label>
         <div style="position:relative">
-          <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-weight:600;color:var(--fg-2)">+998</span>
-          <input id="nt-phone" inputmode="tel" autocomplete="tel-national" placeholder="${t("phonePh")}" value="${fmtPhone(S.phone)}" style="padding-left:62px;font-family:var(--mono)">
+          <span style="position:absolute;left:16px;top:50%;transform:translateY(-50%);font-weight:700;color:var(--ink)">+998</span>
+          <input id="nt-phone" inputmode="tel" autocomplete="tel-national" placeholder="${t("phonePh")}" value="${fmtPhone(S.phone)}" style="padding-left:66px">
         </div>
         ${e.phone?`<div class="err">${t("errPhone")}</div>`:""}
       </div>
@@ -718,7 +712,7 @@ function resultV(){
 
     <div class="card stack a-share">
       <h3>${t("shareH")}</h3>
-      <button class="btn" type="button" id="nt-pdf">⬇ ${t("pdf")}</button>
+      <button class="btn" type="button" id="nt-pdf">${t("pdf")}</button>
       <div class="err center" id="nt-pdfmsg" style="margin:0" aria-live="polite"></div>
       <div class="row2">
         <a class="btn tg" id="nt-share" href="https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(shareText)}" target="_blank" rel="noopener">${t("shareBtn")}</a>
@@ -730,7 +724,7 @@ function resultV(){
     <div class="final a-final" id="nt-book">
       <h3>${t("finalH")(n3)}</h3>
       <p>${S.booked?t("sentP")(fmtPhone(S.phone)):t("finalP")}</p>
-      ${S.booked?`<div class="sentok">✓ ${t("sentH")}</div>`:`<button class="btn grad" type="button" id="nt-tobook">${t("finalBtn")}</button>`}
+      ${S.booked?`<div class="sentok">✓ ${t("sentH")}</div>`:`<button class="btn lime" type="button" id="nt-tobook">${t("finalBtn")}</button>`}
     </div>
     ${S.modal?`<div class="ntm" role="dialog" aria-modal="true" aria-labelledby="nt-mh"><div class="ntm-card">
       <div class="ntm-ic">✓</div>
@@ -744,10 +738,8 @@ function resultV(){
 
 function deepV(){
   const s=sch(S.dschool), q=s.q[S.di];
-  return `<div class="narrow"><div class="card stack">
-    <div class="qhead" style="justify-content:flex-start"><span class="ic" style="background:${s.color}">${s.tag}</span>
-      <span style="flex:1;min-width:0;font-size:14px;font-weight:600;color:var(--fg-2)">${esc(s[S.lang].n)}</span>
-      <span class="qnum">${S.di+1} ${t("of")} ${s.q.length}</span></div>
+  return `<div class="narrow"><div class="qcard">
+    <div class="qhead"><span class="qschool">${esc(s[S.lang].n)}</span><span class="qnum">${S.di+1} ${t("of")} ${s.q.length}</span></div>
     <div class="prog"><i style="width:${Math.round((S.di+1)/s.q.length*100)}%"></i></div>
     <p class="q">${q[S.lang==="ru"?0:1]}</p>
     <div class="yn">
@@ -781,21 +773,21 @@ function pdfHTML(){
   const L=PT[S.lang], sc=scores(), r=ranked(), top=r[0], s=sch(top), m=monthsToExam();
   const now=new Date(), dstr=String(now.getDate()).padStart(2,"0")+"."+String(now.getMonth()+1).padStart(2,"0")+"."+now.getFullYear();
   const b=BRANCHES.find(x=>x.id===S.branch), dObj=nextDays().find(x=>x.id===S.day);
-  const pc=p=>p>=70?"#059669":p>=45?"#D97706":"#94A3B8";
-  const grad="linear-gradient(135deg,#4F46E5 0%,#A855F7 50%,#EC4899 100%)";
+  const pc=p=>"#644BEF";
+  const grad="#644BEF";
   const head=(n)=>`<div class="hd"><div class="logo">Newton Academy</div><div class="pg-n">${n} / 2</div></div>`;
   const foot=`<div class="ft"><span>Newton Academy</span><span>Instagram @newton.uz · Telegram @newtonews</span></div>`;
-  const rowsH=r.map((id,k)=>{ const x=sch(id), p=sc[id], fit=k<3; return `<div class="rr"><span class="rn">${k+1}</span><span class="rt" style="${fit?"":"color:#64748B;font-weight:500"}">${esc(x[S.lang].n)}${fit?` <i>● ${t("fitTag")}</i>`:""}${S.deep[id]!=null?' <i>✓</i>':""}</span><span class="rb"><span style="width:${Math.max(p,2)}%;background:${k===0?grad:fit?x.color:"#CBD5E1"}"></span></span><span class="rp" style="color:${fit?"#059669":"#94A3B8"}">${p}%</span></div>`; }).join("");
+  const rowsH=r.map((id,k)=>{ const x=sch(id), p=sc[id], fit=k<3; return `<div class="rr"><span class="rn">${k+1}</span><span class="rt" style="${fit?"":"color:#64748B;font-weight:500"}">${esc(x[S.lang].n)}${fit?` <i style="color:#644BEF">● ${t("fitTag")}</i>`:""}${S.deep[id]!=null?' <i>✓</i>':""}</span><span class="rb"><span style="width:${Math.max(p,2)}%;background:${k===0?grad:fit?x.color:"#CBD5E1"}"></span></span><span class="rp" style="color:${fit?"#644BEF":"#94A3B8"}">${p}%</span></div>`; }).join("");
   const ansH=MAIN.map((q,k)=>{ const a=S.ans[k]; return `<div class="aq"><span class="an">${k+1}</span><span class="at">${esc(q[S.lang])}</span><span class="ay ${a===1?"y":"n"}">${a===1?L.yes:L.no}</span></div>`; }).join("");
   const deepIds=Object.keys(S.deep);
   return `<style>
 .ntpdf,.ntpdf *{box-sizing:border-box;margin:0;padding:0}
-.ntpdf{font-family:"Inter",Arial,sans-serif;color:#0F172A}
+.ntpdf{font-family:"Montserrat",Arial,sans-serif;color:#181424}
 .ntpdf .pg{width:794px;height:1123px;background:#FFFFFF;position:relative;overflow:hidden;display:flex;flex-direction:column}
-.ntpdf .band{background:#0F172A;color:#FFFFFF;padding:36px 48px 30px}
+.ntpdf .band{background:#181424;color:#FFFFFF;padding:36px 48px 30px}
 .ntpdf .hd{display:flex;justify-content:space-between;align-items:center}
 .ntpdf .logo{font-weight:800;font-size:18px;letter-spacing:-.02em}
-.ntpdf .pg-n{font:600 12px "JetBrains Mono",monospace;color:#94A3B8}
+.ntpdf .pg-n{font:600 12px "Montserrat",Arial,sans-serif;color:#94A3B8}
 .ntpdf .gl{height:4px;background:${grad};border-radius:2px;width:72px;margin:22px 0 16px}
 .ntpdf h1{font-size:30px;line-height:1.15;letter-spacing:-.03em;font-weight:800}
 .ntpdf .sb{font-size:15px;color:#CBD5E1;margin-top:6px}
@@ -806,48 +798,48 @@ function pdfHTML(){
 .ntpdf .lbl{font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#64748B;margin-bottom:10px}
 .ntpdf .t3w{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 .ntpdf .t3c{border:1px solid #E2E8F0;border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:6px}
-.ntpdf .t3c.first{border:2px solid #4F46E5;background:#F5F3FF}
-.ntpdf .t3k{width:26px;height:26px;border-radius:8px;background:#0F172A;color:#fff;font:700 12px "JetBrains Mono",monospace;display:flex;align-items:center;justify-content:center}
+.ntpdf .t3c.first{border:2px solid #644BEF;background:#F1EEFE}
+.ntpdf .t3k{width:26px;height:26px;border-radius:8px;background:#0F172A;color:#fff;font:700 12px "Montserrat",Arial,sans-serif;display:flex;align-items:center;justify-content:center}
 .ntpdf .t3c.first .t3k{background:${grad}}
-.ntpdf .t3pc{font:700 36px/1 "JetBrains Mono",monospace;color:#4F46E5;letter-spacing:-.03em;margin-top:4px}
+.ntpdf .t3pc{font:700 36px/1 "Montserrat",Arial,sans-serif;color:#644BEF;letter-spacing:-.03em;margin-top:4px}
 .ntpdf .t3pc small{font-size:18px}
 .ntpdf .t3nm{font-size:14px;font-weight:800;line-height:1.3}
 .ntpdf .t3d{font-size:11.5px;color:#475569;line-height:1.4}
 .ntpdf .topc{border:1px solid #E2E8F0;border-radius:16px;padding:22px 24px;display:flex;gap:22px;align-items:center}
-.ntpdf .big{font:700 64px/1 "JetBrains Mono",monospace;letter-spacing:-.04em;color:#4F46E5}
+.ntpdf .big{font:700 64px/1 "Montserrat",Arial,sans-serif;letter-spacing:-.04em;color:#644BEF}
 .ntpdf .big small{font-size:28px}
 .ntpdf .tn{font-size:21px;font-weight:800;letter-spacing:-.015em;line-height:1.25}
 .ntpdf .td{font-size:13px;color:#475569;margin-top:6px;line-height:1.5}
 .ntpdf .rr{display:grid;grid-template-columns:22px 1fr 190px 48px;gap:12px;align-items:center;padding:9px 0;border-top:1px solid #F1F5F9;font-size:13.5px}
 .ntpdf .rr:first-of-type{border-top:0}
-.ntpdf .rn{font:700 12px "JetBrains Mono",monospace;color:#94A3B8}
+.ntpdf .rn{font:700 12px "Montserrat",Arial,sans-serif;color:#94A3B8}
 .ntpdf .rt{font-weight:600;line-height:1.3}
 .ntpdf .rt i{font-style:normal;color:#059669;font-size:12px}
 .ntpdf .rb{height:8px;background:#F1F5F9;border-radius:4px;overflow:hidden;display:block}
 .ntpdf .rb span{display:block;height:100%;border-radius:4px}
-.ntpdf .rp{font:700 14px "JetBrains Mono",monospace;text-align:right}
+.ntpdf .rp{font:700 14px "Montserrat",Arial,sans-serif;text-align:right}
 .ntpdf .leg{display:flex;gap:18px;font-size:11px;color:#64748B;margin-top:8px}
 .ntpdf .leg span::before{content:"";display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px;vertical-align:0}
 .ntpdf .leg span:nth-child(1)::before{background:#059669}.ntpdf .leg span:nth-child(2)::before{background:#D97706}.ntpdf .leg span:nth-child(3)::before{background:#94A3B8}
 .ntpdf .two{display:grid;grid-template-columns:200px 1fr;gap:14px}
-.ntpdf .cnt{background:#EEF2FF;border-radius:14px;padding:18px;text-align:center}
-.ntpdf .cnt b{display:block;font:700 46px/1 "JetBrains Mono",monospace;color:#4F46E5}
+.ntpdf .cnt{background:#D4FA33;border-radius:14px;padding:18px;text-align:center}
+.ntpdf .cnt b{display:block;font:800 46px/1 "Montserrat",Arial,sans-serif;color:#181424}
 .ntpdf .cnt span{font-size:12px;color:#334155;display:block;margin-top:6px;line-height:1.35}
-.ntpdf .cta{background:#0F172A;color:#FFFFFF;border-radius:14px;padding:18px 20px;display:flex;flex-direction:column;justify-content:center;gap:6px}
+.ntpdf .cta{background:#644BEF;color:#FFFFFF;border-radius:14px;padding:18px 20px;display:flex;flex-direction:column;justify-content:center;gap:6px}
 .ntpdf .cta b{font-size:15px}
 .ntpdf .cta span{font-size:12.5px;color:#CBD5E1;line-height:1.45}
 .ntpdf .aq{display:grid;grid-template-columns:22px 1fr 48px;gap:12px;align-items:center;padding:8px 0;border-top:1px solid #F1F5F9;font-size:13px;line-height:1.35}
 .ntpdf .aq:first-of-type{border-top:0}
-.ntpdf .an{font:700 11px "JetBrains Mono",monospace;color:#94A3B8}
+.ntpdf .an{font:700 11px "Montserrat",Arial,sans-serif;color:#94A3B8}
 .ntpdf .ay{font-size:12px;font-weight:700;text-align:center;border-radius:999px;padding:3px 0}
 .ntpdf .ay.y{background:#D1FAE5;color:#047857}.ntpdf .ay.n{background:#F1F5F9;color:#64748B}
 .ntpdf .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 .ntpdf .st{border:1px solid #E2E8F0;border-radius:14px;padding:16px}
-.ntpdf .st em{font:700 13px "JetBrains Mono",monospace;font-style:normal;color:#FFFFFF;background:${grad};border-radius:8px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+.ntpdf .st em{font:700 13px "Montserrat",Arial,sans-serif;font-style:normal;color:#FFFFFF;background:${grad};border-radius:8px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
 .ntpdf .st b{display:block;font-size:14px;margin-bottom:4px}
 .ntpdf .st span{font-size:12px;color:#475569;line-height:1.45;display:block}
 .ntpdf .nt{font-size:11px;color:#94A3B8;line-height:1.5}
-.ntpdf .ft{margin-top:auto;background:#0F172A;color:#CBD5E1;padding:16px 48px;display:flex;justify-content:space-between;font-size:12px}
+.ntpdf .ft{margin-top:auto;background:#181424;color:#CBD5E1;padding:16px 48px;display:flex;justify-content:space-between;font-size:12px}
 .ntpdf .ft span:first-child{color:#FFFFFF;font-weight:800}
 </style>
 <div class="ntpdf">
@@ -974,10 +966,32 @@ function bind(){
 }
 function fallbackCopy(){ const ta=$("#nt-sharetext"); if(!ta) return; ta.style.left="0"; ta.select(); try{ document.execCommand("copy"); }catch(e){} ta.style.left="-9999px"; }
 
+function pvBar(){
+  const el=document.getElementById("nt-pv"); if(!el) return;
+  if(!CONFIG.PREVIEW){ el.remove(); return; }
+  const L=[["intro","Старт"],["grade","Класс"],["quiz","Вопрос"],["quizSel","Выбранный ответ"],["gate","Ввод номера"],["result","Результат"],["modal","Окно заявки"],["deep","Уточнение школы"]];
+  el.title="Превью: заявки не отправляются";
+  el.innerHTML='<span class="pvdot" aria-hidden="true"></span><span>Превью</span><select id="nt-pvsel" aria-label="Перейти к шагу квиза"><option value="">Шаг квиза…</option>'+L.map(x=>`<option value="${x[0]}">${x[1]}</option>`).join("")+'</select>';
+  const sel=el.querySelector("select"); sel.onchange=()=>{ const v=sel.value; if(v) pvGo(v); sel.value=""; };
+}
+function pvGo(k){
+  const sample=[1,1,0,0,1,1,0,1,0,0,0,0,0,1,0,0];
+  S.grade=4; S.modal=false; S.booked=false; S.errs={};
+  if(k==="intro"){ S.screen="intro"; }
+  if(k==="grade"){ S.screen="grade"; }
+  if(k==="quiz"||k==="quizSel"){ S.ans=sample.slice(0,6); S.i=k==="quiz"?6:5; S.screen="quiz"; }
+  if(k==="gate"||k==="result"||k==="modal"||k==="deep"){ S.ans=sample.slice(); }
+  if(k==="gate"){ S.lead=false; S.name=""; S.phone=""; S.screen="gate"; }
+  if(k==="result"||k==="modal"){ S.lead=true; S.name="Dilnoza"; S.phone="901234567"; S.screen="result"; if(k==="modal"){ S.booked=true; S.modal=true; } }
+  if(k==="deep"){ S.lead=true; S.dschool="khorezmi"; S.di=2; S.dans=[1,1]; S.screen="deep"; }
+  render(); top0();
+}
+
 function init(){
   $$("[data-l]").forEach(b=>b.onclick=()=>{ keepForm(); S.lang=b.dataset.l; try{localStorage.setItem("nt-lang",S.lang)}catch(e){} render(); });
   if(TG){ try{ TG.ready(); TG.expand(); }catch(e){} }
   track("ViewContent",{},true);
+  pvBar();
   render();
 }
 if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",init); else init();
