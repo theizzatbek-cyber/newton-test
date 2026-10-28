@@ -1,0 +1,1116 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Клуб друзей Newton — админка</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root{
+  --bg:#f6f6f9;--card:#fff;--text:#181424;--muted:#6b6880;--line:#e6e4ee;--soft:#f1f0f6;
+  --accent:#644bef;--accent-soft:#eeebfe;--good:#0f9d6b;--good-soft:#e3f6ee;--bad:#d93a3a;--bad-soft:#fdeaea;
+  --warn:#b26b00;--warn-soft:#fff3dc;--radius:12px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){
+  --bg:#121019;--card:#1b1825;--text:#efedf7;--muted:#a19db3;--line:#2c2839;--soft:#231f30;
+  --accent:#8b77ff;--accent-soft:#2a2445;--good:#3ccf97;--good-soft:#173328;--bad:#ff6b6b;--bad-soft:#3a1d22;--warn:#f0b450;--warn-soft:#3a2e17;
+}}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Arial,sans-serif}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--accent)}
+.hidden{display:none!important}
+.wrap{max-width:1240px;margin:0 auto;padding:0 16px}
+header.top{position:sticky;top:0;z-index:20;background:var(--card);border-bottom:1px solid var(--line)}
+header.top .hrow{display:flex;align-items:center;gap:12px;height:54px;max-width:1360px;margin:0 auto;padding:0 20px}
+@media (max-width:959px){header.top .hrow{padding:0 16px}}
+.brand{font-weight:800;letter-spacing:.2px}
+.brand small{color:var(--muted);font-weight:500;margin-left:6px}
+.spacer{flex:1}
+.who{color:var(--muted);font-size:13px}
+nav.side button{border:0;background:none;padding:7px 12px;border-radius:9px;white-space:nowrap;color:var(--muted);cursor:pointer;font-weight:600;text-align:left}
+nav.side button:hover{color:var(--text)}
+nav.side button.on{background:var(--accent-soft);color:var(--accent)}
+nav.side .gl{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);opacity:.8;padding:14px 12px 4px;font-weight:700}
+nav.side .gl:first-child{padding-top:0}
+main.view{min-width:0;padding:18px 0 60px}
+@media (min-width:960px){
+  .layout{display:grid;grid-template-columns:220px minmax(0,1fr);gap:28px;max-width:1360px;margin:0 auto;padding:0 20px}
+  nav.side{position:sticky;top:54px;align-self:start;max-height:calc(100vh - 54px);overflow-y:auto;padding:18px 0 30px;display:flex;flex-direction:column;gap:2px}
+  nav.side button{display:flex;align-items:center;justify-content:space-between;width:100%}
+}
+@media (max-width:959px){
+  nav.side{position:sticky;top:54px;z-index:15;display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;padding:8px 16px;background:var(--card);border-bottom:1px solid var(--line)}
+  nav.side::-webkit-scrollbar{display:none}
+  nav.side .gl{display:none}
+  nav.side button{border-radius:999px}
+  main.view{padding:16px 16px 60px}
+}
+.badge{display:inline-block;min-width:18px;padding:0 5px;margin-left:4px;border-radius:999px;background:var(--bad);color:#fff;font-size:11px;line-height:18px;text-align:center}
+h2{font-size:20px;margin:4px 0 14px}
+h3{font-size:15px;margin:0 0 10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px}
+.grid{display:grid;gap:12px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media (max-width:900px){.g4{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:1fr}.g2{grid-template-columns:1fr}}
+.kpi{min-width:0}
+.kpi .v{font-size:24px;font-weight:800;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+@media (max-width:520px){.kpi .v{font-size:20px}}
+.kpi .l{color:var(--muted);font-size:13px}
+.kpi .s{color:var(--muted);font-size:12px;margin-top:2px}
+.alert{display:flex;gap:10px;align-items:center;cursor:pointer;border:1px solid var(--line);background:var(--card);border-radius:var(--radius);padding:12px 14px;text-align:left;width:100%}
+.alert .n{font-size:22px;font-weight:800;min-width:34px;font-variant-numeric:tabular-nums}
+.alert.hot{border-color:var(--warn);background:var(--warn-soft)}
+.alert .t{font-weight:600}.alert .d{color:var(--muted);font-size:12px}
+.note{padding:10px 12px;border-radius:10px;background:var(--warn-soft);color:var(--text);border:1px solid var(--line);margin-bottom:12px}
+.note.info{background:var(--accent-soft)}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+input[type=text],input[type=number],input[type=search],select,textarea{background:var(--card);border:1px solid var(--line);border-radius:9px;padding:8px 10px;min-width:0}
+textarea{width:100%;min-height:90px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent-soft);border-color:var(--accent)}
+.btn{border:1px solid var(--line);background:var(--card);padding:8px 13px;border-radius:9px;cursor:pointer;font-weight:600;white-space:nowrap}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.good{background:var(--good);border-color:var(--good);color:#fff}
+.btn.bad{background:var(--bad-soft);border-color:var(--bad-soft);color:var(--bad)}
+.btn.sm{padding:5px 9px;font-size:13px}
+.btn:disabled{opacity:.5;cursor:default}
+.tablebox{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:var(--radius)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{color:var(--muted);font-weight:600;font-size:12px;white-space:nowrap;background:var(--soft)}
+tr:last-child td{border-bottom:0}
+tbody tr.click{cursor:pointer}
+tbody tr.click:hover{background:var(--soft)}
+.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+.muted{color:var(--muted)}.small{font-size:12px}
+.chip{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap;background:var(--soft);color:var(--muted)}
+.chip.good{background:var(--good-soft);color:var(--good)}.chip.bad{background:var(--bad-soft);color:var(--bad)}
+.chip.warn{background:var(--warn-soft);color:var(--warn)}.chip.acc{background:var(--accent-soft);color:var(--accent)}
+.bars .r{display:grid;grid-template-columns:56px 1fr;gap:8px;align-items:center;margin:5px 0}
+.bars .track{display:flex;gap:3px;align-items:center}
+.bars .b{height:10px;border-radius:3px}
+table.weeks th,table.weeks td{background:none;padding:6px 8px}
+table.weeks td{width:28%}table.weeks td:first-child{width:16%;color:var(--muted)}
+table.weeks .cell{display:flex;align-items:center;gap:8px}
+table.weeks .cell .num{min-width:18px}
+table.weeks .mini{display:block;height:8px;border-radius:3px;max-width:calc(100% - 26px)}
+.legend{display:flex;gap:12px;font-size:12px;color:var(--muted);margin-bottom:8px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+.drawer-bg{position:fixed;inset:0;background:rgba(10,8,20,.35);z-index:40}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(560px,100%);background:var(--bg);z-index:41;overflow-y:auto;box-shadow:-10px 0 30px rgba(0,0,0,.15)}
+.drawer .head{position:sticky;top:0;background:var(--card);border-bottom:1px solid var(--line);padding:12px 16px;display:flex;gap:10px;align-items:center;z-index:2}
+.drawer .body{padding:16px;display:grid;gap:12px}
+dl.kv{display:grid;grid-template-columns:150px 1fr;gap:6px 12px;margin:0}
+dl.kv dt{color:var(--muted)}dl.kv dd{margin:0;word-break:break-word}
+@media (max-width:520px){dl.kv{grid-template-columns:1fr}dl.kv dt{margin-top:6px}}
+.timeline{margin:0;padding:0;list-style:none}
+.timeline li{padding:6px 0;border-bottom:1px dashed var(--line);font-size:13px}
+.timeline li:last-child{border-bottom:0}
+.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--text);color:var(--bg);padding:10px 16px;border-radius:10px;z-index:60;max-width:92vw;box-shadow:0 6px 20px rgba(0,0,0,.2)}
+.toast.err{background:var(--bad);color:#fff}
+.login{max-width:380px;margin:12vh auto;padding:0 16px}
+.login .card{padding:22px}
+.login h1{font-size:20px;margin:0 0 6px}
+.codebox{font-size:22px;letter-spacing:3px;text-align:center;text-transform:uppercase;width:100%;margin:14px 0 10px}
+.loading{color:var(--muted);padding:30px 0;text-align:center}
+.setrow{display:grid;grid-template-columns:1fr 220px auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.setrow:last-child{border-bottom:0}
+.setrow .h{font-weight:600}.setrow .d{color:var(--muted);font-size:12px}
+@media (max-width:640px){.setrow{grid-template-columns:1fr}}
+.callcard{display:grid;gap:8px}
+.phone-big{font-size:20px;font-weight:800;font-variant-numeric:tabular-nums}
+.script{background:var(--soft);border-radius:10px;padding:10px 12px;font-size:13px}
+.red{color:var(--bad);font-weight:700}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.chips button{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:5px 11px;cursor:pointer;font-weight:600;font-size:13px;color:var(--muted)}
+.chips button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.chips button .c{opacity:.75;margin-left:4px;font-variant-numeric:tabular-nums}
+.sub{color:var(--muted);font-size:13px;margin:-8px 0 14px}
+.row2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (max-width:640px){.row2{grid-template-columns:1fr}}
+label.f{display:grid;gap:4px;font-size:13px;color:var(--muted)}
+label.f input,label.f select,label.f textarea{color:var(--text)}
+.bc-grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:14px;align-items:start}
+@media (max-width:900px){.bc-grid{grid-template-columns:1fr}}
+.tgprev{background:#d9e6cf;border-radius:14px;padding:14px;min-height:120px}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .tgprev{background:#1f2a1c}}
+.bubble{background:var(--card);border-radius:12px 12px 12px 4px;padding:9px 12px;max-width:100%;white-space:pre-wrap;word-break:break-word;font-size:14px;box-shadow:0 1px 1px rgba(0,0,0,.08)}
+.bubble+.bubble{margin-top:8px}
+.bubble .bl{font-size:11px;color:var(--muted);margin-bottom:4px}
+.ibtn{margin-top:6px;text-align:center;background:rgba(255,255,255,.55);border-radius:9px;padding:7px;font-weight:600;color:#2b6cb0;font-size:13px}
+.progress{height:8px;border-radius:999px;background:var(--soft);overflow:hidden}
+.progress i{display:block;height:100%;background:var(--accent);border-radius:999px;transition:width .3s}
+details.txt{border-bottom:1px solid var(--line)}
+details.txt:last-child{border-bottom:0}
+details.txt>summary{list-style:none;cursor:pointer;padding:10px 0;display:flex;gap:10px;align-items:baseline}
+details.txt>summary::-webkit-details-marker{display:none}
+details.txt>summary .lbl{font-weight:600;flex:0 1 auto;min-width:0}
+@media (max-width:640px){details.txt>summary{flex-wrap:wrap}details.txt>summary .pv{display:none}}
+details.txt>summary .pv{color:var(--muted);font-size:12px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;min-width:0;flex:1}
+details.txt[open]>summary .pv{visibility:hidden}
+details.txt .ed{padding:0 0 14px;display:grid;gap:10px}
+details.txt textarea{min-height:120px;font-size:13px}
+.var{display:inline-block;border:1px dashed var(--accent);color:var(--accent);border-radius:7px;padding:1px 7px;font-size:12px;cursor:pointer;margin:0 4px 4px 0;background:none}
+.okdot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--good);margin-right:6px}
+.okdot.bad{background:var(--bad)}.okdot.warn{background:var(--warn)}
+.danger{border-color:var(--bad-soft)}
+.danger h3{color:var(--bad)}
+pre.err{white-space:pre-wrap;word-break:break-word;font-size:12px;margin:0;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<div id="login" class="login hidden">
+  <div class="card">
+    <h1>Клуб друзей Newton</h1>
+    <div class="muted">Вход для админов программы</div>
+    <div id="tgLogin" class="hidden" style="margin-top:14px">Входим через Telegram…</div>
+    <form id="codeForm">
+      <input id="codeInput" class="codebox" type="text" placeholder="КОД" autocomplete="one-time-code" maxlength="12">
+      <button class="btn primary" style="width:100%" type="submit">Войти</button>
+    </form>
+    <p class="muted small" style="margin:14px 0 0">Отправьте боту <b>/web</b> — он пришлёт одноразовый код (действует 10 минут). Войти могут только админы клуба.</p>
+    <p id="loginErr" class="red small hidden" style="margin:10px 0 0"></p>
+  </div>
+</div>
+
+<div id="app" class="hidden">
+  <header class="top">
+    <div class="hrow">
+      <div class="brand">Newton <small>Клуб друзей · платформа</small></div>
+      <div class="spacer"></div>
+      <span class="who" id="who"></span>
+      <button class="btn sm" id="logoutBtn">Выйти</button>
+    </div>
+  </header>
+  <div class="layout">
+    <nav class="side" id="tabs"></nav>
+    <main class="view" id="view"></main>
+  </div>
+</div>
+
+<div id="drawerBg" class="drawer-bg hidden"></div>
+<aside id="drawer" class="drawer hidden"></aside>
+
+<script>
+"use strict";
+const API = new URLSearchParams(location.search).get("api") ||
+  "https://sndspiruxuxdmbykvxbd.supabase.co/functions/v1/loyalty-bot/api";
+const TG = window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData ? window.Telegram.WebApp : null;
+
+const store = {
+  get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+  set(k, v) { try { v === null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch {} },
+};
+const S = { token: store.get("nlc_token"), me: null, tab: "dash", counts: {}, managers: [], refFilter: { status: "", manager: "", q: "" }, memberQ: "" };
+
+// ---------- helpers ----------
+const $ = (s, el = document) => el.querySelector(s);
+const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const money = (n) => (Math.round(Number(n) || 0)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+const dt = (d) => d ? new Date(d).toLocaleString("ru-RU", { timeZone: "Asia/Tashkent", day: "2-digit", month: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit" }) : "—";
+const d0 = (d) => d ? new Date(d).toLocaleDateString("ru-RU", { timeZone: "Asia/Tashkent", day: "2-digit", month: "2-digit", year: "numeric" }) : "—";
+const phone = (p) => { if (!p) return "—"; const s = String(p); return s.length === 12 && s.startsWith("998") ? `+998 ${s.slice(3,5)} ${s.slice(5,8)} ${s.slice(8,10)} ${s.slice(10)}` : "+" + s; };
+const telLink = (p) => p ? `<a href="tel:+${esc(p)}" class="num">${esc(phone(p))}</a>` : "—";
+
+const STATUS = {
+  pending_check: ["Проверяется", ""], lead_created: ["Новый", "acc"], in_progress: ["В работе", "acc"],
+  duplicate: ["Уже был в базе", ""], review: ["На проверке", "warn"], hold: ["Оплатил · холд", "good"],
+  credited: ["Бонус начислен", "good"], lost: ["Не купил", ""], rejected: ["Отклонён", "bad"], refunded: ["Возврат", "bad"],
+};
+const VERIFY = { pending: ["Нужен звонок", "warn"], no_answer: ["Не дозвонились", "warn"], ok: ["Звонок ✓", "good"], fail: ["Не подтвердил", "bad"] };
+const SOURCE = { friend: "Друг посоветовал", ads: "Реклама", manager: "Уже общался с менеджером", other: "Другое", none: "Не ответил" };
+const chip = (map, k) => { const v = map[k]; return v ? `<span class="chip ${v[1]}">${esc(v[0])}</span>` : (k ? `<span class="chip">${esc(k)}</span>` : ""); };
+const srcChip = (s) => !s ? `<span class="chip">не ответил</span>` : s === "friend" ? `<span class="chip good">друг</span>` : `<span class="chip bad">${esc(SOURCE[s] || s)}</span>`;
+
+function toast(msg, err) {
+  document.querySelectorAll(".toast").forEach((x) => x.remove());
+  const el = document.createElement("div");
+  el.className = "toast" + (err ? " err" : "");
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), err ? 6000 : 3500);
+}
+
+async function api(path, body) {
+  const opt = { method: body ? "POST" : "GET", headers: { "content-type": "application/json" } };
+  if (S.token) opt.headers["x-session"] = S.token;
+  if (body) opt.body = JSON.stringify(body);
+  let r;
+  try { r = await fetch(API + path, opt); } catch (e) { throw new Error("Нет связи с сервером"); }
+  if (r.status === 401 && !path.startsWith("/auth/")) { logoutLocal(); throw new Error("Сессия истекла — войдите снова"); }
+  if ((r.headers.get("content-type") || "").includes("text/csv")) return r;
+  const j = await r.json().catch(() => ({ ok: false, error: "Ошибка сервера" }));
+  if (!r.ok || j.ok === false) throw new Error(j.error || j.msg || "Ошибка");
+  return j;
+}
+async function doAction(path, body, after) {
+  try {
+    const r = await api(path, body);
+    toast(r.msg || "Готово");
+    if (after) await after(r);
+  } catch (e) { toast(e.message, true); }
+}
+
+// ---------- login ----------
+function showLogin(err) {
+  $("#app").classList.add("hidden");
+  $("#login").classList.remove("hidden");
+  const e = $("#loginErr");
+  e.textContent = err || ""; e.classList.toggle("hidden", !err);
+}
+function logoutLocal() { S.token = null; store.set("nlc_token", null); showLogin(); }
+async function loginWith(path, body) {
+  try {
+    const r = await api(path, body);
+    S.token = r.token; store.set("nlc_token", r.token);
+    history.replaceState(null, "", location.pathname + location.search);
+    await boot();
+  } catch (e) { showLogin(e.message); }
+}
+$("#codeForm").addEventListener("submit", (e) => { e.preventDefault(); const c = $("#codeInput").value.trim(); if (c) loginWith("/auth/code", { code: c }); });
+$("#logoutBtn").addEventListener("click", async () => { try { await api("/auth/logout", {}); } catch {} logoutLocal(); });
+
+// ---------- shell ----------
+const NAV = [
+  ["Работа", [["dash", "Обзор"], ["refs", "Рекомендации"], ["verify", "Проверка звонком", "verify_queue"], ["requests", "Заявки", "requests"]]],
+  ["Люди", [["members", "Участники клуба"], ["users", "Все пользователи"], ["managers", "Менеджеры"]]],
+  ["Коммуникации", [["broadcasts", "Рассылки", "broadcasts_sending"], ["texts", "Тексты бота"]]],
+  ["Управление", [["protection", "Защита и базы"], ["settings", "Настройки"], ["access", "Админы и доступ"], ["system", "Система"], ["log", "Журнал"]]],
+];
+const TABS = NAV.flatMap(([, items]) => items);
+function renderTabs() {
+  $("#tabs").innerHTML = NAV.map(([g, items]) => `<div class="gl">${esc(g)}</div>` + items.map(([k, t, c]) => {
+    const n = c === "requests" ? (S.counts.join_requests || 0) + (S.counts.pay_reports || 0) + (S.counts.redeem_requests || 0) : (c ? S.counts[c] || 0 : 0);
+    return `<button data-tab="${k}" class="${S.tab === k ? "on" : ""}">${esc(t)}${n ? `<span class="badge">${n}</span>` : ""}</button>`;
+  }).join("")).join("");
+  const on = $("#tabs button.on"); if (on && window.innerWidth < 960) on.scrollIntoView({ block: "nearest", inline: "nearest" });
+}
+$("#tabs").addEventListener("click", (e) => { const b = e.target.closest("button[data-tab]"); if (b) go(b.dataset.tab); });
+function go(tab, opts) {
+  S.tab = tab; store.set("nlc_tab", tab);
+  if (opts && opts.status !== undefined) S.refFilter.status = opts.status;
+  renderTabs(); closeDrawer(); render();
+}
+async function refreshCounts() {
+  try { const r = await api("/dashboard"); S.counts = r.kpi; S.dash = r; renderTabs(); } catch {}
+}
+function render() {
+  const v = $("#view");
+  v.innerHTML = `<div class="loading">Загрузка…</div>`;
+  S.bcLoop = false;
+  ({ dash: viewDash, refs: viewRefs, verify: viewVerify, requests: viewRequests, members: viewMembers, managers: viewManagers,
+     users: viewUsers, broadcasts: viewBroadcasts, texts: viewTexts, access: viewAccess, system: viewSystem,
+     protection: viewProtection, settings: viewSettings, log: viewLog }[S.tab] || viewDash)(v).catch((e) => { v.innerHTML = `<div class="note">${esc(e.message)}</div>`; });
+}
+
+// ---------- dashboard ----------
+async function viewDash(v) {
+  const r = await api("/dashboard"); S.dash = r; S.counts = r.kpi; renderTabs();
+  const k = r.kpi;
+  const conv = k.leads_all ? Math.round(k.paid_all / k.leads_all * 100) : 0;
+  const alerts = [
+    ["pay_reports", "Подтвердить оплаты", "менеджеры сообщили об оплате", "requests"],
+    ["verify_queue", "Проверка звонком", "позвонить другу перед начислением", "verify"],
+    ["reviews", "Бонусы на проверке", "сработали защитные флаги", "refs:review"],
+    ["join_requests", "Запросы на вступление", "номера нет в списке учеников", "requests"],
+    ["redeem_requests", "Заявки на списание", "родители хотят использовать бонус", "requests"],
+    ["not_accepted", "Лиды не приняты", "менеджер ещё не нажал «Принял»", "refs:open"],
+    ["manager_flags_30", "Менеджер: «уже был у нас»", "за 30 дней — проверьте пригласивших", "refs:flagged"],
+  ];
+  const warn = [];
+  if (!k.managers) warn.push(`Ни один менеджер не подключён — лиды идут в группу продаж без очереди. Раздел «Менеджеры» → код подключения.`);
+  else if (!k.managers_on) warn.push(`Сейчас нет менеджеров «на смене» — новые лиды не назначаются.`);
+  const baseAge = k.base_updated_at ? Math.floor((Date.now() - new Date(k.base_updated_at)) / 864e5) : null;
+  if (!S.crm && (baseAge === null || baseAge > 7)) warn.push(baseAge === null
+    ? `База клиентов из CRM не загружена. Без неё бот не узнает рекламных лидов — загрузите выгрузку в «Защита и базы».`
+    : `База клиентов не обновлялась ${baseAge} дн. Свежие рекламные лиды могут пройти как «друзья» — загрузите новую выгрузку в «Защита и базы».`);
+  if (!k.students_size) warn.push(`Список учеников не загружен — каждый родитель будет вступать в клуб через ручное подтверждение.`);
+  const max = Math.max(1, ...r.weeks.map((w) => Math.max(w.friends, w.leads, w.paid)));
+  const srcTotal = r.sources.reduce((a, s) => a + s.n, 0) || 1;
+  v.innerHTML = `
+    <h2>Обзор</h2>
+    ${warn.map((w) => `<div class="note">${esc(w)}</div>`).join("")}
+    <div class="grid g3" style="margin-bottom:14px">
+      ${alerts.map(([key, t, d, to]) => `<button class="alert ${k[key] ? "hot" : ""}" data-go="${to}">
+        <span class="n">${k[key] || 0}</span><span><div class="t">${t}</div><div class="d">${d}</div></span></button>`).join("")}
+    </div>
+    <div class="grid g4" style="margin-bottom:14px">
+      <div class="card kpi"><div class="l">Участники клуба</div><div class="v">${k.members}</div><div class="s">+${k.members_30} за 30 дней</div></div>
+      <div class="card kpi"><div class="l">Друзья за 30 дней</div><div class="v">${k.friends_30}</div><div class="s">новые лиды ${k.leads_30} · уже в базе ${k.dups_30}</div></div>
+      <div class="card kpi"><div class="l">Оплатили за 30 дней</div><div class="v">${k.paid_30}</div><div class="s">${money(k.paid_sum_30)} сум</div></div>
+      <div class="card kpi"><div class="l">Конверсия лид → оплата</div><div class="v">${conv}%</div><div class="s">${k.paid_all} из ${k.leads_all} за всё время</div></div>
+      <div class="card kpi"><div class="l">Бонусы в холде</div><div class="v num">${money(k.hold_sum)}</div><div class="s">ждут 30 дней и звонка</div></div>
+      <div class="card kpi"><div class="l">Начислено бонусов</div><div class="v num">${money(k.accrued)}</div><div class="s">списано ${money(k.redeemed)} · на балансах ${money(k.balances)}</div></div>
+      <div class="card kpi"><div class="l">Открытые лиды</div><div class="v">${k.open_leads}</div><div class="s">не приняты: ${k.not_accepted}</div></div>
+      <div class="card kpi"><div class="l">Менеджеры на смене</div><div class="v">${k.managers_on}<span class="muted" style="font-size:15px"> / ${k.managers}</span></div><div class="s">лиды раздаются по очереди</div></div>
+    </div>
+    <div class="grid g4" style="margin-bottom:14px">
+      <button class="card kpi alert" data-go="users" style="display:block"><div class="l">Пользователи бота</div><div class="v">${k.users_total || 0}</div><div class="s">активны за 7 дней: ${k.users_active_7 || 0}</div></button>
+      <button class="card kpi alert" data-go="users" style="display:block"><div class="l">Гости</div><div class="v">${k.guests || 0}</div><div class="s">не вступили и не приглашены</div></button>
+      <button class="card kpi alert" data-go="users" style="display:block"><div class="l">Остановили бота</div><div class="v">${k.bot_blocked || 0}</div><div class="s">рассылки им не приходят</div></button>
+      <button class="card kpi alert" data-go="broadcasts" style="display:block"><div class="l">Рассылки</div><div class="v">${k.broadcasts_sending ? "идёт" : "—"}</div><div class="s">${k.broadcasts_sending ? "отправка в процессе" : "сейчас нет активных"}</div></button>
+    </div>
+    <div class="grid g2">
+      <div class="card"><h3>По неделям</h3>
+        <table class="weeks"><thead><tr><th>Неделя с</th><th>Друзья</th><th>Новые лиды</th><th>Оплатили</th></tr></thead><tbody>
+        ${r.weeks.slice().reverse().map((w) => `<tr><td class="num">${esc(w.week)}</td>${[["friends", "#c9c2fb"], ["leads", "var(--accent)"], ["paid", "var(--good)"]].map(([f, c]) =>
+          `<td><div class="cell"><span class="num">${w[f] || "·"}</span><span class="mini" style="width:${w[f] / max * 100}%;background:${c}"></span></div></td>`).join("")}</tr>`).join("")}
+        </tbody></table>
+      </div>
+      <div class="card"><h3>Откуда друзья узнали о Newton (90 дней)</h3>
+        <p class="muted small" style="margin-top:-4px">Ответ друга в боте. Всё, кроме «друг посоветовал», — повод проверить.</p>
+        <div class="bars">${["friend", "ads", "manager", "other", "none"].map((s) => { const n = (r.sources.find((x) => x.source === s) || {}).n || 0;
+          return `<div class="r" style="grid-template-columns:170px 1fr"><span class="small">${SOURCE[s]}</span><div class="track"><div class="b" style="width:${n / srcTotal * 100}%;background:${s === "friend" ? "var(--good)" : s === "none" ? "#c9c2fb" : "var(--bad)"}"></div><span class="small muted">${n}</span></div></div>`; }).join("")}</div>
+      </div>
+    </div>`;
+  v.querySelectorAll("[data-go]").forEach((b) => b.addEventListener("click", () => { const [t, st] = b.dataset.go.split(":"); go(t, st !== undefined ? { status: st } : undefined); }));
+}
+
+// ---------- referrals ----------
+async function loadManagers() { try { S.managers = (await api("/managers")).rows; } catch { S.managers = []; } }
+async function viewRefs(v) {
+  if (!S.managers.length) await loadManagers();
+  const f = S.refFilter;
+  v.innerHTML = `<h2>Рекомендации</h2>
+    <div class="toolbar">
+      <select id="fStatus">${[["", "Все"], ["open", "Открытые"], ["verify", "Ждут звонка"], ["review", "На проверке"], ["hold", "В холде"], ["credited", "Бонус начислен"], ["paid", "Все оплаченные"], ["flagged", "Менеджер: «уже был у нас»"], ["duplicate", "Уже были в базе"], ["lost", "Не купили"], ["rejected", "Отклонённые и возвраты"]]
+        .map(([k, t]) => `<option value="${k}" ${f.status === k ? "selected" : ""}>${t}</option>`).join("")}</select>
+      <select id="fMgr"><option value="">Все менеджеры</option>${S.managers.map((m) => `<option value="${m.tg_id}" ${String(f.manager) === String(m.tg_id) ? "selected" : ""}>${esc(m.first_name)}</option>`).join("")}</select>
+      <input id="fQ" type="search" placeholder="Имя, телефон, ребёнок или #" value="${esc(f.q)}" style="flex:1;min-width:180px">
+      <button class="btn" id="exportBtn">Скачать CSV</button>
+    </div>
+    <div id="refList"><div class="loading">Загрузка…</div></div>`;
+  const reload = () => loadRefs(0);
+  $("#fStatus").onchange = (e) => { f.status = e.target.value; reload(); };
+  $("#fMgr").onchange = (e) => { f.manager = e.target.value; reload(); };
+  let t; $("#fQ").oninput = (e) => { clearTimeout(t); t = setTimeout(() => { f.q = e.target.value.trim(); reload(); }, 350); };
+  $("#exportBtn").onclick = exportCsv;
+  await loadRefs(0);
+}
+async function loadRefs(offset) {
+  const f = S.refFilter;
+  const qs = new URLSearchParams({ status: f.status, manager: f.manager, q: f.q, offset, limit: 50 });
+  const r = await api("/referrals?" + qs);
+  const box = $("#refList"); if (!box) return;
+  const rows = r.rows.map((x) => `<tr class="click" data-ref="${x.id}">
+      <td class="num">#${x.id}<div class="muted small">${d0(x.created_at)}</div></td>
+      <td><b>${esc(x.friend_name || "—")}</b><div class="num small">${esc(phone(x.friend_phone))}</div></td>
+      <td>${esc(x.child_name || "—")}${x.child_grade ? `<div class="muted small">${esc(x.child_grade)} кл.</div>` : ""}</td>
+      <td>${srcChip(x.friend_source)}</td>
+      <td>${esc(x.ref_name || "—")}<div class="num small muted">${esc(phone(x.ref_phone))}</div></td>
+      <td>${esc(x.mgr_name || x.taken_by_name || "—")}${x.assigned_manager_tg && !x.accepted_at && ["lead_created", "in_progress"].includes(x.status) ? `<div><span class="chip warn">не принял</span></div>` : ""}${x.manager_report === "paid" ? `<div><span class="chip acc">сообщил: ${money(x.manager_report_amount)}</span></div>` : ""}${x.manager_flag === "known" ? `<div><span class="chip bad">«уже был у нас»</span></div>` : ""}</td>
+      <td>${chip(STATUS, x.status)}${x.verify_status && ["hold", "review"].includes(x.status) ? `<div style="margin-top:3px">${chip(VERIFY, x.verify_status)}</div>` : ""}</td>
+      <td class="num">${x.payment_amount ? money(x.payment_amount) : "—"}${x.bonus_amount ? (["rejected", "refunded"].includes(x.status) ? `<div class="small muted"><s>бонус ${money(x.bonus_amount)}</s></div>` : `<div class="small" style="color:var(--good)">бонус ${money(x.bonus_amount)}</div>`) : ""}</td>
+    </tr>`).join("");
+  const html = `<div class="tablebox"><table><thead><tr><th>#</th><th>Друг</th><th>Ребёнок</th><th>Откуда узнал</th><th>Пригласил</th><th>Менеджер</th><th>Статус</th><th>Оплата</th></tr></thead>
+    <tbody>${rows || `<tr><td colspan="8" class="muted">Ничего не найдено</td></tr>`}</tbody></table></div>
+    <div class="toolbar" style="margin-top:10px"><span class="muted small">Показано ${Math.min(offset + r.rows.length, r.total)} из ${r.total}</span>
+    ${offset + r.rows.length < r.total ? `<button class="btn sm" id="moreRefs">Показать ещё</button>` : ""}</div>`;
+  if (offset === 0) box.innerHTML = html; else { box.querySelector("tbody").insertAdjacentHTML("beforeend", rows); box.querySelector(".toolbar").outerHTML = html.slice(html.lastIndexOf('<div class="toolbar"')); }
+  box.querySelectorAll("tr[data-ref]").forEach((tr) => tr.onclick = () => openRef(tr.dataset.ref));
+  const more = $("#moreRefs"); if (more) more.onclick = () => loadRefs(offset + 50);
+}
+async function exportCsv() {
+  try {
+    const r = await api("/export");
+    const blob = await r.blob();
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `newton-club-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a); a.click(); a.remove();
+  } catch (e) { toast(e.message, true); }
+}
+
+// ---------- drawer ----------
+function openDrawer(html) { const d = $("#drawer"); d.dataset.user = ""; d.innerHTML = html; d.classList.remove("hidden"); $("#drawerBg").classList.remove("hidden"); d.scrollTop = 0; }
+function closeDrawer() { $("#drawer").classList.add("hidden"); $("#drawerBg").classList.add("hidden"); }
+$("#drawerBg").onclick = closeDrawer;
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeDrawer(); });
+
+const EVENT = {
+  friend_scan: "Друг перешёл по ссылке", friend_lead: "Лид зарегистрирован", friend_duplicate: "Уже был в базе", lead_assigned: "Назначен менеджеру",
+  lead_accepted: "Менеджер принял", lead_reassigned: "Передан другому менеджеру", manager_reported_paid: "Менеджер сообщил об оплате",
+  paid_marked: "Оплата подтверждена маркетингом", friend_paid: "Расчёт бонуса", verify_ok: "Звонок: подтвердил", verify_failed: "Звонок: не подтвердил",
+  verify_no_answer: "Звонок: не дозвонились", review_approved: "Проверка одобрена", review_rejected: "Проверка отклонена", bonus_credited: "Бонус начислен",
+  bonus_refunded: "Бонус отменён", lost_marked: "Отмечен «не купил»", refund_marked: "Возврат", report_rejected: "Сообщение об оплате отклонено",
+  sales_take: "Взял в работу (группа)", crm_error: "Ошибка CRM", staff_referrer: "Ссылка сотрудника",
+  manager_flag_known: "Менеджер: «уже был у нас»", hold_reverted: "Холд отменён", referral_edited: "Данные исправлены", referral_rejected: "Отклонена админом",
+  note_set: "Заметка",
+};
+
+async function openRef(id) {
+  openDrawer(`<div class="head"><b>Рекомендация #${esc(id)}</b><span class="spacer"></span><button class="btn sm" data-close>Закрыть</button></div><div class="body"><div class="loading">Загрузка…</div></div>`);
+  $("#drawer [data-close]").onclick = closeDrawer;
+  let r; try { r = await api("/referral?id=" + id); } catch (e) { toast(e.message, true); return; }
+  if (!S.managers.length) await loadManagers();
+  const x = r.ref;
+  const open = ["lead_created", "in_progress", "lost"].includes(x.status);
+  const paid = ["hold", "review"].includes(x.status);
+  const needCall = paid && ["pending", "no_answer"].includes(x.verify_status);
+  const acts = [];
+  if (open && x.manager_report === "paid") acts.push(`<div class="card"><h3>Менеджер сообщил об оплате</h3><div class="actions">
+      <input type="text" id="rpAmt" value="${money(x.manager_report_amount)}" style="width:150px" class="num">
+      <button class="btn good" data-a="confirm">Подтвердить оплату</button><button class="btn bad" data-a="rejrep">Не подтверждаю</button></div></div>`);
+  if (open) acts.push(`<div class="card"><h3>Оплата</h3><div class="muted small" style="margin-bottom:8px">Подтверждайте только после сверки с кассой. Бонус считается от первой оплаты и начисляется после холда и проверки звонком.</div>
+      <div class="actions"><input type="text" id="payAmt" placeholder="Сумма первой оплаты" class="num" style="width:190px">
+      <button class="btn good" data-a="paid">Оплатил</button>${x.status !== "lost" ? `<button class="btn" data-a="lost">Не купил</button>` : ""}</div></div>`);
+  if (open) acts.push(`<div class="card"><h3>Менеджер</h3><div class="actions">
+      <select id="reMgr"><option value="">Следующему по очереди</option>${S.managers.filter((m) => String(m.tg_id) !== String(x.assigned_manager_tg)).map((m) => `<option value="${m.tg_id}">${esc(m.first_name)}${m.manager_active ? "" : " (не на смене)"}</option>`).join("")}</select>
+      <button class="btn" data-a="reassign">Передать</button></div></div>`);
+  if (needCall) acts.push(`<div class="card callcard"><h3>Проверка звонком</h3>
+      <div class="phone-big">${telLink(x.friend_phone)}</div>
+      <div class="script">Спросите: 1) Как вы узнали о Newton? 2) Общались ли раньше с нашим менеджером? Ответ в боте: <b>${esc(r.source || "не ответил")}</b>.</div>
+      <input type="text" id="vNote" placeholder="Комментарий (необязательно)">
+      <div class="actions"><button class="btn good" data-a="v_ok">Подтвердил</button><button class="btn bad" data-a="v_fail">Не подтвердил</button><button class="btn" data-a="v_na">Не дозвонились</button></div></div>`);
+  if (x.status === "review") acts.push(`<div class="card"><h3>Проверка по флагам</h3><ul style="margin:0 0 10px;padding-left:18px">${r.flags.map((f) => `<li>${esc(f)}</li>`).join("")}</ul>
+      <div class="actions"><button class="btn good" data-a="rv_ok">Одобрить бонус</button><button class="btn bad" data-a="rv_no">Отклонить</button></div></div>`);
+  if (paid) acts.push(`<div class="actions"><button class="btn bad" data-a="refund">Возврат оплаты — отменить бонус</button></div>`);
+  acts.push(`<div class="card"><h3>Заметка маркетинга</h3><textarea id="rNote" placeholder="Видна только админам">${esc(x.admin_note || "")}</textarea>
+      <div class="actions" style="margin-top:8px"><button class="btn sm" data-a="note">Сохранить заметку</button></div></div>`);
+  acts.push(`<details class="card"><summary style="cursor:pointer;font-weight:700">Исправить данные</summary><div style="display:grid;gap:8px;margin-top:10px">
+      <label class="f">Имя друга<input type="text" id="eFn" value="${esc(x.friend_name || "")}"></label>
+      <div class="row2"><label class="f">Ребёнок<input type="text" id="eCn" value="${esc(x.child_name || "")}"></label>
+      <label class="f">Класс<input type="text" id="eCg" value="${esc(x.child_grade || "")}"></label></div>
+      <div class="actions"><button class="btn sm primary" data-a="edit">Сохранить</button></div></div></details>`);
+  if (["pending_check", "lead_created", "in_progress", "lost", "duplicate"].includes(x.status)) acts.push(`<details class="card danger"><summary style="cursor:pointer;font-weight:700;color:var(--bad)">Отклонить рекомендацию</summary>
+      <p class="muted small">Например, двойная регистрация или явный обман. Бонус по ней начислен не будет. Пригласившему сообщение не уходит.</p>
+      <div class="actions"><input type="text" id="rjReason" placeholder="Причина" style="flex:1;min-width:180px"><button class="btn bad" data-a="reject">Отклонить</button></div></details>`);
+
+  $("#drawer").innerHTML = `<div class="head"><b>Рекомендация #${x.id}</b> ${chip(STATUS, x.status)} ${x.verify_status ? chip(VERIFY, x.verify_status) : ""}
+      <span class="spacer"></span><button class="btn sm" data-close>Закрыть</button></div>
+    <div class="body">
+      <div class="card"><dl class="kv">
+        <dt>Друг</dt><dd><a href="#" data-user="${x.friend_tg}"><b>${esc(x.friend_name || "—")}</b></a>${x.friend_username ? ` · @${esc(x.friend_username)}` : ""}<br>${telLink(x.friend_phone)}</dd>
+        <dt>Ребёнок</dt><dd>${esc(x.child_name || "—")}${x.child_grade ? `, ${esc(x.child_grade)} кл.` : ""} · ${x.friend_lang === "ru" ? "русский" : "узбекский"}</dd>
+        <dt>Откуда узнал</dt><dd>${srcChip(x.friend_source)}${x.manager_flag === "known" ? ` <span class="chip bad">менеджер: «уже был у нас» · ${dt(x.manager_flag_at)}</span>` : ""}</dd>
+        <dt>Пригласил(а)</dt><dd><a href="#" data-user="${x.referrer_tg}">${esc(x.ref_name || "—")}</a> · ${telLink(x.ref_phone)}<br><span class="muted small">код <b>${esc(x.ref_code || "—")}</b></span></dd>
+        <dt>Менеджер</dt><dd>${esc(x.mgr_name || x.taken_by_name || "—")}${x.assigned_at ? `<div class="muted small">назначен ${dt(x.assigned_at)} · ${x.accepted_at ? "принял " + dt(x.accepted_at) : "<span class=red>не принял</span>"}${x.reassign_count ? ` · передавался ${x.reassign_count} раз` : ""}</div>` : ""}</dd>
+        <dt>Создан</dt><dd>${dt(x.created_at)}</dd>
+        ${x.payment_amount ? `<dt>Оплата</dt><dd class="num">${money(x.payment_amount)} сум · ${d0(x.paid_at)}</dd>
+          <dt>Бонус</dt><dd class="num">${money(x.bonus_amount)} сум${x.bonus_pct ? ` (${esc(x.bonus_pct)}%)` : ""} · доступен с ${d0(x.available_at)}</dd>` : ""}
+        ${x.status_reason ? `<dt>Причина</dt><dd>${esc(x.status_reason)}</dd>` : ""}
+        ${x.verify_note ? `<dt>Комментарий</dt><dd>${esc(x.verify_note)}</dd>` : ""}
+        ${x.admin_note ? `<dt>Заметка</dt><dd>${esc(x.admin_note)}</dd>` : ""}
+      </dl></div>
+      ${r.flags.length && x.status !== "review" ? `<div class="note">${r.flags.map(esc).join("<br>")}</div>` : ""}
+      ${acts.join("")}
+      <div class="card"><h3>История</h3><ul class="timeline">${r.events.map((e) => `<li><span class="muted small num">${dt(e.created_at)}</span> · ${esc(EVENT[e.kind] || e.kind)}${e.who ? ` <span class="muted">— ${esc(e.who)}</span>` : ""}</li>`).join("") || `<li class="muted">Пусто</li>`}</ul></div>
+    </div>`;
+  $("#drawer [data-close]").onclick = closeDrawer;
+  $("#drawer").querySelectorAll("[data-user]").forEach((a) => a.onclick = (e) => { e.preventDefault(); openUser(a.dataset.user); });
+  const after = async () => { await refreshCounts(); await openRef(id); if (S.tab === "refs") loadRefs(0); if (S.tab === "verify") render(); };
+  const A = (body) => doAction("/referral", { id: Number(id), ...body }, after);
+  $("#drawer").querySelectorAll("[data-a]").forEach((b) => b.onclick = () => {
+    const a = b.dataset.a;
+    if (a === "paid") { const amt = $("#payAmt").value.replace(/\D/g, ""); if (!amt) return toast("Введите сумму", true); if (confirm(`Подтвердить оплату ${money(amt)} сум?`)) A({ action: "paid", amount: amt }); }
+    if (a === "confirm") { const amt = $("#rpAmt").value.replace(/\D/g, ""); A({ action: "confirm_report", amount: Number(amt) }); }
+    if (a === "rejrep") doAction("/requests", { kind: "report", id: Number(id), approve: false }, after);
+    if (a === "lost") A({ action: "lost" });
+    if (a === "reassign") A({ action: "reassign", manager: $("#reMgr").value });
+    if (a === "v_ok") A({ action: "verify", result: "ok", note: $("#vNote").value });
+    if (a === "v_fail") { if (confirm("Бонус будет отменён. Продолжить?")) A({ action: "verify", result: "fail", note: $("#vNote").value }); }
+    if (a === "v_na") A({ action: "verify", result: "no_answer", note: $("#vNote").value });
+    if (a === "rv_ok") A({ action: "review", approve: true });
+    if (a === "rv_no") { if (confirm("Отклонить бонус?")) A({ action: "review", approve: false }); }
+    if (a === "refund") { if (confirm("Отменить бонус из-за возврата оплаты?")) A({ action: "refund" }); }
+    if (a === "note") A({ action: "note", text: $("#rNote").value });
+    if (a === "edit") A({ action: "edit", friend_name: $("#eFn").value, child_name: $("#eCn").value, child_grade: $("#eCg").value });
+    if (a === "reject") { const reason = $("#rjReason").value.trim(); if (!reason) return toast("Укажите причину", true); if (confirm("Отклонить рекомендацию?")) A({ action: "reject", reason }); }
+  });
+}
+
+// ---------- verification queue ----------
+async function viewVerify(v) {
+  const r = await api("/referrals?status=verify&limit=100");
+  v.innerHTML = `<h2>Проверка звонком</h2>
+    <div class="note info">Перед начислением бонуса позвоните другу и задайте два вопроса: <b>как узнали о Newton</b> и <b>общались ли раньше с нашим менеджером</b>. Если друг пришёл с рекламы или уже был в работе у менеджера — «Не подтвердил», бонус отменится.</div>
+    <div class="grid g2">${r.rows.map((x) => `<div class="card callcard">
+      <div class="actions"><b>#${x.id}</b> ${chip(STATUS, x.status)} ${chip(VERIFY, x.verify_status)}<span class="spacer"></span><button class="btn sm" data-open="${x.id}">Подробнее</button></div>
+      <div><b>${esc(x.friend_name || "—")}</b> · ребёнок ${esc(x.child_name || "—")}${x.child_grade ? `, ${esc(x.child_grade)} кл.` : ""}</div>
+      <div class="phone-big">${telLink(x.friend_phone)}</div>
+      <div class="small">Ответ в боте: ${srcChip(x.friend_source)} · пригласил(а) ${esc(x.ref_name || "—")} · менеджер ${esc(x.mgr_name || x.taken_by_name || "—")}</div>
+      <div class="small muted">Оплата ${money(x.payment_amount)} · бонус ${money(x.bonus_amount)} · доступен с ${d0(x.available_at)}</div>
+      <input type="text" placeholder="Комментарий" data-note="${x.id}">
+      <div class="actions"><button class="btn good" data-v="ok" data-id="${x.id}">Подтвердил</button><button class="btn bad" data-v="fail" data-id="${x.id}">Не подтвердил</button><button class="btn" data-v="no_answer" data-id="${x.id}">Не дозвонились</button></div>
+    </div>`).join("") || `<div class="card muted">Очередь пуста ✅</div>`}</div>`;
+  v.querySelectorAll("[data-open]").forEach((b) => b.onclick = () => openRef(b.dataset.open));
+  v.querySelectorAll("[data-v]").forEach((b) => b.onclick = () => {
+    const id = Number(b.dataset.id), res = b.dataset.v;
+    if (res === "fail" && !confirm("Бонус будет отменён. Продолжить?")) return;
+    const note = (v.querySelector(`[data-note="${id}"]`) || {}).value || "";
+    doAction("/referral", { id, action: "verify", result: res, note }, async () => { await refreshCounts(); render(); });
+  });
+}
+
+// ---------- requests ----------
+async function viewRequests(v) {
+  const r = await api("/requests");
+  v.innerHTML = `<h2>Заявки</h2>
+    <div class="card" style="margin-bottom:12px"><h3>Менеджеры сообщили об оплате</h3>
+      ${r.reports.length ? `<div class="tablebox"><table><thead><tr><th>#</th><th>Друг</th><th>Менеджер</th><th>Сумма</th><th></th></tr></thead><tbody>
+      ${r.reports.map((x) => `<tr><td><a href="#" data-open="${x.id}">#${x.id}</a></td><td>${esc(x.friend_name || "—")}<div class="small num">${esc(phone(x.friend_phone))}</div></td>
+        <td>${esc(x.mgr_name || "—")}<div class="small muted">${dt(x.manager_report_at)}</div></td>
+        <td><input type="text" class="num" value="${money(x.manager_report_amount)}" data-amt="${x.id}" style="width:130px"></td>
+        <td class="actions"><button class="btn sm good" data-rep="${x.id}" data-ok="1">Подтвердить</button><button class="btn sm bad" data-rep="${x.id}">Нет</button></td></tr>`).join("")}</tbody></table></div>`
+      : `<div class="muted">Нет</div>`}<p class="muted small" style="margin:8px 0 0">Сверьте сумму с кассой. После подтверждения запускается холд 30 дней и проверка звонком.</p></div>
+    <div class="card" style="margin-bottom:12px"><h3>Запросы на вступление в клуб</h3>
+      ${r.joins.length ? `<div class="tablebox"><table><thead><tr><th>Родитель</th><th>Телефон</th><th>Филиал QR</th><th>Когда</th><th></th></tr></thead><tbody>
+      ${r.joins.map((x) => `<tr><td>${esc(x.first_name || "—")}${x.username ? ` <span class="muted">@${esc(x.username)}</span>` : ""}</td><td>${telLink(x.phone)}</td>
+        <td>${esc(x.branch || "—")}</td><td class="small">${dt(x.join_requested_at)}</td>
+        <td class="actions"><button class="btn sm good" data-join="${x.tg_id}" data-ok="1">Ученик</button><button class="btn sm bad" data-join="${x.tg_id}">Не ученик</button></td></tr>`).join("")}</tbody></table></div>`
+      : `<div class="muted">Нет</div>`}<p class="muted small" style="margin:8px 0 0">Номера нет в загруженном списке учеников. Проверьте по договору или у куратора.</p></div>
+    <div class="card"><h3>Заявки на списание бонуса</h3>
+      ${r.redeems.length ? `<div class="tablebox"><table><thead><tr><th>#</th><th>Родитель</th><th>Заявка</th><th>Баланс сейчас</th><th></th></tr></thead><tbody>
+      ${r.redeems.map((x) => `<tr><td>#${x.id}</td><td>${esc(x.first_name || "—")}<div class="small num">${esc(phone(x.phone))}</div></td><td class="num">${money(x.amount)}</td><td class="num">${money(x.balance)}</td>
+        <td class="actions"><button class="btn sm good" data-red="${x.id}" data-ok="1">Списано</button><button class="btn sm bad" data-red="${x.id}">Отклонить</button></td></tr>`).join("")}</tbody></table></div>`
+      : `<div class="muted">Нет</div>`}<p class="muted small" style="margin:8px 0 0">Нажимайте «Списано», когда бонус учтён в оплате родителя.</p></div>`;
+  const after = async () => { await refreshCounts(); render(); };
+  v.querySelectorAll("[data-open]").forEach((a) => a.onclick = (e) => { e.preventDefault(); openRef(a.dataset.open); });
+  v.querySelectorAll("[data-rep]").forEach((b) => b.onclick = () => {
+    const id = Number(b.dataset.rep), ok = !!b.dataset.ok;
+    const amount = Number((v.querySelector(`[data-amt="${id}"]`).value || "").replace(/\D/g, ""));
+    if (ok && !confirm(`Подтвердить оплату ${money(amount)} сум?`)) return;
+    doAction("/requests", { kind: "report", id, approve: ok, amount }, after);
+  });
+  v.querySelectorAll("[data-join]").forEach((b) => b.onclick = () => doAction("/requests", { kind: "join", id: Number(b.dataset.join), approve: !!b.dataset.ok }, after));
+  v.querySelectorAll("[data-red]").forEach((b) => b.onclick = () => doAction("/requests", { kind: "redeem", id: Number(b.dataset.red), approve: !!b.dataset.ok }, after));
+}
+
+// ---------- members ----------
+async function viewMembers(v) {
+  v.innerHTML = `<h2>Участники клуба</h2>
+    <div class="toolbar"><input id="mQ" type="search" placeholder="Имя, телефон или код" value="${esc(S.memberQ)}" style="flex:1;min-width:200px"></div>
+    <div id="memList"><div class="loading">Загрузка…</div></div>`;
+  let t; $("#mQ").oninput = (e) => { clearTimeout(t); t = setTimeout(() => { S.memberQ = e.target.value.trim(); loadMembers(); }, 350); };
+  await loadMembers();
+}
+async function loadMembers() {
+  const r = await api("/members?" + new URLSearchParams({ q: S.memberQ, limit: 200 }));
+  const box = $("#memList"); if (!box) return;
+  box.innerHTML = `<div class="tablebox"><table><thead><tr><th>Родитель</th><th>Телефон</th><th>Код</th><th>Филиал</th><th>В клубе с</th><th>Друзья</th><th>Баланс</th><th>Ожидает</th></tr></thead><tbody>
+    ${r.rows.map((m) => `<tr class="click" data-tg="${m.tg_id}"><td><b>${esc(m.first_name || "—")}</b>${m.username ? ` <span class="muted small">@${esc(m.username)}</span>` : ""}${m.blocked ? ` <span class="chip bad">заблокирован</span>` : ""}</td>
+      <td class="num">${esc(phone(m.phone))}</td><td class="num">${esc(m.ref_code || "")}</td><td>${esc(m.branch || "—")}</td><td class="small">${d0(m.member_since)}</td>
+      <td class="num">${m.friends}${m.paid ? ` · <span style="color:var(--good)">${m.paid} опл.</span>` : ""}${m.dups ? ` · <span class="muted">${m.dups} в базе</span>` : ""}</td>
+      <td class="num"><b>${money(m.balance)}</b></td><td class="num muted">${money(m.pending)}</td></tr>`).join("") || `<tr><td colspan="8" class="muted">Пока никого</td></tr>`}</tbody></table></div>
+    <div class="muted small" style="margin-top:8px">Всего: ${r.total}</div>`;
+  box.querySelectorAll("tr[data-tg]").forEach((tr) => tr.onclick = () => openUser(tr.dataset.tg));
+}
+// ---------- managers ----------
+async function viewManagers(v) {
+  const days = S.mgrDays || 30;
+  const r = await api("/managers?days=" + days); S.managers = r.rows;
+  v.innerHTML = `<h2>Менеджеры</h2>
+    <div class="note info">Подключение менеджера: он открывает бота <b>@${esc(r.bot || "")}</b> и отправляет <b>/manager ${esc(r.invite_code)}</b>. Номер менеджера автоматически попадает в стоп-лист. Лиды раздаются <b>по очереди</b> тем, кто «на смене»; не принятый за ${esc(r.sla)} мин лид уходит следующему.</div>
+    <div class="toolbar"><span class="muted">Период:</span>${[7, 30, 90].map((d) => `<button class="btn sm ${d === days ? "primary" : ""}" data-days="${d}">${d} дней</button>`).join("")}</div>
+    <div class="tablebox"><table><thead><tr><th>Менеджер</th><th>Смена</th><th>Лидов</th><th>Принял</th><th title="Среднее время до «Принял»">Ср. принятие</th><th title="Лид ушёл другому по SLA">Просрочил</th><th>Оплат</th><th>Конв.</th><th title="Друг ответил: реклама / уже общался с менеджером">Не от друга</th><th title="Менеджер нажал «Уже был у нас»">«Уже был»</th><th title="Проверка звонком не пройдена">Звонок ✗</th><th></th></tr></thead><tbody>
+    ${r.rows.map((m) => { const a = m.assigned || 0; const conv = a ? Math.round((m.paid || 0) / a * 100) : 0; const srcShare = a ? Math.round((m.source_flags || 0) / a * 100) : 0;
+      return `<tr><td><b>${esc(m.first_name || "—")}</b>${m.username ? ` <span class="muted small">@${esc(m.username)}</span>` : ""}<div class="small num muted">${esc(phone(m.phone))}</div></td>
+      <td>${m.manager_active ? `<span class="chip good">на смене</span>` : `<span class="chip">не на смене</span>`}</td>
+      <td class="num">${a}</td><td class="num">${m.accepted || 0}</td><td class="num">${m.avg_accept_min != null ? m.avg_accept_min + " мин" : "—"}</td>
+      <td class="num ${m.missed ? "red" : ""}">${m.missed || 0}</td><td class="num">${m.paid || 0}</td><td class="num">${conv}%</td>
+      <td class="num ${srcShare >= 30 && m.source_flags >= 2 ? "red" : ""}">${m.source_flags || 0}${a ? ` <span class="muted small">(${srcShare}%)</span>` : ""}</td>
+      <td class="num">${m.known_flags || 0}</td>
+      <td class="num ${m.verify_fail ? "red" : ""}">${m.verify_fail || 0}</td>
+      <td><div class="actions" style="flex-wrap:nowrap"><button class="btn sm" data-mg="${m.tg_id}" data-act="${m.manager_active ? "deactivate" : "activate"}">${m.manager_active ? "Снять со смены" : "На смену"}</button>
+        <button class="btn sm bad" data-mg="${m.tg_id}" data-act="remove">Убрать</button></div></td></tr>`; }).join("") || `<tr><td colspan="12" class="muted">Никто не подключился</td></tr>`}
+    </tbody></table></div>
+    <p class="muted small">Красным — на что смотреть: просрочки, много друзей «не от друга» (реклама / уже общались с менеджером), проваленные звонки. Сравнивайте менеджеров между собой: лиды раздаются поровну. «Отметил „уже был“» — честный сигнал: менеджер узнал рекламного клиента в рекомендации.</p>`;
+  v.querySelectorAll("[data-days]").forEach((b) => b.onclick = () => { S.mgrDays = Number(b.dataset.days); render(); });
+  v.querySelectorAll("[data-mg]").forEach((b) => b.onclick = () => {
+    if (b.dataset.act === "remove" && !confirm("Убрать менеджера из раздачи лидов?")) return;
+    doAction("/managers", { tg: Number(b.dataset.mg), action: b.dataset.act }, () => render());
+  });
+}
+
+// ---------- protection ----------
+async function viewProtection(v) {
+  const r = await api("/protection");
+  const imp = (k) => r.imports.find((x) => x.kind === k);
+  v.innerHTML = `<h2>Защита и базы</h2>
+    <div class="grid g3" style="margin-bottom:14px">
+      <div class="card kpi"><div class="l">Список учеников</div><div class="v">${r.counts.students}</div><div class="s">${imp("import_members") ? "обновлён " + dt(imp("import_members").created_at) : "не загружен"}</div></div>
+      <div class="card kpi"><div class="l">База клиентов (CRM)</div><div class="v">${r.counts.base}</div><div class="s">${imp("import_base") ? "обновлена " + dt(imp("import_base").created_at) : "не загружена"}</div></div>
+      <div class="card kpi"><div class="l">Стоп-лист</div><div class="v">${r.stoplist.length}</div><div class="s">сотрудники и их близкие</div></div>
+    </div>
+    <div class="grid g2" style="margin-bottom:14px">
+      ${[["members", "Список учеников", "Кто может вступить в клуб без подтверждения. Excel/CSV из CRM или таблица кураторов — бот найдёт номера в любых колонках."],
+         ["base", "База клиентов из CRM", "Все, кто когда-либо обращался. Номер с активностью за последние 180 дней не считается новым другом. Обновляйте раз в неделю — так ни один рекламный лид не пройдёт как «друг»."]]
+        .map(([k, t, d]) => `<div class="card"><h3>${t}</h3><p class="muted small" style="margin-top:-4px">${d}</p>
+          <input type="file" accept=".xlsx,.xls,.csv,.txt" data-file="${k}"><div style="margin:8px 0" class="muted small">или вставьте номера:</div>
+          <textarea data-text="${k}" placeholder="998901234567&#10;+998 93 555 00 02"></textarea>
+          <div class="actions" style="margin-top:8px"><button class="btn primary" data-imp="${k}">Загрузить</button></div></div>`).join("")}
+    </div>
+    <div class="card"><h3>Стоп-лист</h3>
+      <p class="muted small" style="margin-top:-4px">Эти номера не могут быть рекомендателями. Менеджеры добавляются автоматически при подключении к боту.</p>
+      <div class="grid g2"><textarea id="stopText" placeholder="Номера через запятую или с новой строки"></textarea>
+      <div><input type="text" id="stopReason" placeholder="Причина: менеджер, родственник…" style="width:100%"><div class="actions" style="margin-top:8px"><button class="btn primary" id="stopAdd">Добавить</button></div></div></div>
+      <div class="tablebox" style="margin-top:12px"><table><thead><tr><th>Номер</th><th>Причина</th><th>Добавлен</th><th></th></tr></thead><tbody>
+      ${r.stoplist.map((s) => `<tr><td class="num">${esc(phone(s.phone))}</td><td>${esc(s.reason || "")}</td><td class="small">${dt(s.created_at)}</td><td><button class="btn sm" data-unstop="${esc(s.phone)}">Убрать</button></td></tr>`).join("") || `<tr><td colspan="4" class="muted">Пусто</td></tr>`}
+      </tbody></table></div></div>`;
+  v.querySelectorAll("[data-imp]").forEach((b) => b.onclick = async () => {
+    const k = b.dataset.imp, fileIn = v.querySelector(`[data-file="${k}"]`), text = v.querySelector(`[data-text="${k}"]`).value;
+    const f = fileIn.files[0];
+    if (!f && !text.trim()) return toast("Выберите файл или вставьте номера", true);
+    b.disabled = true; b.textContent = "Загружаю…";
+    let body = { kind: k, text };
+    if (f) {
+      if (f.size > 8 * 1024 * 1024) { b.disabled = false; b.textContent = "Загрузить"; return toast("Файл больше 8 МБ", true); }
+      const buf = new Uint8Array(await f.arrayBuffer());
+      let bin = ""; for (let i = 0; i < buf.length; i += 0x8000) bin += String.fromCharCode.apply(null, buf.subarray(i, i + 0x8000));
+      body = { kind: k, filename: f.name, data: btoa(bin) };
+    }
+    await doAction("/import", body, () => render());
+    b.disabled = false; b.textContent = "Загрузить";
+  });
+  $("#stopAdd").onclick = () => doAction("/stoplist", { action: "add", text: $("#stopText").value, reason: $("#stopReason").value }, () => render());
+  v.querySelectorAll("[data-unstop]").forEach((b) => b.onclick = () => doAction("/stoplist", { action: "remove", phone: b.dataset.unstop }, () => render()));
+}
+
+// ---------- settings ----------
+const SETTINGS = [
+  ["Бонусы", [
+    ["bonus_fixed_amount", "Бонус за оплатившего друга, сум (пусто — считать в %)", "num"],
+    ["ambassador_fixed_amount", "Бонус Амбассадора, сум (пусто — как обычный)", "num"],
+    ["bonus_pct", "Бонус в % от первой оплаты (если сумма выше пустая)", "num"], ["ambassador_pct", "Бонус Амбассадора в %", "num"],
+    ["ambassador_threshold", "Амбассадор после N оплативших друзей за учебный год", "num"], ["hold_days", "Холд перед начислением, дней", "num"],
+    ["ref_code_length", "Длина кода участника (символов)", "num"]]],
+  ["Защита", [
+    ["require_verification", "Проверка звонком обязательна перед начислением", "bool"], ["dedupe_days", "Номер в базе за последние N дней — не новый друг", "num"],
+    ["velocity_limit", "Больше N друзей за 30 дней у одного человека — на проверку", "num"], ["accept_sla_minutes", "Минут на «Принял» (рабочее время)", "num"],
+    ["work_hours", "Рабочее время (Ташкент)", "hours"]]],
+  ["Тексты для друга", [["friend_gift_uz", "Подарок другу (узб.)", "text"], ["friend_gift_ru", "Подарок другу (рус.)", "text"]]],
+  ["Админка", [["admin_url", "Адрес этой админки (для кнопки в Telegram и ссылки /web)", "text"]]],
+];
+async function viewSettings(v) {
+  const r = await api("/settings");
+  const val = r.values;
+  const field = ([k, label, type]) => {
+    let input;
+    if (type === "bool") input = `<select data-k="${k}"><option value="true" ${val[k] ? "selected" : ""}>Да</option><option value="false" ${!val[k] ? "selected" : ""}>Нет</option></select>`;
+    else if (type === "hours") { const wh = val[k] || { start: 9, end: 20 }; input = `<div class="actions"><input type="number" min="0" max="23" value="${wh.start}" data-wh="start" style="width:80px"> — <input type="number" min="1" max="24" value="${wh.end}" data-wh="end" style="width:80px"></div>`; }
+    else input = `<input type="text" data-k="${k}" value="${esc(val[k] ?? "")}" ${type === "num" ? 'class="num"' : ""}>`;
+    return `<div class="setrow"><div><div class="h">${esc(label)}</div><div class="d">${esc(k)}</div></div><div>${input}</div><div><button class="btn sm" data-save="${k}">Сохранить</button></div></div>`;
+  };
+  v.innerHTML = `<h2>Настройки</h2>
+    <div class="grid g2" style="margin-bottom:14px">
+      <div class="card"><h3>Статус</h3><dl class="kv"><dt>Бот</dt><dd>@${esc(r.bot || "—")}</dd><dt>amoCRM</dt><dd>${r.crm ? "подключена" : "не подключена (режим без CRM)"}</dd>
+        <dt>Группа продаж</dt><dd>${r.sales_chat_id ? "подключена" : "нет — отправьте /bindsales в группе"}</dd></dl></div>
+      <div class="card"><h3>Коды доступа</h3><dl class="kv">
+        <dt>Код админа</dt><dd><span class="num">${esc(r.codes.admin)}</span> <button class="btn sm" data-rot="rotate_admin_code">Сменить</button><div class="muted small">новый админ отправляет боту /claim КОД</div></dd>
+        <dt>Код менеджера</dt><dd><span class="num">${esc(r.codes.manager)}</span> <button class="btn sm" data-rot="rotate_manager_code">Сменить</button><div class="muted small">менеджер отправляет боту /manager КОД</div></dd></dl></div>
+    </div>
+    ${SETTINGS.map(([t, fs]) => `<div class="card" style="margin-bottom:12px"><h3>${t}</h3>${fs.map(field).join("")}</div>`).join("")}`;
+  v.querySelectorAll("[data-save]").forEach((b) => b.onclick = () => {
+    const k = b.dataset.save;
+    if (k === "work_hours") return doAction("/settings", { key: k, value: { start: Number(v.querySelector('[data-wh="start"]').value), end: Number(v.querySelector('[data-wh="end"]').value) } });
+    doAction("/settings", { key: k, value: v.querySelector(`[data-k="${k}"]`).value });
+  });
+  v.querySelectorAll("[data-rot]").forEach((b) => b.onclick = () => { if (confirm("Старый код перестанет работать. Сменить?")) doAction("/settings", { key: b.dataset.rot }, () => render()); });
+}
+
+// ---------- log ----------
+const LOG_LABEL = Object.assign({}, EVENT, {
+  member_joined: "Вступил в клуб", join_requested: "Запрос на вступление", join_approved: "Вступление одобрено", join_rejected: "Вступление отклонено",
+  signup: "Заявка на диагностику", bonus_redeemed: "Бонус списан", redeem_declined: "Списание отклонено", web_login: "Вход в админку",
+  web_login_failed: "Неудачный вход", admin_claimed: "Новый админ", manager_joined: "Подключился менеджер", manager_on: "Менеджер на смене",
+  manager_off: "Менеджер ушёл со смены", stoplist_add: "Добавлено в стоп-лист", stoplist_remove: "Удалено из стоп-листа", cfg_set: "Изменена настройка",
+  import_members: "Загружен список учеников", import_base: "Загружена база клиентов", phone_conflict: "Конфликт номера", error: "Ошибка",
+  block: "Заблокирован", unblock: "Разблокирован", manager_activate: "Менеджер поставлен на смену", manager_deactivate: "Менеджер снят со смены",
+  manager_remove: "Менеджер убран", manager_code_failed: "Неверный код менеджера", admin_claim_failed: "Неверный код админа", admin_removed: "Админ удалён",
+  whitelist_add: "Добавлен в список учеников", unbind: "Отвязан номер", ref_code_entered: "Друг ввёл код", code_rotated: "Сменён код", weekly_report: "Недельный отчёт", sales_chat_bound: "Подключена группа продаж",
+  admin_message: "Сообщение от админа", balance_adjust: "Корректировка баланса", member_added_web: "Принят в клуб (админка)", member_removed: "Исключён из клуба",
+  manager_added: "Назначен менеджером", admin_added: "Назначен админом", session_ended: "Сессия завершена", text_set: "Изменён текст бота",
+  text_reset_all: "Все тексты сброшены", broadcast_started: "Запущена рассылка", broadcast_cancelled: "Рассылка остановлена", state_reset: "Сброшен диалог",
+  system_poll: "Ручная обработка", system_webhook: "Переподключение бота", crm_error: "Ошибка CRM",
+});
+async function viewLog(v) {
+  const r = await api("/events?limit=300");
+  v.innerHTML = `<h2>Журнал</h2><p class="muted small" style="margin-top:-8px">Все действия админов, менеджеров и бота. Ничего не удаляется.</p>
+    <div class="tablebox"><table><thead><tr><th>Когда</th><th>Событие</th><th>Кто</th><th>Рекомендация</th><th>Детали</th></tr></thead><tbody>
+    ${r.rows.map((e) => `<tr><td class="small num">${dt(e.created_at)}</td><td>${esc(LOG_LABEL[e.kind] || e.kind)}</td><td>${esc(e.who || "")}${e.username ? ` <span class="muted small">@${esc(e.username)}</span>` : ""}</td>
+      <td>${e.referral_id ? `<a href="#" data-ref="${e.referral_id}">#${e.referral_id}</a>` : ""}</td><td class="small muted" style="max-width:360px;word-break:break-word">${e.data ? esc(JSON.stringify(e.data)).slice(0, 220) : ""}</td></tr>`).join("")}
+    </tbody></table></div>`;
+  v.querySelectorAll("[data-ref]").forEach((a) => a.onclick = (e) => { e.preventDefault(); openRef(a.dataset.ref); });
+}
+
+// ---------- people: shared bits ----------
+const LANG = { uz: "узбекский", ru: "русский" };
+function roleChips(u) {
+  const c = [];
+  if (u.role === "member") c.push(`<span class="chip good">участник</span>`);
+  else if (u.role === "friend") c.push(`<span class="chip acc">друг</span>${u.friend_status ? " " + chip(STATUS, u.friend_status) : ""}`);
+  else c.push(`<span class="chip">${u.role === "new" ? "новый" : "гость"}</span>`);
+  if (u.is_manager) c.push(`<span class="chip warn">менеджер${u.manager_active ? "" : " · не на смене"}</span>`);
+  if (u.is_admin) c.push(`<span class="chip acc">админ</span>`);
+  if (u.join_requested_at && u.role !== "member") c.push(`<span class="chip warn">ждёт подтверждения</span>`);
+  if (u.blocked) c.push(`<span class="chip bad">заблокирован</span>`);
+  if (u.bot_blocked_at) c.push(`<span class="chip bad">остановил бота</span>`);
+  return c.join(" ");
+}
+
+// ---------- all users ----------
+async function viewUsers(v) {
+  const f = S.userF || (S.userF = { filter: "all", q: "" });
+  v.innerHTML = `<h2>Все пользователи бота</h2>
+    <p class="sub">Каждый, кто хоть раз писал боту: родители, друзья, гости, менеджеры, админы. Нажмите на строку — откроется карточка со всеми действиями.</p>
+    <div class="chips" id="uChips"></div>
+    <div class="toolbar"><input id="uQ" type="search" placeholder="Имя, @username, телефон, код или Telegram ID" value="${esc(f.q)}" style="flex:1;min-width:200px"></div>
+    <div id="uList"><div class="loading">Загрузка…</div></div>`;
+  let t; $("#uQ").oninput = (e) => { clearTimeout(t); t = setTimeout(() => { f.q = e.target.value.trim(); loadUsers(0); }, 350); };
+  await loadUsers(0);
+}
+async function loadUsers(offset) {
+  const f = S.userF;
+  const r = await api("/users?" + new URLSearchParams({ filter: f.filter, q: f.q, offset, limit: 50 }));
+  const chips = $("#uChips"); if (!chips) return;
+  chips.innerHTML = Object.entries(r.filters).map(([k, label]) => `<button data-f="${k}" class="${f.filter === k ? "on" : ""}">${esc(label)}<span class="c">${r.counts[k] ?? 0}</span></button>`).join("");
+  chips.querySelectorAll("[data-f]").forEach((b) => b.onclick = () => { f.filter = b.dataset.f; loadUsers(0); });
+  const rows = r.rows.map((u) => `<tr class="click" data-tg="${u.tg_id}">
+      <td><b>${esc(u.first_name || "—")}</b>${u.username ? ` <span class="muted small">@${esc(u.username)}</span>` : ""}<div style="margin-top:3px">${roleChips(u)}</div></td>
+      <td class="num">${esc(phone(u.phone))}</td>
+      <td class="small">${esc(LANG[u.lang] || u.lang)}</td>
+      <td class="num">${u.role === "member" ? `<b>${money(u.balance)}</b><div class="small muted">друзей: ${u.invited}</div>` : (u.invited ? `друзей: ${u.invited}` : "—")}</td>
+      <td class="small">${dt(u.updated_at)}<div class="muted">с ${d0(u.created_at)}</div></td></tr>`).join("");
+  const box = $("#uList");
+  const more = offset + r.rows.length < r.total ? `<button class="btn sm" id="moreU">Показать ещё</button>` : "";
+  if (offset === 0) {
+    box.innerHTML = `<div class="tablebox"><table><thead><tr><th>Пользователь</th><th>Телефон</th><th>Язык</th><th>Баланс / друзья</th><th>Активность</th></tr></thead>
+      <tbody>${rows || `<tr><td colspan="5" class="muted">Никого не найдено</td></tr>`}</tbody></table></div>
+      <div class="toolbar" style="margin-top:10px" id="uFoot"></div>`;
+  } else box.querySelector("tbody").insertAdjacentHTML("beforeend", rows);
+  $("#uFoot").innerHTML = `<span class="muted small">Показано ${Math.min(offset + r.rows.length, r.total)} из ${r.total}</span> ${more}`;
+  box.querySelectorAll("tr[data-tg]").forEach((tr) => tr.onclick = () => openUser(tr.dataset.tg));
+  const m = $("#moreU"); if (m) m.onclick = () => loadUsers(offset + 50);
+}
+
+// ---------- one user: everything you can do ----------
+async function openUser(tg) {
+  const d = $("#drawer"), same = !d.classList.contains("hidden") && d.dataset.user === String(tg), keep = same ? d.scrollTop : 0;
+  if (!same) {
+    openDrawer(`<div class="head"><b>Пользователь</b><span class="spacer"></span><button class="btn sm" data-close>Закрыть</button></div><div class="body"><div class="loading">Загрузка…</div></div>`);
+    $("#drawer [data-close]").onclick = closeDrawer;
+  }
+  d.dataset.user = String(tg);
+  let r; try { r = await api("/user?tg=" + tg); } catch (e) { return toast(e.message, true); }
+  const u = r.user, fl = r.flags, member = u.role === "member";
+  const roleBtns = [];
+  if (!member) roleBtns.push(`<button class="btn good" data-u="make_member">Принять в клуб</button>`);
+  else roleBtns.push(`<button class="btn bad" data-u="remove_member">Исключить из клуба</button>`);
+  roleBtns.push(u.is_manager ? `<button class="btn" data-u="remove_manager">Убрать из менеджеров</button>` : `<button class="btn" data-u="make_manager">Сделать менеджером</button>`);
+  if (!r.self) roleBtns.push(u.is_admin ? `<button class="btn bad" data-u="remove_admin">Убрать из админов</button>` : `<button class="btn" data-u="make_admin">Сделать админом</button>`);
+  const checks = u.phone ? [
+    fl.whitelist ? `<span class="chip good">в списке учеников</span>` : `<span class="chip">нет в списке учеников</span>`,
+    fl.stoplist ? `<span class="chip bad">стоп-лист: ${esc(fl.stoplist)}</span>` : "",
+    fl.in_base ? `<span class="chip warn">есть в базе CRM${fl.base_seen ? " · " + d0(fl.base_seen) : ""}</span>` : `<span class="chip">нет в базе CRM</span>`,
+  ].join(" ") : `<span class="muted">номер не привязан</span>`;
+  $("#drawer").innerHTML = `<div class="head"><b>${esc(u.first_name || "Пользователь")}</b> ${roleChips(u)}<span class="spacer"></span><button class="btn sm" data-close>Закрыть</button></div>
+    <div class="body">
+      <div class="card"><dl class="kv">
+        <dt>Телефон</dt><dd>${telLink(u.phone)}</dd>
+        <dt>Telegram</dt><dd>${u.username ? `<a href="https://t.me/${esc(u.username)}" target="_blank" rel="noopener">@${esc(u.username)}</a> · ` : ""}id ${esc(u.tg_id)}</dd>
+        <dt>Язык</dt><dd><select id="uLang"><option value="uz" ${u.lang === "uz" ? "selected" : ""}>узбекский</option><option value="ru" ${u.lang === "ru" ? "selected" : ""}>русский</option></select></dd>
+        ${u.ref_code ? `<dt>Код</dt><dd class="num"><b>${esc(u.ref_code)}</b></dd>` : ""}
+        <dt>Филиал QR</dt><dd>${esc(u.branch || "—")}</dd>
+        <dt>Пришёл в бот</dt><dd>${dt(u.created_at)}${u.member_since ? ` · в клубе с ${d0(u.member_since)}` : ""}</dd>
+        <dt>Активность</dt><dd>${dt(u.updated_at)}${u.bot_blocked_at ? ` · <span class="red">остановил бота ${d0(u.bot_blocked_at)}</span>` : ""}</dd>
+        <dt>Диалог</dt><dd>${u.state ? `<span class="chip warn">${esc(u.state)}</span> <button class="btn sm" data-u="reset_state">Сбросить</button>` : `<span class="muted">обычный</span>`}</dd>
+        <dt>Проверки номера</dt><dd>${checks}</dd>
+      </dl></div>
+      ${member ? `<div class="card"><h3>Бонусный баланс</h3>
+        <div class="kpi" style="margin-bottom:10px"><div class="v num">${money(r.balance.available)} <span class="muted" style="font-size:14px">сум</span></div><div class="s">ожидает (холд/проверка): ${money(r.balance.pending)}</div></div>
+        <div class="muted small" style="margin-bottom:6px">Списать в счёт оплаты обучения</div>
+        <div class="actions"><input type="text" id="redAmt" class="num" placeholder="Сумма" style="width:150px"><button class="btn primary" data-u="redeem">Списать</button>
+          <button class="btn" data-u="redeem_all" ${r.balance.available > 0 ? "" : "disabled"}>Списать всё</button></div>
+        <div class="muted small" style="margin:14px 0 6px">Ручная корректировка: «500000» — начислить, «-200000» — снять</div>
+        <div class="actions"><input type="text" id="adjAmt" class="num" placeholder="+/− сумма" style="width:150px"><input type="text" id="adjNote" placeholder="Причина (обязательно)" style="flex:1;min-width:160px"></div>
+        <div class="actions" style="margin-top:8px"><label class="small"><input type="checkbox" id="adjNotify" checked> сообщить родителю в боте</label><span class="spacer"></span><button class="btn" data-u="adjust">Применить</button></div>
+      </div>` : ""}
+      <div class="card"><h3>Написать в бот</h3>
+        <textarea id="uMsg" placeholder="Сообщение придёт от бота. Можно <b>жирный</b>, <i>курсив</i>, <a href=&quot;https://…&quot;>ссылку</a>"></textarea>
+        <div class="actions" style="margin-top:8px"><span class="muted small">Отправка записывается в журнал</span><span class="spacer"></span><button class="btn primary" data-u="message" ${u.bot_blocked_at ? "disabled title='Пользователь остановил бота'" : ""}>Отправить</button></div></div>
+      ${r.invited.length || member ? `<div class="card"><h3>Пригласил(а) друзей: ${r.invited.length}</h3>${r.invited.length ? `<ul class="timeline">${r.invited.map((x) => `<li><a href="#" data-ref="${x.id}">#${x.id}</a> ${esc(x.friend_name || "—")} ${chip(STATUS, x.status)} ${x.bonus_amount ? `<span class="num small">бонус ${money(x.bonus_amount)}</span>` : ""}</li>`).join("")}</ul>` : `<div class="muted">Пока никого</div>`}</div>` : ""}
+      ${r.as_friend.length ? `<div class="card"><h3>Пришёл(ла) как друг</h3><ul class="timeline">${r.as_friend.map((x) => `<li><a href="#" data-ref="${x.id}">#${x.id}</a> от <a href="#" data-user="${x.ref_tg}">${esc(x.ref_name || "—")}</a> ${chip(STATUS, x.status)} ${srcChip(x.friend_source)}</li>`).join("")}</ul></div>` : ""}
+      <div class="card"><h3>Роли</h3><div class="actions">${roleBtns.join("")}</div>
+        <p class="muted small" style="margin:8px 0 0">Менеджер и админ попадают в стоп-лист — рекомендателями они быть не могут. Исключённый из клуба теряет код, баланс сохраняется.</p></div>
+      <div class="card"><h3>Заметка</h3><textarea id="uNote" placeholder="Видна только админам">${esc(u.admin_note || "")}</textarea>
+        <div class="actions" style="margin-top:8px"><button class="btn sm" data-u="note">Сохранить</button></div></div>
+      ${r.ledger.length ? `<div class="card"><h3>Движения по балансу</h3><ul class="timeline">${r.ledger.map((l) => `<li><span class="muted small num">${dt(l.created_at)}</span> · <b class="num" style="color:${l.amount > 0 ? "var(--good)" : "var(--bad)"}">${l.amount > 0 ? "+" : "−"}${money(Math.abs(l.amount))}</b> ${esc(l.note || l.kind)}${l.by_name ? ` <span class="muted small">— ${esc(l.by_name)}</span>` : ""}</li>`).join("")}</ul></div>` : ""}
+      <div class="card"><h3>История</h3><ul class="timeline">${r.events.map((e) => `<li><span class="muted small num">${dt(e.created_at)}</span> · ${esc(LOG_LABEL[e.kind] || e.kind)}${e.referral_id ? ` <a href="#" data-ref="${e.referral_id}">#${e.referral_id}</a>` : ""}</li>`).join("") || `<li class="muted">Пусто</li>`}</ul></div>
+      <div class="card danger"><h3>Осторожно</h3><div class="actions">
+        ${r.self ? "" : `<button class="btn ${u.blocked ? "" : "bad"}" data-u="${u.blocked ? "unblock" : "block"}">${u.blocked ? "Разблокировать" : "Заблокировать"}</button>`}
+        ${u.phone ? `<button class="btn" data-u="unbind">Отвязать номер</button>` : ""}</div>
+        <p class="muted small" style="margin:8px 0 0">Заблокированный не может пользоваться ботом, его бонусы заморожены. Отвязка номера нужна, если человек сменил Telegram-аккаунт.</p></div>
+    </div>`;
+  d.scrollTop = keep;
+  $("#drawer [data-close]").onclick = closeDrawer;
+  $("#drawer").querySelectorAll("[data-ref]").forEach((a) => a.onclick = (e) => { e.preventDefault(); openRef(a.dataset.ref); });
+  $("#drawer").querySelectorAll("[data-user]").forEach((a) => a.onclick = (e) => { e.preventDefault(); openUser(a.dataset.user); });
+  const after = async () => { await openUser(tg); if (S.tab === "users") loadUsers(0); if (S.tab === "members") loadMembers(); refreshCounts(); };
+  const U = (body) => doAction("/user", { tg: Number(tg), ...body }, after);
+  $("#uLang").onchange = (e) => U({ action: "set_lang", lang: e.target.value });
+  const CONFIRM = {
+    remove_member: "Исключить из клуба? Код перестанет работать, баланс сохранится.", make_admin: "Дать полный доступ к админке и боту?",
+    remove_admin: "Убрать из админов? Его сессии завершатся.", block: "Заблокировать пользователя?", unbind: "Отвязать номер от этого Telegram-аккаунта?",
+    make_manager: "Сделать менеджером? Ему начнут приходить лиды, номер уйдёт в стоп-лист.", make_member: "Принять в клуб? Родитель получит код и ссылку.",
+  };
+  $("#drawer").querySelectorAll("[data-u]").forEach((b) => b.onclick = () => {
+    const a = b.dataset.u;
+    if (CONFIRM[a] && !confirm(CONFIRM[a])) return;
+    if (a === "redeem") { const amt = $("#redAmt").value.replace(/\D/g, ""); if (!amt) return toast("Введите сумму", true); return U({ action: "redeem", amount: amt }); }
+    if (a === "redeem_all") { if (confirm("Списать весь баланс в счёт оплаты?")) U({ action: "redeem", amount: "all" }); return; }
+    if (a === "adjust") {
+      const amt = $("#adjAmt").value.replace(/[^\d-]/g, ""), note = $("#adjNote").value.trim();
+      if (!amt || amt === "-") return toast("Введите сумму", true);
+      if (!note) return toast("Укажите причину", true);
+      if (!confirm(`${Number(amt) > 0 ? "Начислить" : "Снять"} ${money(Math.abs(Number(amt)))} сум?`)) return;
+      return U({ action: "adjust", amount: amt, note, notify: $("#adjNotify").checked });
+    }
+    if (a === "message") { const text = $("#uMsg").value.trim(); if (!text) return toast("Напишите сообщение", true); return U({ action: "message", text }); }
+    if (a === "note") return U({ action: "note", text: $("#uNote").value });
+    U({ action: a });
+  });
+}
+
+// ---------- broadcasts ----------
+function tgPreview(text) {
+  // shows the Telegram formatting the admin used: b, i, u, s, code, links
+  let h = esc(text);
+  h = h.replace(/&lt;(\/?)(b|strong|i|em|u|s|code)&gt;/g, "<$1$2>");
+  h = h.replace(/&lt;a href=&quot;(https?:\/\/[^&"]+)&quot;&gt;(.*?)&lt;\/a&gt;/g, '<a href="$1" target="_blank" rel="noopener">$2</a>');
+  return h;
+}
+const BC_STATUS = { sending: ["идёт", "acc"], done: ["готово", "good"], cancelled: ["остановлена", ""] };
+async function viewBroadcasts(v) {
+  const d = S.bcDraft || (S.bcDraft = { segment: "members", lang: "all", text_uz: "", text_ru: "", button_text: "", button_url: "" });
+  const r = await api("/broadcasts?lang=" + d.lang);
+  v.innerHTML = `<h2>Рассылки</h2>
+    <p class="sub">Сообщение от бота выбранной группе. Каждый получает текст на своём языке; если второго текста нет — первый. Тем, кто остановил бота или заблокирован, не отправляется.</p>
+    <div id="bcRun"></div>
+    <div class="bc-grid">
+      <div class="card" style="display:grid;gap:10px">
+        <div class="row2">
+          <label class="f">Кому<select id="bSeg">${Object.entries(r.segments).map(([k, l]) => `<option value="${k}" ${d.segment === k ? "selected" : ""}>${esc(l)} — ${r.counts[k]}</option>`).join("")}</select></label>
+          <label class="f">Язык получателей<select id="bLang">${[["all", "Все"], ["uz", "Только узбекоязычные"], ["ru", "Только русскоязычные"]].map(([k, l]) => `<option value="${k}" ${d.lang === k ? "selected" : ""}>${l}</option>`).join("")}</select></label>
+        </div>
+        <label class="f">Текст на узбекском<textarea id="bUz" placeholder="Matn…">${esc(d.text_uz)}</textarea></label>
+        <label class="f">Текст на русском<textarea id="bRu" placeholder="Текст…">${esc(d.text_ru)}</textarea></label>
+        <div class="row2"><label class="f">Кнопка под сообщением (необязательно)<input type="text" id="bBt" placeholder="Подробнее" value="${esc(d.button_text)}"></label>
+          <label class="f">Ссылка кнопки<input type="text" id="bBu" placeholder="https://newton.uz" value="${esc(d.button_url)}"></label></div>
+        <div class="muted small">Оформление: &lt;b&gt;жирный&lt;/b&gt;, &lt;i&gt;курсив&lt;/i&gt;, &lt;a href="https://…"&gt;ссылка&lt;/a&gt;. Сначала отправьте тест себе.</div>
+        <div class="actions"><button class="btn" id="bTest">Отправить тест себе</button><span class="spacer"></span><button class="btn primary" id="bStart">Запустить рассылку</button></div>
+      </div>
+      <div class="card"><h3>Как увидят в Telegram</h3><div class="tgprev" id="bPrev"></div><p class="muted small" style="margin:8px 0 0" id="bCount"></p></div>
+    </div>
+    <h3 style="margin-top:20px">История</h3>
+    <div class="tablebox"><table><thead><tr><th>#</th><th>Когда</th><th>Кому</th><th>Текст</th><th>Доставлено</th><th>Статус</th><th></th></tr></thead><tbody>
+    ${r.rows.map((b) => `<tr><td class="num">${b.id}</td><td class="small">${dt(b.created_at)}<div class="muted">${esc(b.author || "")}</div></td>
+      <td class="small">${esc(r.segments[b.segment] || b.segment)}${b.lang !== "all" ? ` · ${b.lang.toUpperCase()}` : ""}</td>
+      <td class="small" style="max-width:280px">${esc((b.text_ru || b.text_uz || "").slice(0, 90))}</td>
+      <td class="num">${b.sent} / ${b.total}${b.blocked ? `<div class="small muted">остановили бота: ${b.blocked}</div>` : ""}${b.failed ? `<div class="small red">ошибок: ${b.failed}</div>` : ""}</td>
+      <td>${chip(BC_STATUS, b.status)}</td><td>${b.status === "sending" ? `<button class="btn sm bad" data-cancel="${b.id}">Остановить</button>` : ""}</td></tr>`).join("") || `<tr><td colspan="7" class="muted">Рассылок ещё не было</td></tr>`}
+    </tbody></table></div>`;
+  const read = () => Object.assign(d, { segment: $("#bSeg").value, lang: $("#bLang").value, text_uz: $("#bUz").value, text_ru: $("#bRu").value, button_text: $("#bBt").value, button_url: $("#bBu").value });
+  const prev = () => {
+    read();
+    const btn = d.button_text ? `<div class="ibtn">${esc(d.button_text)} ↗</div>` : "";
+    const parts = [];
+    if (d.lang !== "ru" && (d.text_uz || d.text_ru)) parts.push(`<div class="bubble"><div class="bl">UZ</div>${tgPreview(d.text_uz || d.text_ru)}${btn}</div>`);
+    if (d.lang !== "uz" && (d.text_ru || d.text_uz)) parts.push(`<div class="bubble"><div class="bl">RU</div>${tgPreview(d.text_ru || d.text_uz)}${btn}</div>`);
+    $("#bPrev").innerHTML = parts.join("") || `<div class="muted small">Напишите текст — здесь появится превью</div>`;
+    $("#bCount").textContent = `Получателей: ${r.counts[d.segment] ?? 0}`;
+  };
+  ["#bUz", "#bRu", "#bBt", "#bBu"].forEach((s) => $(s).oninput = prev);
+  $("#bSeg").onchange = prev;
+  $("#bLang").onchange = () => { read(); render(); };
+  prev();
+  const body = () => ({ segment: d.segment, lang: d.lang, text_uz: d.text_uz, text_ru: d.text_ru, button_text: d.button_text, button_url: d.button_url });
+  $("#bTest").onclick = () => { read(); doAction("/broadcasts", { action: "test", ...body() }); };
+  $("#bStart").onclick = () => {
+    read();
+    const n = r.counts[d.segment] ?? 0;
+    if (!n) return toast("В этой группе нет получателей", true);
+    if (!confirm(`Отправить сообщение: ${r.segments[d.segment]} — ${n} чел.? Отменить отправленное будет нельзя.`)) return;
+    doAction("/broadcasts", { action: "start", ...body() }, () => { S.bcDraft = null; render(); });
+  };
+  v.querySelectorAll("[data-cancel]").forEach((b) => b.onclick = () => { if (confirm("Остановить рассылку? Кто уже получил — получил.")) doAction("/broadcasts", { action: "cancel", id: Number(b.dataset.cancel) }, () => render()); });
+  const active = r.rows.find((b) => b.status === "sending");
+  if (active) runBroadcastLoop(active);
+}
+async function runBroadcastLoop(b) {
+  S.bcLoop = true;
+  const box = $("#bcRun");
+  const show = (x) => { if (box) box.innerHTML = `<div class="card" style="margin-bottom:14px"><div class="actions"><b>Рассылка #${x.id} идёт</b><span class="spacer"></span><span class="num">${x.sent + x.failed + x.blocked} / ${x.total}</span></div>
+    <div class="progress" style="margin-top:8px"><i style="width:${x.total ? Math.round((x.sent + x.failed + x.blocked) / x.total * 100) : 100}%"></i></div>
+    <p class="muted small" style="margin:8px 0 0">Можно закрыть страницу — бот досылает сам каждые 10 минут. Пока страница открыта, отправка идёт быстрее.</p></div>`; };
+  show(b);
+  while (S.bcLoop && S.tab === "broadcasts") {
+    let r; try { r = await api("/broadcasts", { action: "run" }); } catch (e) { toast(e.message, true); break; }
+    const x = r.rows.find((y) => y.id === b.id);
+    if (!x || x.status !== "sending") { toast(`Рассылка #${b.id} завершена`); refreshCounts(); if (S.tab === "broadcasts") render(); break; }
+    show(x);
+    await new Promise((res) => setTimeout(res, 800));
+  }
+}
+
+// ---------- bot texts ----------
+async function viewTexts(v) {
+  const r = await api("/texts");
+  S.texts = r.items;
+  const f = S.textF || (S.textF = { q: "", changed: false });
+  v.innerHTML = `<h2>Тексты бота</h2>
+    <p class="sub">Все сообщения и кнопки бота на двух языках. Изменения действуют сразу. Переменные в фигурных скобках бот подставит сам — нажмите на переменную, чтобы вставить её в текст.</p>
+    <div class="toolbar"><input type="search" id="tQ" placeholder="Поиск по названию или тексту" value="${esc(f.q)}" style="flex:1;min-width:200px">
+      <label class="small"><input type="checkbox" id="tCh" ${f.changed ? "checked" : ""}> только изменённые</label></div>
+    <div id="tList"></div>
+    <div class="card danger" style="margin-top:14px"><div class="actions"><span>Вернуть все тексты к стандартным</span><span class="spacer"></span><button class="btn bad sm" id="tReset">Сбросить всё</button></div></div>`;
+  const draw = () => {
+    const q = f.q.toLowerCase();
+    const items = S.texts.filter((i) => (!f.changed || i.value.uz !== null || i.value.ru !== null) &&
+      (!q || [i.label, i.key, i.default.uz, i.default.ru, i.value.uz, i.value.ru].some((x) => x && x.toLowerCase().includes(q))));
+    const groups = [...new Set(items.map((i) => i.group))];
+    $("#tList").innerHTML = groups.map((g) => `<div class="card" style="margin-bottom:12px;padding:6px 16px"><h3 style="margin:10px 0 2px">${esc(g)}</h3>
+      ${items.filter((i) => i.group === g).map(textItem).join("")}</div>`).join("") || `<div class="card muted">Ничего не найдено</div>`;
+    bindTexts();
+  };
+  $("#tQ").oninput = (e) => { f.q = e.target.value; draw(); };
+  $("#tCh").onchange = (e) => { f.changed = e.target.checked; draw(); };
+  $("#tReset").onclick = () => { if (confirm("Вернуть все тексты и кнопки к стандартным?")) doAction("/texts", { action: "reset_all" }, () => render()); };
+  draw();
+}
+function textItem(i) {
+  const changed = i.value.uz !== null || i.value.ru !== null;
+  const cur = (l) => i.value[l] ?? i.default[l] ?? "";
+  const field = (l) => i.type === "button"
+    ? `<input type="text" data-t="${l}" value="${esc(cur(l))}" maxlength="60">`
+    : `<textarea data-t="${l}" rows="${Math.min(14, Math.max(3, cur(l).split("\n").length + 1))}">${esc(cur(l))}</textarea>`;
+  const one = i.key === "choose_lang";
+  return `<details class="txt" data-key="${i.key}"><summary><span class="lbl">${esc(i.label)}</span>${changed ? `<span class="chip acc">изменён</span>` : ""}<span class="pv">${esc(cur("ru").replace(/<[^>]+>/g, "").slice(0, 120))}</span></summary>
+    <div class="ed">
+      ${i.vars && i.vars.length ? `<div class="small muted">Переменные: ${i.vars.map((x) => `<button type="button" class="var" data-var="{${x.name}}" title="${esc(x.label)}">{${x.name}}</button> <span>${esc(x.label)}</span>`).join(" · ")}</div>` : ""}
+      ${one ? `<label class="f">Оба языка в одном сообщении${field("uz")}</label>` : `<div class="row2"><label class="f">Узбекский${field("uz")}</label><label class="f">Русский${field("ru")}</label></div>`}
+      <div class="actions"><button class="btn sm primary" data-ts="save">Сохранить</button>${changed ? `<button class="btn sm" data-ts="reset">Вернуть стандартный</button>` : ""}
+        <span class="spacer"></span>${i.type === "button" ? "" : `<button class="btn sm" data-ts="test" data-l="uz">Тест мне UZ</button>${one ? "" : `<button class="btn sm" data-ts="test" data-l="ru">Тест мне RU</button>`}`}</div>
+    </div></details>`;
+}
+function bindTexts() {
+  let lastField = null;
+  $("#tList").querySelectorAll("[data-t]").forEach((el) => el.addEventListener("focus", () => { lastField = el; }));
+  $("#tList").querySelectorAll("[data-var]").forEach((b) => b.onclick = () => {
+    const box = b.closest("details"), el = lastField && box.contains(lastField) ? lastField : box.querySelector("[data-t]");
+    const s = el.selectionStart ?? el.value.length, e2 = el.selectionEnd ?? el.value.length;
+    el.value = el.value.slice(0, s) + b.dataset.var + el.value.slice(e2);
+    el.focus(); el.selectionStart = el.selectionEnd = s + b.dataset.var.length;
+  });
+  $("#tList").querySelectorAll("[data-ts]").forEach((b) => b.onclick = async () => {
+    const box = b.closest("details"), key = box.dataset.key, item = S.texts.find((x) => x.key === key);
+    if (b.dataset.ts === "test") return doAction("/texts", { action: "test", key, lang: b.dataset.l });
+    const body = { key };
+    if (b.dataset.ts === "reset") { if (!confirm("Вернуть стандартный текст?")) return; body.uz = null; if (key !== "choose_lang") body.ru = null; }
+    else box.querySelectorAll("[data-t]").forEach((el) => { body[el.dataset.t] = el.value; });
+    try {
+      const r = await api("/texts", body);
+      toast(r.msg || "Сохранено");
+      item.value = r.value;
+      box.outerHTML = textItem(item).replace("<details ", "<details open ");
+      bindTexts();
+    } catch (e) { toast(e.message, true); }
+  });
+}
+
+// ---------- admins and access ----------
+async function viewAccess(v) {
+  const r = await api("/access");
+  v.innerHTML = `<h2>Админы и доступ</h2>
+    <div class="grid g2" style="margin-bottom:14px">
+      <div class="card"><h3>Коды подключения</h3><dl class="kv">
+        <dt>Код админа</dt><dd><span class="num"><b>${esc(r.codes.admin)}</b></span> <button class="btn sm" data-rot="rotate_admin_code">Сменить</button><div class="muted small">новый админ пишет боту: /claim КОД</div></dd>
+        <dt>Код менеджера</dt><dd><span class="num"><b>${esc(r.codes.manager)}</b></span> <button class="btn sm" data-rot="rotate_manager_code">Сменить</button><div class="muted small">менеджер пишет боту: /manager КОД</div></dd></dl>
+        <p class="muted small" style="margin:10px 0 0">Код админа даёт полный доступ. После подключения всех админов смените его. Админа можно назначить и без кода: «Все пользователи» → карточка → «Сделать админом».</p></div>
+      <div class="card"><h3>Как войти в админку</h3><p style="margin:0 0 8px">Админ пишет боту <b>@${esc(r.bot || "")}</b> команду <b>/web</b> и получает код на 10 минут. В Telegram у админов есть кнопка «Админка» рядом с полем ввода.</p>
+        <p class="muted small" style="margin:0">Сессия живёт 14 дней. Если телефон потерян или сотрудник ушёл — завершите его сессии и уберите из админов.</p></div>
+    </div>
+    <div class="card" style="margin-bottom:14px"><h3>Админы</h3><div class="tablebox"><table><thead><tr><th>Админ</th><th>Телефон</th><th>Сессий</th><th>Был в админке</th><th></th></tr></thead><tbody>
+      ${r.admins.map((a) => `<tr><td><a href="#" data-user="${a.tg_id}"><b>${esc(a.first_name || "—")}</b></a>${a.username ? ` <span class="muted small">@${esc(a.username)}</span>` : ""}${a.tg_id === r.me ? ` <span class="chip acc">это вы</span>` : ""}</td>
+        <td class="num">${esc(phone(a.phone))}</td><td class="num">${a.sessions}</td><td class="small">${dt(a.last_seen)}</td>
+        <td>${a.tg_id === r.me ? "" : `<button class="btn sm bad" data-rm="${a.tg_id}">Убрать</button>`}</td></tr>`).join("")}
+    </tbody></table></div></div>
+    <div class="card" style="margin-bottom:14px"><div class="actions"><h3 style="margin:0">Активные сессии</h3><span class="spacer"></span><button class="btn sm" id="endOthers">Завершить все, кроме моей</button></div>
+      <div class="tablebox" style="margin-top:10px"><table><thead><tr><th>Кто</th><th>Вход</th><th>Последнее действие</th><th>Истекает</th><th></th></tr></thead><tbody>
+      ${r.sessions.map((s) => `<tr><td>${esc(s.first_name || "—")}${s.mine ? ` <span class="chip acc">эта</span>` : ""}</td><td class="small">${dt(s.created_at)}</td><td class="small">${dt(s.last_seen)}</td><td class="small">${d0(s.expires_at)}</td>
+        <td><button class="btn sm" data-end="${s.id}">${s.mine ? "Выйти" : "Завершить"}</button></td></tr>`).join("") || `<tr><td colspan="5" class="muted">Нет</td></tr>`}
+      </tbody></table></div></div>
+    <div class="card"><h3>Входы и изменения доступа</h3><ul class="timeline">${r.logins.map((e) => `<li><span class="muted small num">${dt(e.created_at)}</span> · ${esc(LOG_LABEL[e.kind] || e.kind)}${e.first_name ? ` — ${esc(e.first_name)}` : ""}</li>`).join("") || `<li class="muted">Пусто</li>`}</ul></div>`;
+  v.querySelectorAll("[data-user]").forEach((a) => a.onclick = (e) => { e.preventDefault(); openUser(a.dataset.user); });
+  v.querySelectorAll("[data-rot]").forEach((b) => b.onclick = () => { if (confirm("Старый код перестанет работать. Сменить?")) doAction("/settings", { key: b.dataset.rot }, () => render()); });
+  v.querySelectorAll("[data-rm]").forEach((b) => b.onclick = () => { if (confirm("Убрать из админов? Его сессии завершатся.")) doAction("/access", { action: "remove_admin", tg: Number(b.dataset.rm) }, () => render()); });
+  v.querySelectorAll("[data-end]").forEach((b) => b.onclick = () => doAction("/access", { action: "end_session", id: b.dataset.end }, (x) => x.self ? logoutLocal() : render()));
+  $("#endOthers").onclick = () => { if (confirm("Завершить все сессии, кроме этой?")) doAction("/access", { action: "end_others" }, () => render()); };
+}
+
+// ---------- system ----------
+async function viewSystem(v) {
+  const r = await api("/system");
+  const t = r.telegram, s = r.stats;
+  const cronRows = Array.isArray(r.cron) ? r.cron : [];
+  const NAMES = { "loy-poll": "Обработка каждые 10 минут", "loy-weekly": "Недельный отчёт (пн 09:00)" };
+  const dot = (ok, warn) => `<span class="okdot ${ok ? "" : warn ? "warn" : "bad"}"></span>`;
+  v.innerHTML = `<h2>Система</h2>
+    <div class="grid g3" style="margin-bottom:14px">
+      <div class="card"><h3>${dot(t.ok && t.webhook_ok)}Telegram-бот</h3><dl class="kv">
+        <dt>Бот</dt><dd>${t.bot ? "@" + esc(t.bot) : `<span class="red">${t.configured ? "токен не работает" : "токен не задан"}</span>`}</dd>
+        <dt>Подключение</dt><dd>${t.webhook_ok ? "к этому серверу" : `<span class="red">${t.webhook ? "к другому серверу" : "не подключён"}</span>`}</dd>
+        <dt>В очереди</dt><dd class="num">${t.pending ?? "—"}</dd>
+        ${t.last_error ? `<dt>Последняя ошибка</dt><dd class="small">${esc(t.last_error)}<div class="muted">${dt(t.last_error_at)}</div></dd>` : ""}</dl></div>
+      <div class="card"><h3>${dot(cronRows.length && cronRows.every((c) => c.active && c.last_status !== "failed"), !cronRows.length)}Расписание</h3>
+        ${cronRows.length ? `<dl class="kv">${cronRows.map((c) => `<dt>${esc(NAMES[c.jobname] || c.jobname)}</dt><dd>${c.active ? "" : `<span class="red">выключено</span> `}${c.last_run ? dt(c.last_run) : "ещё не запускалось"} ${c.last_status ? `<span class="chip ${c.last_status === "succeeded" ? "good" : "bad"}">${esc(c.last_status)}</span>` : ""}</dd>`).join("")}</dl>`
+          : `<div class="muted small">${esc(r.cron && r.cron.error ? "Нет доступа к расписанию: " + r.cron.error : "Задачи не найдены")}</div>`}</div>
+      <div class="card"><h3>${dot(!s.errors_24h, s.errors_24h < 5)}Работа за сутки</h3><dl class="kv">
+        <dt>Пользователей</dt><dd class="num">${s.users} · активны ${s.active_24h}</dd><dt>Сообщений боту</dt><dd class="num">${s.updates_24h}</dd>
+        <dt>Ошибок</dt><dd class="num ${s.errors_24h ? "red" : ""}">${s.errors_24h} <span class="muted">· за 7 дней ${s.errors_7d}</span></dd>
+        <dt>Версия</dt><dd class="num">${esc(r.version)}${r.crm ? " · amoCRM" : " · без CRM"}</dd></dl></div>
+    </div>
+    <div class="card" style="margin-bottom:14px"><h3>Ручной запуск</h3><div class="actions">
+      <button class="btn" data-sys="poll">Обработать сейчас</button><button class="btn" data-sys="broadcasts">Досылать рассылки</button>
+      <button class="btn" data-sys="weekly">Недельный отчёт мне</button><button class="btn" data-sys="webhook">Переподключить бота</button></div>
+      <p class="muted small" style="margin:8px 0 0">«Обработать сейчас» — то же, что делает расписание каждые 10 минут: просроченные лиды уходят следующему менеджеру, созревшие бонусы начисляются, карточки уходят в группу продаж. «Переподключить бота» — если бот перестал отвечать.</p></div>
+    <div class="card"><h3>Последние ошибки</h3>${r.errors.length ? `<div class="tablebox"><table><thead><tr><th>Когда</th><th>Где</th><th>Ошибка</th></tr></thead><tbody>
+      ${r.errors.map((e) => `<tr><td class="small num">${dt(e.created_at)}</td><td class="small">${esc((e.data && (e.data.where || e.data.stage)) || e.kind)}</td><td><pre class="err">${esc((e.data && e.data.error) || JSON.stringify(e.data || {})).slice(0, 400)}</pre></td></tr>`).join("")}</tbody></table></div>` : `<div class="muted">Ошибок нет ✅</div>`}</div>`;
+  v.querySelectorAll("[data-sys]").forEach((b) => b.onclick = async () => {
+    b.disabled = true; const t0 = b.textContent; b.textContent = "Выполняю…";
+    await doAction("/system", { action: b.dataset.sys }, () => { if (b.dataset.sys !== "weekly") render(); });
+    b.disabled = false; b.textContent = t0;
+  });
+}
+
+// ---------- boot ----------
+async function boot() {
+  if (!S.token) {
+    const code = (location.hash.match(/code=([A-Za-z0-9]+)/) || [])[1];
+    if (code) return loginWith("/auth/code", { code });
+    if (TG) { $("#login").classList.remove("hidden"); $("#tgLogin").classList.remove("hidden"); return loginWith("/auth/telegram", { initData: TG.initData }); }
+    return showLogin();
+  }
+  try {
+    const r = await api("/me");
+    S.me = r.me; S.crm = !!r.crm;
+    $("#who").textContent = (r.me.first_name || "") + (r.me.username ? " · @" + r.me.username : "");
+    $("#login").classList.add("hidden");
+    $("#app").classList.remove("hidden");
+    if (TG) { try { TG.ready(); TG.expand(); } catch {} }
+    S.tab = store.get("nlc_tab") || "dash";
+    if (!TABS.some(([k]) => k === S.tab)) S.tab = "dash";
+    renderTabs();
+    render();
+    refreshCounts();
+  } catch (e) { if (S.token) showLogin(e.message); }
+}
+boot();
+window.addEventListener("hashchange", () => { if (/code=/.test(location.hash)) { S.token = null; store.set("nlc_token", null); boot(); } });
+setInterval(() => { if (S.token && !document.hidden) refreshCounts(); }, 60000);
+</script>
+</body>
+</html>
