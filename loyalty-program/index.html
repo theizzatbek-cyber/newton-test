@@ -197,7 +197,8 @@ pre.err{white-space:pre-wrap;word-break:break-word;font-size:12px;margin:0;color
 
 <script>
 "use strict";
-const API = new URLSearchParams(location.search).get("api") ||
+// ?api= is honoured only on localhost (tests): on the live domain a crafted link must not send login codes elsewhere
+const API = (/^(localhost|127\.0\.0\.1)$/.test(location.hostname) && new URLSearchParams(location.search).get("api")) ||
   "https://sndspiruxuxdmbykvxbd.supabase.co/functions/v1/loyalty-bot/api";
 const TG = window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData ? window.Telegram.WebApp : null;
 
