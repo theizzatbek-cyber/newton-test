@@ -206,7 +206,7 @@ const store = {
   get(k) { try { return localStorage.getItem(k); } catch { return null; } },
   set(k, v) { try { v === null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch {} },
 };
-const S = { token: store.get("nlc_token"), me: null, tab: "dash", counts: {}, managers: [], refFilter: { status: "", manager: "", q: "" }, memberQ: "" };
+const S = { token: store.get("nlc_token"), me: null, tab: "dash", counts: {}, managers: [], refFilter: { status: "", manager: "", q: "", kind: "", from: "", to: "" }, memberQ: "" };
 
 // ---------- helpers ----------
 const $ = (s, el = document) => el.querySelector(s);
@@ -225,6 +225,24 @@ const STATUS = {
 const VERIFY = { pending: ["Нужен звонок", "warn"], no_answer: ["Не дозвонились", "warn"], ok: ["Звонок ✓", "good"], fail: ["Не подтвердил", "bad"] };
 const SOURCE = { friend: "Друг посоветовал", ads: "Реклама", manager: "Уже общался с менеджером", other: "Другое", none: "Не ответил" };
 const chip = (map, k) => { const v = map[k]; return v ? `<span class="chip ${v[1]}">${esc(v[0])}</span>` : (k ? `<span class="chip">${esc(k)}</span>` : ""); };
+/** 1 номер · 2 номера · 5 номеров */
+const pl = (n, [one, few, many]) => { const a = Math.abs(n) % 100, b = a % 10; return `${n} ${a > 10 && a < 20 ? many : b === 1 ? one : b >= 2 && b <= 4 ? few : many}`; };
+const monthName = (d) => d ? new Date(d).toLocaleDateString("ru-RU", { timeZone: "Asia/Tashkent", month: "long", year: "numeric" }).replace(" г.", "") : "—";
+const KIND = { manager: ["менеджер", "warn"], member: ["участник", ""] };
+const RECON = { ok: ["Сверка ✓", "good"], denied: ["Без бонуса (сверка)", "bad"], flag: ["Обратить внимание", "warn"], override: ["Засчитано вручную", "acc"] };
+const FIRST = { ok: ["первое обращение", "good"], prior: ["был в базе раньше", "bad"], same_day: ["тот же день — неясно", "warn"] };
+const SYSTEM = { analytics: "Analytics", amo_file: "выгрузка amoCRM", crm_file: "база клиентов", amo: "amoCRM", bot: "бот", referral: "рекомендация" };
+/** Downloads a file from the API (Excel / CSV). */
+async function download(path, fallback) {
+  try {
+    const r = await api(path);
+    const name = ((r.headers.get("content-disposition") || "").match(/filename="([^"]+)"/) || [])[1] || fallback;
+    const blob = await r.blob();
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+  } catch (e) { toast(e.message, true); }
+}
 const srcChip = (s) => !s ? `<span class="chip">не ответил</span>` : s === "friend" ? `<span class="chip good">друг</span>` : `<span class="chip bad">${esc(SOURCE[s] || s)}</span>`;
 
 function toast(msg, err) {
@@ -243,7 +261,7 @@ async function api(path, body) {
   let r;
   try { r = await fetch(API + path, opt); } catch (e) { throw new Error("Нет связи с сервером"); }
   if (r.status === 401 && !path.startsWith("/auth/")) { logoutLocal(); throw new Error("Сессия истекла — войдите снова"); }
-  if ((r.headers.get("content-type") || "").includes("text/csv")) return r;
+  if (!(r.headers.get("content-type") || "").includes("application/json")) return r; // files: CSV / Excel
   const j = await r.json().catch(() => ({ ok: false, error: "Ошибка сервера" }));
   if (!r.ok || j.ok === false) throw new Error(j.error || j.msg || "Ошибка");
   return j;
@@ -277,7 +295,8 @@ $("#logoutBtn").addEventListener("click", async () => { try { await api("/auth/l
 
 // ---------- shell ----------
 const NAV = [
-  ["Работа", [["dash", "Обзор"], ["refs", "Рекомендации"], ["verify", "Проверка звонком", "verify_queue"], ["requests", "Заявки", "requests"]]],
+  ["Работа", [["dash", "Обзор"], ["refs", "Лиды"], ["verify", "Проверка звонком", "verify_queue"], ["requests", "Заявки", "requests"],
+    ["payouts", "Выплаты", "payouts_open"], ["recon", "Сверка", "recon_waiting"]]],
   ["Люди", [["members", "Участники клуба"], ["users", "Все пользователи"], ["managers", "Менеджеры"]]],
   ["Коммуникации", [["broadcasts", "Рассылки", "broadcasts_sending"], ["texts", "Тексты бота"]]],
   ["Управление", [["protection", "Защита и базы"], ["settings", "Настройки"], ["access", "Админы и доступ"], ["system", "Система"], ["log", "Журнал"]]],
@@ -285,7 +304,7 @@ const NAV = [
 const TABS = NAV.flatMap(([, items]) => items);
 function renderTabs() {
   $("#tabs").innerHTML = NAV.map(([g, items]) => `<div class="gl">${esc(g)}</div>` + items.map(([k, t, c]) => {
-    const n = c === "requests" ? (S.counts.join_requests || 0) + (S.counts.pay_reports || 0) + (S.counts.redeem_requests || 0) : (c ? S.counts[c] || 0 : 0);
+    const n = c === "requests" ? (S.counts.join_requests || 0) + (S.counts.pay_reports || 0) : (c ? S.counts[c] || 0 : 0);
     return `<button data-tab="${k}" class="${S.tab === k ? "on" : ""}">${esc(t)}${n ? `<span class="badge">${n}</span>` : ""}</button>`;
   }).join("")).join("");
   const on = $("#tabs button.on"); if (on && window.innerWidth < 960) on.scrollIntoView({ block: "nearest", inline: "nearest" });
@@ -305,7 +324,7 @@ function render() {
   S.bcLoop = false;
   ({ dash: viewDash, refs: viewRefs, verify: viewVerify, requests: viewRequests, members: viewMembers, managers: viewManagers,
      users: viewUsers, broadcasts: viewBroadcasts, texts: viewTexts, access: viewAccess, system: viewSystem,
-     protection: viewProtection, settings: viewSettings, log: viewLog }[S.tab] || viewDash)(v).catch((e) => { v.innerHTML = `<div class="note">${esc(e.message)}</div>`; });
+     protection: viewProtection, settings: viewSettings, log: viewLog, payouts: viewPayouts, recon: viewRecon }[S.tab] || viewDash)(v).catch((e) => { v.innerHTML = `<div class="note">${esc(e.message)}</div>`; });
 }
 
 // ---------- dashboard ----------
@@ -318,7 +337,8 @@ async function viewDash(v) {
     ["verify_queue", "Проверка звонком", "позвонить другу перед начислением", "verify"],
     ["reviews", "Бонусы на проверке", "сработали защитные флаги", "refs:review"],
     ["join_requests", "Запросы на вступление", "номера нет в списке учеников", "requests"],
-    ["redeem_requests", "Заявки на списание", "родители хотят использовать бонус", "requests"],
+    ["payouts_open", "Выплаты на карту", "перевести бонус и отметить «Выплачено»", "payouts"],
+    ["recon_waiting", "Бонусы менеджеров ждут сверки", "загрузите выгрузки и проведите сверку", "recon"],
     ["not_accepted", "Лиды не приняты", "менеджер ещё не нажал «Принял»", "refs:open"],
     ["manager_flags_30", "Менеджер: «уже был у нас»", "за 30 дней — проверьте пригласивших", "refs:flagged"],
   ];
@@ -345,9 +365,9 @@ async function viewDash(v) {
       <div class="card kpi"><div class="l">Оплатили за 30 дней</div><div class="v">${k.paid_30}</div><div class="s">${money(k.paid_sum_30)} сум</div></div>
       <div class="card kpi"><div class="l">Конверсия лид → оплата</div><div class="v">${conv}%</div><div class="s">${k.paid_all} из ${k.leads_all} за всё время</div></div>
       <div class="card kpi"><div class="l">Бонусы в холде</div><div class="v num">${money(k.hold_sum)}</div><div class="s">ждут 30 дней и звонка</div></div>
-      <div class="card kpi"><div class="l">Начислено бонусов</div><div class="v num">${money(k.accrued)}</div><div class="s">списано ${money(k.redeemed)} · на балансах ${money(k.balances)}</div></div>
+      <div class="card kpi"><div class="l">Начислено бонусов</div><div class="v num">${money(k.accrued)}</div><div class="s">выплачено ${money(k.paid_out)}${k.redeemed ? ` · в оплату ${money(k.redeemed)}` : ""} · на балансах ${money(k.balances)}</div></div>
       <div class="card kpi"><div class="l">Открытые лиды</div><div class="v">${k.open_leads}</div><div class="s">не приняты: ${k.not_accepted}</div></div>
-      <div class="card kpi"><div class="l">Менеджеры на смене</div><div class="v">${k.managers_on}<span class="muted" style="font-size:15px"> / ${k.managers}</span></div><div class="s">лиды раздаются по очереди</div></div>
+      <div class="card kpi"><div class="l">Менеджеры на смене</div><div class="v">${k.managers_on}<span class="muted" style="font-size:15px"> / ${k.managers}</span></div><div class="s">своих клиентов за 30 дней: ${k.manager_refs_30 || 0}</div></div>
     </div>
     <div class="grid g4" style="margin-bottom:14px">
       <button class="card kpi alert" data-go="users" style="display:block"><div class="l">Пользователи бота</div><div class="v">${k.users_total || 0}</div><div class="s">активны за 7 дней: ${k.users_active_7 || 0}</div></button>
@@ -376,38 +396,50 @@ async function loadManagers() { try { S.managers = (await api("/managers")).rows
 async function viewRefs(v) {
   if (!S.managers.length) await loadManagers();
   const f = S.refFilter;
-  v.innerHTML = `<h2>Рекомендации</h2>
+  v.innerHTML = `<h2>Лиды из программы лояльности</h2>
+    <p class="sub">Каждая заявка из бота: кто пригласил, имя и телефон клиента, статус, оплата и выплата бонуса. Источник у всех — «Реферальная программа». Скачайте за нужный период.</p>
+    <div class="toolbar">
+      <label class="small">с <input type="date" id="fFrom" value="${esc(f.from)}"></label>
+      <label class="small">по <input type="date" id="fTo" value="${esc(f.to)}"></label>
+      <select id="fKind"><option value="">Все пригласившие</option><option value="member" ${f.kind === "member" ? "selected" : ""}>Участники</option><option value="manager" ${f.kind === "manager" ? "selected" : ""}>Менеджеры</option></select>
+      <span class="spacer"></span>
+      <button class="btn primary" id="xlsBtn">Скачать Excel</button><button class="btn" id="csvBtn">CSV</button>
+    </div>
     <div class="toolbar">
       <select id="fStatus">${[["", "Все"], ["open", "Открытые"], ["verify", "Ждут звонка"], ["review", "На проверке"], ["hold", "В холде"], ["credited", "Бонус начислен"], ["paid", "Все оплаченные"], ["flagged", "Менеджер: «уже был у нас»"], ["duplicate", "Уже были в базе"], ["lost", "Не купили"], ["rejected", "Отклонённые и возвраты"]]
         .map(([k, t]) => `<option value="${k}" ${f.status === k ? "selected" : ""}>${t}</option>`).join("")}</select>
       <select id="fMgr"><option value="">Все менеджеры</option>${S.managers.map((m) => `<option value="${m.tg_id}" ${String(f.manager) === String(m.tg_id) ? "selected" : ""}>${esc(m.first_name)}</option>`).join("")}</select>
       <input id="fQ" type="search" placeholder="Имя, телефон, ребёнок или #" value="${esc(f.q)}" style="flex:1;min-width:180px">
-      <button class="btn" id="exportBtn">Скачать CSV</button>
     </div>
     <div id="refList"><div class="loading">Загрузка…</div></div>`;
   const reload = () => loadRefs(0);
   $("#fStatus").onchange = (e) => { f.status = e.target.value; reload(); };
   $("#fMgr").onchange = (e) => { f.manager = e.target.value; reload(); };
   let t; $("#fQ").oninput = (e) => { clearTimeout(t); t = setTimeout(() => { f.q = e.target.value.trim(); reload(); }, 350); };
-  $("#exportBtn").onclick = exportCsv;
+  $("#fFrom").onchange = (e) => { f.from = e.target.value; reload(); };
+  $("#fTo").onchange = (e) => { f.to = e.target.value; reload(); };
+  $("#fKind").onchange = (e) => { f.kind = e.target.value; reload(); };
+  const period = () => new URLSearchParams({ kind: "leads", ...(f.from ? { from: f.from } : {}), ...(f.to ? { to: f.to } : {}) });
+  $("#xlsBtn").onclick = () => download("/export?" + period(), "newton-leads.xlsx");
+  $("#csvBtn").onclick = () => download("/export?" + period() + "&format=csv", "newton-leads.csv");
   await loadRefs(0);
 }
 async function loadRefs(offset) {
   const f = S.refFilter;
-  const qs = new URLSearchParams({ status: f.status, manager: f.manager, q: f.q, offset, limit: 50 });
+  const qs = new URLSearchParams({ status: f.status, manager: f.manager, q: f.q, kind: f.kind, from: f.from, to: f.to, offset, limit: 50 });
   const r = await api("/referrals?" + qs);
   const box = $("#refList"); if (!box) return;
   const rows = r.rows.map((x) => `<tr class="click" data-ref="${x.id}">
       <td class="num">#${x.id}<div class="muted small">${d0(x.created_at)}</div></td>
-      <td><b>${esc(x.friend_name || "—")}</b><div class="num small">${esc(phone(x.friend_phone))}</div></td>
+      <td><b>${esc(x.friend_name || "—")}</b><div class="num small">${esc(phone(x.friend_phone))}</div>${x.applied_at || !["lead_created", "in_progress"].includes(x.status) ? "" : `<div><span class="chip">анкета не завершена</span></div>`}</td>
       <td>${esc(x.child_name || "—")}${x.child_grade ? `<div class="muted small">${esc(x.child_grade)} кл.</div>` : ""}</td>
       <td>${srcChip(x.friend_source)}</td>
-      <td>${esc(x.ref_name || "—")}<div class="num small muted">${esc(phone(x.ref_phone))}</div></td>
+      <td>${esc(x.ref_name || "—")}${x.referrer_kind === "manager" ? ` ${chip(KIND, "manager")}` : ""}<div class="num small muted">${esc(phone(x.ref_phone))}</div></td>
       <td>${esc(x.mgr_name || x.taken_by_name || "—")}${x.assigned_manager_tg && !x.accepted_at && ["lead_created", "in_progress"].includes(x.status) ? `<div><span class="chip warn">не принял</span></div>` : ""}${x.manager_report === "paid" ? `<div><span class="chip acc">сообщил: ${money(x.manager_report_amount)}</span></div>` : ""}${x.manager_flag === "known" ? `<div><span class="chip bad">«уже был у нас»</span></div>` : ""}</td>
-      <td>${chip(STATUS, x.status)}${x.verify_status && ["hold", "review"].includes(x.status) ? `<div style="margin-top:3px">${chip(VERIFY, x.verify_status)}</div>` : ""}</td>
-      <td class="num">${x.payment_amount ? money(x.payment_amount) : "—"}${x.bonus_amount ? (["rejected", "refunded"].includes(x.status) ? `<div class="small muted"><s>бонус ${money(x.bonus_amount)}</s></div>` : `<div class="small" style="color:var(--good)">бонус ${money(x.bonus_amount)}</div>`) : ""}</td>
+      <td>${chip(STATUS, x.status)}${x.verify_status && ["hold", "review"].includes(x.status) ? `<div style="margin-top:3px">${chip(VERIFY, x.verify_status)}</div>` : ""}${x.recon_status && x.recon_status !== "ok" ? `<div style="margin-top:3px">${chip(RECON, x.recon_status)}</div>` : ""}${x.first_verdict && x.first_verdict !== "ok" ? `<div style="margin-top:3px">${chip(FIRST, x.first_verdict)}</div>` : ""}</td>
+      <td class="num">${x.payment_amount ? money(x.payment_amount) : "—"}${x.bonus_amount ? (["rejected", "refunded"].includes(x.status) ? `<div class="small muted"><s>бонус ${money(x.bonus_amount)}</s></div>` : `<div class="small" style="color:var(--good)">бонус ${money(x.bonus_amount)}</div>`) : ""}${x.paid_out_at ? `<div><span class="chip good">выплачено</span></div>` : ""}</td>
     </tr>`).join("");
-  const html = `<div class="tablebox"><table><thead><tr><th>#</th><th>Друг</th><th>Ребёнок</th><th>Откуда узнал</th><th>Пригласил</th><th>Менеджер</th><th>Статус</th><th>Оплата</th></tr></thead>
+  const html = `<div class="tablebox"><table><thead><tr><th>#</th><th>Клиент</th><th>Ребёнок</th><th>Откуда узнал</th><th>Пригласил</th><th>Менеджер</th><th>Статус</th><th>Оплата</th></tr></thead>
     <tbody>${rows || `<tr><td colspan="8" class="muted">Ничего не найдено</td></tr>`}</tbody></table></div>
     <div class="toolbar" style="margin-top:10px"><span class="muted small">Показано ${Math.min(offset + r.rows.length, r.total)} из ${r.total}</span>
     ${offset + r.rows.length < r.total ? `<button class="btn sm" id="moreRefs">Показать ещё</button>` : ""}</div>`;
@@ -440,7 +472,8 @@ const EVENT = {
   bonus_refunded: "Бонус отменён", lost_marked: "Отмечен «не купил»", refund_marked: "Возврат", report_rejected: "Сообщение об оплате отклонено",
   sales_take: "Взял в работу (группа)", crm_error: "Ошибка CRM", staff_referrer: "Ссылка сотрудника",
   manager_flag_known: "Менеджер: «уже был у нас»", hold_reverted: "Холд отменён", referral_edited: "Данные исправлены", referral_rejected: "Отклонена админом",
-  note_set: "Заметка",
+  note_set: "Заметка", application_submitted: "Клиент оставил заявку", lead_sent: "Заявка передана в CRM",
+  manager_bonus_denied: "Сверка: бонус менеджеру не положен", recon_override: "Бонус менеджера засчитан вручную",
 };
 
 async function openRef(id) {
@@ -470,6 +503,11 @@ async function openRef(id) {
   if (x.status === "review") acts.push(`<div class="card"><h3>Проверка по флагам</h3><ul style="margin:0 0 10px;padding-left:18px">${r.flags.map((f) => `<li>${esc(f)}</li>`).join("")}</ul>
       <div class="actions"><button class="btn good" data-a="rv_ok">Одобрить бонус</button><button class="btn bad" data-a="rv_no">Отклонить</button></div></div>`);
   if (paid) acts.push(`<div class="actions"><button class="btn bad" data-a="refund">Возврат оплаты — отменить бонус</button></div>`);
+  if (x.referrer_kind === "manager" && ((x.status === "rejected" && x.status_reason === "manager_prior_source") || (paid && ["flag", "denied"].includes(x.recon_status)))) {
+    acts.push(`<div class="card"><h3>Бонус менеджера по сверке</h3>
+      <p class="muted small" style="margin-top:-4px">${esc(x.recon_note || "Номер клиента раньше поступал из другого источника.")} Если проверили вручную и клиент действительно пришёл от менеджера — засчитайте с причиной.</p>
+      <div class="actions"><input type="text" id="ovNote" placeholder="Почему засчитываете" style="flex:1;min-width:180px"><button class="btn" data-a="override">Засчитать вручную</button></div></div>`);
+  }
   acts.push(`<div class="card"><h3>Заметка маркетинга</h3><textarea id="rNote" placeholder="Видна только админам">${esc(x.admin_note || "")}</textarea>
       <div class="actions" style="margin-top:8px"><button class="btn sm" data-a="note">Сохранить заметку</button></div></div>`);
   acts.push(`<details class="card"><summary style="cursor:pointer;font-weight:700">Исправить данные</summary><div style="display:grid;gap:8px;margin-top:10px">
@@ -488,7 +526,11 @@ async function openRef(id) {
         <dt>Друг</dt><dd><a href="#" data-user="${x.friend_tg}"><b>${esc(x.friend_name || "—")}</b></a>${x.friend_username ? ` · @${esc(x.friend_username)}` : ""}<br>${telLink(x.friend_phone)}</dd>
         <dt>Ребёнок</dt><dd>${esc(x.child_name || "—")}${x.child_grade ? `, ${esc(x.child_grade)} кл.` : ""} · ${x.friend_lang === "ru" ? "русский" : "узбекский"}</dd>
         <dt>Откуда узнал</dt><dd>${srcChip(x.friend_source)}${x.manager_flag === "known" ? ` <span class="chip bad">менеджер: «уже был у нас» · ${dt(x.manager_flag_at)}</span>` : ""}</dd>
-        <dt>Пригласил(а)</dt><dd><a href="#" data-user="${x.referrer_tg}">${esc(x.ref_name || "—")}</a> · ${telLink(x.ref_phone)}<br><span class="muted small">код <b>${esc(x.ref_code || "—")}</b></span></dd>
+        <dt>Пригласил(а)</dt><dd><a href="#" data-user="${x.referrer_tg}">${esc(x.ref_name || "—")}</a> ${chip(KIND, x.referrer_kind)} · ${telLink(x.ref_phone)}<br><span class="muted small">ID ${esc(x.referrer_tg)} · код <b>${esc(x.ref_code || "—")}</b></span></dd>
+        <dt>Заявка</dt><dd>${x.applied_at ? `оставил ${dt(x.applied_at)}` : ["lead_created", "in_progress"].includes(x.status) ? `<span class="muted">анкета не завершена</span>` : "—"} · источник «Реферальная программа»</dd>
+        <dt>Первый источник номера</dt><dd>${x.first_verdict ? `${chip(FIRST, x.first_verdict)} ${esc(x.first_source || "")}${x.first_seen_at ? ` · ${d0(x.first_seen_at)}` : ""}${x.first_system ? ` <span class="muted small">(${esc(SYSTEM[x.first_system] || x.first_system)})</span>` : ""}` : `<span class="muted">не проверялся</span>`}</dd>
+        ${x.recon_status ? `<dt>Сверка</dt><dd>${chip(RECON, x.recon_status)} ${esc(x.recon_note || "")}<div class="muted small">${dt(x.recon_at)}</div></dd>` : ""}
+        ${x.paid_out_at ? `<dt>Выплата</dt><dd>выплачено ${dt(x.paid_out_at)} · заявка #${esc(x.payout_request_id)}</dd>` : ""}
         <dt>Менеджер</dt><dd>${esc(x.mgr_name || x.taken_by_name || "—")}${x.assigned_at ? `<div class="muted small">назначен ${dt(x.assigned_at)} · ${x.accepted_at ? "принял " + dt(x.accepted_at) : "<span class=red>не принял</span>"}${x.reassign_count ? ` · передавался ${x.reassign_count} раз` : ""}</div>` : ""}</dd>
         <dt>Создан</dt><dd>${dt(x.created_at)}</dd>
         ${x.payment_amount ? `<dt>Оплата</dt><dd class="num">${money(x.payment_amount)} сум · ${d0(x.paid_at)}</dd>
@@ -503,7 +545,7 @@ async function openRef(id) {
     </div>`;
   $("#drawer [data-close]").onclick = closeDrawer;
   $("#drawer").querySelectorAll("[data-user]").forEach((a) => a.onclick = (e) => { e.preventDefault(); openUser(a.dataset.user); });
-  const after = async () => { await refreshCounts(); await openRef(id); if (S.tab === "refs") loadRefs(0); if (S.tab === "verify") render(); };
+  const after = async () => { await refreshCounts(); await openRef(id); if (S.tab === "refs") loadRefs(0); if (["verify", "recon"].includes(S.tab)) render(); };
   const A = (body) => doAction("/referral", { id: Number(id), ...body }, after);
   $("#drawer").querySelectorAll("[data-a]").forEach((b) => b.onclick = () => {
     const a = b.dataset.a;
@@ -521,6 +563,7 @@ async function openRef(id) {
     if (a === "note") A({ action: "note", text: $("#rNote").value });
     if (a === "edit") A({ action: "edit", friend_name: $("#eFn").value, child_name: $("#eCn").value, child_grade: $("#eCg").value });
     if (a === "reject") { const reason = $("#rjReason").value.trim(); if (!reason) return toast("Укажите причину", true); if (confirm("Отклонить рекомендацию?")) A({ action: "reject", reason }); }
+    if (a === "override") { const reason = $("#ovNote").value.trim(); if (!reason) return toast("Укажите причину", true); if (confirm("Засчитать бонус менеджеру?")) A({ action: "override", reason }); }
   });
 }
 
@@ -564,11 +607,9 @@ async function viewRequests(v) {
         <td>${esc(x.branch || "—")}</td><td class="small">${dt(x.join_requested_at)}</td>
         <td class="actions"><button class="btn sm good" data-join="${x.tg_id}" data-ok="1">Ученик</button><button class="btn sm bad" data-join="${x.tg_id}">Не ученик</button></td></tr>`).join("")}</tbody></table></div>`
       : `<div class="muted">Нет</div>`}<p class="muted small" style="margin:8px 0 0">Номера нет в загруженном списке учеников. Проверьте по договору или у куратора.</p></div>
-    <div class="card"><h3>Заявки на списание бонуса</h3>
-      ${r.redeems.length ? `<div class="tablebox"><table><thead><tr><th>#</th><th>Родитель</th><th>Заявка</th><th>Баланс сейчас</th><th></th></tr></thead><tbody>
-      ${r.redeems.map((x) => `<tr><td>#${x.id}</td><td>${esc(x.first_name || "—")}<div class="small num">${esc(phone(x.phone))}</div></td><td class="num">${money(x.amount)}</td><td class="num">${money(x.balance)}</td>
-        <td class="actions"><button class="btn sm good" data-red="${x.id}" data-ok="1">Списано</button><button class="btn sm bad" data-red="${x.id}">Отклонить</button></td></tr>`).join("")}</tbody></table></div>`
-      : `<div class="muted">Нет</div>`}<p class="muted small" style="margin:8px 0 0">Нажимайте «Списано», когда бонус учтён в оплате родителя.</p></div>`;
+    <div class="card"><h3>Выплаты бонусов</h3><div class="actions"><span class="muted">Заявки на выплату на карту — в отдельном разделе.</span>
+      <span class="spacer"></span><button class="btn sm" data-gotab="payouts">Открыть «Выплаты»${S.counts.payouts_open ? ` · ${S.counts.payouts_open}` : ""}</button></div></div>`;
+  v.querySelectorAll("[data-gotab]").forEach((b) => b.onclick = () => go(b.dataset.gotab));
   const after = async () => { await refreshCounts(); render(); };
   v.querySelectorAll("[data-open]").forEach((a) => a.onclick = (e) => { e.preventDefault(); openRef(a.dataset.open); });
   v.querySelectorAll("[data-rep]").forEach((b) => b.onclick = () => {
@@ -605,9 +646,9 @@ async function viewManagers(v) {
   const days = S.mgrDays || 30;
   const r = await api("/managers?days=" + days); S.managers = r.rows;
   v.innerHTML = `<h2>Менеджеры</h2>
-    <div class="note info">Подключение менеджера: он открывает бота <b>@${esc(r.bot || "")}</b> и отправляет <b>/manager ${esc(r.invite_code)}</b>. Номер менеджера автоматически попадает в стоп-лист. Лиды раздаются <b>по очереди</b> тем, кто «на смене»; не принятый за ${esc(r.sla)} мин лид уходит следующему.</div>
+    <div class="note info">Подключение менеджера: он открывает бота <b>@${esc(r.bot || "")}</b> и отправляет <b>/manager ${esc(r.invite_code)}</b>. У менеджера появляется своя реферальная ссылка («🎁 Моя ссылка»). Лиды раздаются <b>по очереди</b> тем, кто «на смене»; не принятый за ${esc(r.sla)} мин лид уходит следующему.</div>
     <div class="toolbar"><span class="muted">Период:</span>${[7, 30, 90].map((d) => `<button class="btn sm ${d === days ? "primary" : ""}" data-days="${d}">${d} дней</button>`).join("")}</div>
-    <div class="tablebox"><table><thead><tr><th>Менеджер</th><th>Смена</th><th>Лидов</th><th>Принял</th><th title="Среднее время до «Принял»">Ср. принятие</th><th title="Лид ушёл другому по SLA">Просрочил</th><th>Оплат</th><th>Конв.</th><th title="Друг ответил: реклама / уже общался с менеджером">Не от друга</th><th title="Менеджер нажал «Уже был у нас»">«Уже был»</th><th title="Проверка звонком не пройдена">Звонок ✗</th><th></th></tr></thead><tbody>
+    <div class="tablebox"><table><thead><tr><th>Менеджер</th><th>Смена</th><th>Лидов</th><th>Принял</th><th title="Среднее время до «Принял»">Ср. принятие</th><th title="Лид ушёл другому по SLA">Просрочил</th><th>Оплат</th><th>Конв.</th><th title="Друг ответил: реклама / уже общался с менеджером">Не от друга</th><th title="Менеджер нажал «Уже был у нас»">«Уже был»</th><th title="Проверка звонком не пройдена">Звонок ✗</th><th title="Клиенты по личной ссылке менеджера: всего / оплатили / без бонуса по сверке">Свои клиенты</th><th></th></tr></thead><tbody>
     ${r.rows.map((m) => { const a = m.assigned || 0; const conv = a ? Math.round((m.paid || 0) / a * 100) : 0; const srcShare = a ? Math.round((m.source_flags || 0) / a * 100) : 0;
       return `<tr><td><b>${esc(m.first_name || "—")}</b>${m.username ? ` <span class="muted small">@${esc(m.username)}</span>` : ""}<div class="small num muted">${esc(phone(m.phone))}</div></td>
       <td>${m.manager_active ? `<span class="chip good">на смене</span>` : `<span class="chip">не на смене</span>`}</td>
@@ -616,10 +657,11 @@ async function viewManagers(v) {
       <td class="num ${srcShare >= 30 && m.source_flags >= 2 ? "red" : ""}">${m.source_flags || 0}${a ? ` <span class="muted small">(${srcShare}%)</span>` : ""}</td>
       <td class="num">${m.known_flags || 0}</td>
       <td class="num ${m.verify_fail ? "red" : ""}">${m.verify_fail || 0}</td>
+      <td class="num">${m.brought || 0}${m.brought ? ` <span class="muted small">· опл. ${m.brought_paid || 0}</span>${m.brought_denied ? ` <span class="red small">· без бонуса ${m.brought_denied}</span>` : ""}` : ""}</td>
       <td><div class="actions" style="flex-wrap:nowrap"><button class="btn sm" data-mg="${m.tg_id}" data-act="${m.manager_active ? "deactivate" : "activate"}">${m.manager_active ? "Снять со смены" : "На смену"}</button>
-        <button class="btn sm bad" data-mg="${m.tg_id}" data-act="remove">Убрать</button></div></td></tr>`; }).join("") || `<tr><td colspan="12" class="muted">Никто не подключился</td></tr>`}
+        <button class="btn sm bad" data-mg="${m.tg_id}" data-act="remove">Убрать</button></div></td></tr>`; }).join("") || `<tr><td colspan="13" class="muted">Никто не подключился</td></tr>`}
     </tbody></table></div>
-    <p class="muted small">Красным — на что смотреть: просрочки, много друзей «не от друга» (реклама / уже общались с менеджером), проваленные звонки. Сравнивайте менеджеров между собой: лиды раздаются поровну. «Отметил „уже был“» — честный сигнал: менеджер узнал рекламного клиента в рекомендации.</p>`;
+    <p class="muted small">Красным — на что смотреть: просрочки, много друзей «не от друга» (реклама / уже общались с менеджером), проваленные звонки. Сравнивайте менеджеров между собой: лиды раздаются поровну. «Отметил „уже был“» — честный сигнал: менеджер узнал рекламного клиента в рекомендации. «Свои клиенты» — пришли по личной ссылке менеджера; бонус за них — только если номер не поступал раньше из рекламы или другого источника (раздел «Сверка»).</p>`;
   v.querySelectorAll("[data-days]").forEach((b) => b.onclick = () => { S.mgrDays = Number(b.dataset.days); render(); });
   v.querySelectorAll("[data-mg]").forEach((b) => b.onclick = () => {
     if (b.dataset.act === "remove" && !confirm("Убрать менеджера из раздачи лидов?")) return;
@@ -639,14 +681,14 @@ async function viewProtection(v) {
     </div>
     <div class="grid g2" style="margin-bottom:14px">
       ${[["members", "Список учеников", "Кто может вступить в клуб без подтверждения. Excel/CSV из CRM или таблица кураторов — бот найдёт номера в любых колонках."],
-         ["base", "База клиентов из CRM", "Все, кто когда-либо обращался. Номер с активностью за последние 180 дней не считается новым другом. Обновляйте раз в неделю — так ни один рекламный лид не пройдёт как «друг»."]]
+         ["base", "База клиентов из CRM", "Все, кто когда-либо обращался. Нужна для правила менеджеров (клиент раньше пришёл из рекламы — бонуса нет) и для режима «не засчитывать». Если в файле есть колонки «Дата создания» и «Источник» — они тоже учитываются. Обновляйте раз в неделю."]]
         .map(([k, t, d]) => `<div class="card"><h3>${t}</h3><p class="muted small" style="margin-top:-4px">${d}</p>
           <input type="file" accept=".xlsx,.xls,.csv,.txt" data-file="${k}"><div style="margin:8px 0" class="muted small">или вставьте номера:</div>
           <textarea data-text="${k}" placeholder="998901234567&#10;+998 93 555 00 02"></textarea>
           <div class="actions" style="margin-top:8px"><button class="btn primary" data-imp="${k}">Загрузить</button></div></div>`).join("")}
     </div>
     <div class="card"><h3>Стоп-лист</h3>
-      <p class="muted small" style="margin-top:-4px">Эти номера не могут быть рекомендателями. Менеджеры добавляются автоматически при подключении к боту.</p>
+      <p class="muted small" style="margin-top:-4px">Эти номера не могут быть рекомендателями: админы, родственники сотрудников. Менеджеры приглашают по своей ссылке и в стоп-лист не попадают (правило первого источника — в «Сверке»).</p>
       <div class="grid g2"><textarea id="stopText" placeholder="Номера через запятую или с новой строки"></textarea>
       <div><input type="text" id="stopReason" placeholder="Причина: менеджер, родственник…" style="width:100%"><div class="actions" style="margin-top:8px"><button class="btn primary" id="stopAdd">Добавить</button></div></div></div>
       <div class="tablebox" style="margin-top:12px"><table><thead><tr><th>Номер</th><th>Причина</th><th>Добавлен</th><th></th></tr></thead><tbody>
@@ -679,6 +721,10 @@ const SETTINGS = [
     ["bonus_pct", "Бонус в % от первой оплаты (если сумма выше пустая)", "num"], ["ambassador_pct", "Бонус Амбассадора в %", "num"],
     ["ambassador_threshold", "Амбассадор после N оплативших друзей за учебный год", "num"], ["hold_days", "Холд перед начислением, дней", "num"],
     ["ref_code_length", "Длина кода участника (символов)", "num"]]],
+  ["Менеджеры и сверка", [
+    ["manager_referrals", "Менеджеры могут приглашать клиентов по своей ссылке", "bool"],
+    ["manager_needs_recon", "Бонус менеджера — только после ежемесячной сверки", "bool"],
+    ["member_prior_rule", "Клиент участника уже был в базе раньше", "enum", [["pay", "Платить как обычно (по ТЗ)"], ["review", "Отправлять бонус на проверку"], ["block", "Не засчитывать (старое правило 180 дней)"]]]]],
   ["Защита", [
     ["require_verification", "Проверка звонком обязательна перед начислением", "bool"], ["dedupe_days", "Номер в базе за последние N дней — не новый друг", "num"],
     ["velocity_limit", "Больше N друзей за 30 дней у одного человека — на проверку", "num"], ["accept_sla_minutes", "Минут на «Принял» (рабочее время)", "num"],
@@ -689,9 +735,10 @@ const SETTINGS = [
 async function viewSettings(v) {
   const r = await api("/settings");
   const val = r.values;
-  const field = ([k, label, type]) => {
+  const field = ([k, label, type, opts]) => {
     let input;
-    if (type === "bool") input = `<select data-k="${k}"><option value="true" ${val[k] ? "selected" : ""}>Да</option><option value="false" ${!val[k] ? "selected" : ""}>Нет</option></select>`;
+    if (type === "enum") input = `<select data-k="${k}">${opts.map(([o, t]) => `<option value="${o}" ${val[k] === o ? "selected" : ""}>${esc(t)}</option>`).join("")}</select>`;
+    else if (type === "bool") input = `<select data-k="${k}"><option value="true" ${val[k] ? "selected" : ""}>Да</option><option value="false" ${!val[k] ? "selected" : ""}>Нет</option></select>`;
     else if (type === "hours") { const wh = val[k] || { start: 9, end: 20 }; input = `<div class="actions"><input type="number" min="0" max="23" value="${wh.start}" data-wh="start" style="width:80px"> — <input type="number" min="1" max="24" value="${wh.end}" data-wh="end" style="width:80px"></div>`; }
     else input = `<input type="text" data-k="${k}" value="${esc(val[k] ?? "")}" ${type === "num" ? 'class="num"' : ""}>`;
     return `<div class="setrow"><div><div class="h">${esc(label)}</div><div class="d">${esc(k)}</div></div><div>${input}</div><div><button class="btn sm" data-save="${k}">Сохранить</button></div></div>`;
@@ -727,6 +774,8 @@ const LOG_LABEL = Object.assign({}, EVENT, {
   manager_added: "Назначен менеджером", admin_added: "Назначен админом", session_ended: "Сессия завершена", text_set: "Изменён текст бота",
   text_reset_all: "Все тексты сброшены", broadcast_started: "Запущена рассылка", broadcast_cancelled: "Рассылка остановлена", state_reset: "Сброшен диалог",
   system_poll: "Ручная обработка", system_webhook: "Переподключение бота", crm_error: "Ошибка CRM",
+  payout_requested: "Заявка на выплату", bonus_paid_out: "Бонус выплачен на карту", recon_run: "Проведена сверка",
+  leads_exported: "Скачан файл лидов", import_analytics: "Загружена выгрузка Analytics", import_amo_file: "Загружена выгрузка amoCRM",
 });
 async function viewLog(v) {
   const r = await api("/events?limit=300");
@@ -774,7 +823,7 @@ async function loadUsers(offset) {
       <td><b>${esc(u.first_name || "—")}</b>${u.username ? ` <span class="muted small">@${esc(u.username)}</span>` : ""}<div style="margin-top:3px">${roleChips(u)}</div></td>
       <td class="num">${esc(phone(u.phone))}</td>
       <td class="small">${esc(LANG[u.lang] || u.lang)}</td>
-      <td class="num">${u.role === "member" ? `<b>${money(u.balance)}</b><div class="small muted">друзей: ${u.invited}</div>` : (u.invited ? `друзей: ${u.invited}` : "—")}</td>
+      <td class="num">${u.role === "member" || u.is_manager ? `<b>${money(u.balance)}</b><div class="small muted">друзей: ${u.invited}</div>` : (u.invited ? `друзей: ${u.invited}` : "—")}</td>
       <td class="small">${dt(u.updated_at)}<div class="muted">с ${d0(u.created_at)}</div></td></tr>`).join("");
   const box = $("#uList");
   const more = offset + r.rows.length < r.total ? `<button class="btn sm" id="moreU">Показать ещё</button>` : "";
@@ -797,7 +846,7 @@ async function openUser(tg) {
   }
   d.dataset.user = String(tg);
   let r; try { r = await api("/user?tg=" + tg); } catch (e) { return toast(e.message, true); }
-  const u = r.user, fl = r.flags, member = u.role === "member";
+  const u = r.user, fl = r.flags, member = u.role === "member", wallet = member || u.is_manager;
   const roleBtns = [];
   if (!member) roleBtns.push(`<button class="btn good" data-u="make_member">Принять в клуб</button>`);
   else roleBtns.push(`<button class="btn bad" data-u="remove_member">Исключить из клуба</button>`);
@@ -821,7 +870,7 @@ async function openUser(tg) {
         <dt>Диалог</dt><dd>${u.state ? `<span class="chip warn">${esc(u.state)}</span> <button class="btn sm" data-u="reset_state">Сбросить</button>` : `<span class="muted">обычный</span>`}</dd>
         <dt>Проверки номера</dt><dd>${checks}</dd>
       </dl></div>
-      ${member ? `<div class="card"><h3>Бонусный баланс</h3>
+      ${wallet ? `<div class="card"><h3>Бонусный баланс</h3>
         <div class="kpi" style="margin-bottom:10px"><div class="v num">${money(r.balance.available)} <span class="muted" style="font-size:14px">сум</span></div><div class="s">ожидает (холд/проверка): ${money(r.balance.pending)}</div></div>
         <div class="muted small" style="margin-bottom:6px">Списать в счёт оплаты обучения</div>
         <div class="actions"><input type="text" id="redAmt" class="num" placeholder="Сумма" style="width:150px"><button class="btn primary" data-u="redeem">Списать</button>
@@ -833,10 +882,10 @@ async function openUser(tg) {
       <div class="card"><h3>Написать в бот</h3>
         <textarea id="uMsg" placeholder="Сообщение придёт от бота. Можно <b>жирный</b>, <i>курсив</i>, <a href=&quot;https://…&quot;>ссылку</a>"></textarea>
         <div class="actions" style="margin-top:8px"><span class="muted small">Отправка записывается в журнал</span><span class="spacer"></span><button class="btn primary" data-u="message" ${u.bot_blocked_at ? "disabled title='Пользователь остановил бота'" : ""}>Отправить</button></div></div>
-      ${r.invited.length || member ? `<div class="card"><h3>Пригласил(а) друзей: ${r.invited.length}</h3>${r.invited.length ? `<ul class="timeline">${r.invited.map((x) => `<li><a href="#" data-ref="${x.id}">#${x.id}</a> ${esc(x.friend_name || "—")} ${chip(STATUS, x.status)} ${x.bonus_amount ? `<span class="num small">бонус ${money(x.bonus_amount)}</span>` : ""}</li>`).join("")}</ul>` : `<div class="muted">Пока никого</div>`}</div>` : ""}
+      ${r.invited.length || wallet ? `<div class="card"><h3>Пригласил(а) друзей: ${r.invited.length}</h3>${r.invited.length ? `<ul class="timeline">${r.invited.map((x) => `<li><a href="#" data-ref="${x.id}">#${x.id}</a> ${esc(x.friend_name || "—")} ${chip(STATUS, x.status)} ${x.bonus_amount ? `<span class="num small">бонус ${money(x.bonus_amount)}</span>` : ""}</li>`).join("")}</ul>` : `<div class="muted">Пока никого</div>`}</div>` : ""}
       ${r.as_friend.length ? `<div class="card"><h3>Пришёл(ла) как друг</h3><ul class="timeline">${r.as_friend.map((x) => `<li><a href="#" data-ref="${x.id}">#${x.id}</a> от <a href="#" data-user="${x.ref_tg}">${esc(x.ref_name || "—")}</a> ${chip(STATUS, x.status)} ${srcChip(x.friend_source)}</li>`).join("")}</ul></div>` : ""}
       <div class="card"><h3>Роли</h3><div class="actions">${roleBtns.join("")}</div>
-        <p class="muted small" style="margin:8px 0 0">Менеджер и админ попадают в стоп-лист — рекомендателями они быть не могут. Исключённый из клуба теряет код, баланс сохраняется.</p></div>
+        <p class="muted small" style="margin:8px 0 0">Админ попадает в стоп-лист. Менеджер приглашает по своей ссылке — бонус только если номер клиента не поступал раньше из другого источника. Исключённый из клуба теряет код, баланс сохраняется.</p></div>
       <div class="card"><h3>Заметка</h3><textarea id="uNote" placeholder="Видна только админам">${esc(u.admin_note || "")}</textarea>
         <div class="actions" style="margin-top:8px"><button class="btn sm" data-u="note">Сохранить</button></div></div>
       ${r.ledger.length ? `<div class="card"><h3>Движения по балансу</h3><ul class="timeline">${r.ledger.map((l) => `<li><span class="muted small num">${dt(l.created_at)}</span> · <b class="num" style="color:${l.amount > 0 ? "var(--good)" : "var(--bad)"}">${l.amount > 0 ? "+" : "−"}${money(Math.abs(l.amount))}</b> ${esc(l.note || l.kind)}${l.by_name ? ` <span class="muted small">— ${esc(l.by_name)}</span>` : ""}</li>`).join("")}</ul></div>` : ""}
@@ -856,7 +905,7 @@ async function openUser(tg) {
   const CONFIRM = {
     remove_member: "Исключить из клуба? Код перестанет работать, баланс сохранится.", make_admin: "Дать полный доступ к админке и боту?",
     remove_admin: "Убрать из админов? Его сессии завершатся.", block: "Заблокировать пользователя?", unbind: "Отвязать номер от этого Telegram-аккаунта?",
-    make_manager: "Сделать менеджером? Ему начнут приходить лиды, номер уйдёт в стоп-лист.", make_member: "Принять в клуб? Родитель получит код и ссылку.",
+    make_manager: "Сделать менеджером? Ему начнут приходить лиды и появится своя реферальная ссылка.", make_member: "Принять в клуб? Родитель получит код и ссылку.",
   };
   $("#drawer").querySelectorAll("[data-u]").forEach((b) => b.onclick = () => {
     const a = b.dataset.u;
@@ -1084,6 +1133,110 @@ async function viewSystem(v) {
     b.disabled = true; const t0 = b.textContent; b.textContent = "Выполняю…";
     await doAction("/system", { action: b.dataset.sys }, () => { if (b.dataset.sys !== "weekly") render(); });
     b.disabled = false; b.textContent = t0;
+  });
+}
+
+// ---------- payouts to a card ----------
+const PAY_STATUS = { done: ["Выплачено", "good"], declined: ["Отклонено", "bad"] };
+const cardFmt = (c) => String(c || "").replace(/(\d{4})(?=\d)/g, "$1 ");
+async function viewPayouts(v) {
+  const r = await api("/payouts");
+  const openSum = r.open.reduce((a, x) => a + Number(x.amount || 0), 0);
+  v.innerHTML = `<h2>Выплаты бонусов</h2>
+    <p class="sub">Участник или менеджер нажимает в боте «Получить на карту» и пишет номер карты. Переведите деньги и нажмите «Выплачено»: бонусы этих клиентов отметятся как выплаченные, а полный номер карты сотрётся — останутся последние 4 цифры.</p>
+    <div class="grid g3" style="margin-bottom:14px">
+      <div class="card kpi"><div class="l">Ждут выплаты</div><div class="v">${r.open.length}</div><div class="s">${money(openSum)} сум</div></div>
+      <div class="card kpi"><div class="l">Выплачено всего</div><div class="v num">${money(r.totals.paid_out)}</div><div class="s">${pl(r.totals.payouts, ["выплата", "выплаты", "выплат"])}</div></div>
+      <div class="card kpi"><div class="l">Ещё на балансах</div><div class="v num">${money(r.totals.balances)}</div><div class="s">начислено, но не запрошено</div></div>
+    </div>
+    <div class="card" style="margin-bottom:14px"><h3>Заявки</h3>
+    ${r.open.length ? `<div class="tablebox"><table><thead><tr><th>#</th><th>Кому</th><th>Сумма</th><th>Карта</th><th>Создана</th><th>Комментарий</th><th></th></tr></thead><tbody>
+      ${r.open.map((x) => `<tr><td class="num">#${x.id}</td>
+        <td><a href="#" data-user="${x.tg_id}"><b>${esc(x.first_name || "—")}</b></a>${x.is_manager ? " " + chip(KIND, "manager") : ""}<div class="small num">${esc(phone(x.phone))}</div>
+          <div class="muted small">бонусов: ${x.bonuses} · баланс сейчас ${money(x.balance)}</div></td>
+        <td class="num"><b>${money(x.amount)}</b></td>
+        <td>${x.method === "card" ? `<span class="num"><b>${esc(cardFmt(x.card_number))}</b></span> <button class="btn sm" data-copy="${esc(x.card_number || "")}">Копировать</button>` : `<span class="chip">в счёт оплаты обучения</span>`}</td>
+        <td class="small">${dt(x.created_at)}</td>
+        <td><input type="text" data-note="${x.id}" placeholder="№ перевода, дата" style="width:160px"></td>
+        <td><div class="actions" style="flex-wrap:nowrap"><button class="btn sm good" data-pay="${x.id}">${x.method === "card" ? "Выплачено" : "Списано"}</button><button class="btn sm bad" data-decline="${x.id}">Отклонить</button></div></td></tr>`).join("")}
+    </tbody></table></div>` : `<div class="muted">Новых заявок нет ✅</div>`}</div>
+    <div class="card"><h3>История</h3>
+    ${r.history.length ? `<div class="tablebox"><table><thead><tr><th>#</th><th>Кому</th><th>Сумма</th><th>Карта</th><th>Статус</th><th>Когда</th><th>Кто отметил</th><th>Комментарий</th></tr></thead><tbody>
+      ${r.history.map((x) => `<tr><td class="num">#${x.id}</td><td><a href="#" data-user="${x.tg_id}">${esc(x.first_name || "—")}</a>${x.is_manager ? " " + chip(KIND, "manager") : ""}<div class="small num">${esc(phone(x.phone))}</div></td>
+        <td class="num">${money(x.amount)}</td><td class="num">${x.method === "card" ? (x.card_last4 ? "•••• " + esc(x.card_last4) : "—") : "в оплату"}</td>
+        <td>${chip(PAY_STATUS, x.status)}</td><td class="small">${dt(x.handled_at)}</td><td class="small">${esc(x.handled_name || "")}</td><td class="small">${esc(x.note || "")}</td></tr>`).join("")}
+    </tbody></table></div>` : `<div class="muted">Пока пусто</div>`}</div>`;
+  v.querySelectorAll("[data-user]").forEach((a) => a.onclick = (e) => { e.preventDefault(); openUser(a.dataset.user); });
+  v.querySelectorAll("[data-copy]").forEach((b) => b.onclick = async () => {
+    try { await navigator.clipboard.writeText(b.dataset.copy); toast("Номер карты скопирован"); } catch { toast("Не удалось скопировать — выделите номер вручную", true); }
+  });
+  const after = async () => { await refreshCounts(); render(); };
+  v.querySelectorAll("[data-pay]").forEach((b) => b.onclick = () => {
+    const id = Number(b.dataset.pay), x = r.open.find((y) => y.id === id);
+    if (!confirm(`${x.method === "card" ? "Деньги переведены" : "Бонус учтён в оплате"}: ${money(x.amount)} сум — ${x.first_name || ""}?`)) return;
+    doAction("/payouts", { action: "paid", id, note: (v.querySelector(`[data-note="${id}"]`) || {}).value || "" }, after);
+  });
+  v.querySelectorAll("[data-decline]").forEach((b) => b.onclick = () => {
+    if (confirm("Отклонить заявку? Бонус останется на балансе.")) doAction("/payouts", { action: "decline", id: Number(b.dataset.decline) }, after);
+  });
+}
+
+// ---------- monthly reconciliation ----------
+async function fileBody(kind, f) {
+  if (f.size > 8 * 1024 * 1024) throw new Error("Файл больше 8 МБ");
+  const buf = new Uint8Array(await f.arrayBuffer());
+  let bin = ""; for (let i = 0; i < buf.length; i += 0x8000) bin += String.fromCharCode.apply(null, buf.subarray(i, i + 0x8000));
+  return { kind, filename: f.name, data: btoa(bin) };
+}
+async function viewRecon(v) {
+  const r = await api("/recon" + (S.reconMonth ? "?month=" + encodeURIComponent(S.reconMonth) : ""));
+  S.reconMonth = r.month;
+  const up = (sys) => r.uploads.find((x) => x.system === sys);
+  const upCard = (kind, title, desc) => { const u = up(kind);
+    return `<div class="card"><h3>${title}</h3><p class="muted small" style="margin-top:-4px">${desc}</p>
+      <div class="small" style="margin-bottom:8px">${u ? `Загружено: <b>${pl(u.phones, ["номер", "номера", "номеров"])}</b> (${pl(u.n, ["запись", "записи", "записей"])}) · за ${d0(u.from_at)} — ${d0(u.to_at)} · обновлено ${dt(u.imported_at)}` : `<span class="muted">ещё не загружали</span>`}</div>
+      <input type="file" accept=".xlsx,.xls,.csv,.txt" data-file="${kind}"><div class="actions" style="margin-top:8px"><button class="btn primary" data-imp="${kind}">Загрузить</button></div></div>`; };
+  const rows = r.rows;
+  const cnt = (f) => rows.filter(f).length;
+  const rule = { pay: "получает бонус как обычно — находка только отмечается", review: "бонус уходит на ручную проверку", block: "такой клиент не засчитывается" }[r.rule] || "";
+  v.innerHTML = `<h2>Сверка за месяц</h2>
+    <p class="sub">Номера всех оплативших клиентов программы сверяются с историей: выгрузки amoCRM и Analytics, база клиентов, бот. Смотрим <b>первый источник номера</b>, а не текущую сделку. Совпадение — по номеру телефона в едином формате.</p>
+    <div class="note info"><b>Менеджер:</b> если номер клиента раньше поступил из Facebook или другого нереферального источника — бонус не начисляется.${r.needs_recon ? " Бонусы менеджеров начисляются только после сверки." : ""}<br><b>Участник:</b> ${esc(rule)}.</div>
+    <div class="grid g2" style="margin-bottom:14px">
+      ${upCard("amo_file", "Выгрузка amoCRM", "Сделки или контакты с колонками «Телефон», «Дата создания», «Источник». Excel или CSV; можно всю базу — повторы не задваиваются.")}
+      ${upCard("analytics", "Выгрузка Analytics", "Лиды с телефоном, датой и источником (utm_source / канал). Загрузите свежую выгрузку перед сверкой.")}
+    </div>
+    <div class="toolbar"><label class="small">Месяц оплаты <input type="month" id="rMonth" value="${esc(r.month)}"></label>
+      <button class="btn primary" id="rRun">Провести сверку · ${esc(r.label)}</button><span class="spacer"></span>
+      <button class="btn" id="rXls">Скачать Excel</button><button class="btn" id="rCsv">CSV</button></div>
+    <div class="grid g4" style="margin-bottom:12px">
+      <div class="card kpi"><div class="l">Оплат по программе</div><div class="v">${rows.length}</div><div class="s">от менеджеров ${cnt((x) => x.referrer_kind === "manager")}</div></div>
+      <div class="card kpi"><div class="l">Без бонуса</div><div class="v ${cnt((x) => x.recon_status === "denied") ? "red" : ""}">${cnt((x) => x.recon_status === "denied")}</div><div class="s">менеджер: клиент пришёл раньше</div></div>
+      <div class="card kpi"><div class="l">Обратить внимание</div><div class="v">${cnt((x) => x.recon_status === "flag")}</div><div class="s">клиент участника был в базе / тот же день</div></div>
+      <div class="card kpi"><div class="l">Ещё не сверены</div><div class="v">${cnt((x) => !x.recon_status)}</div><div class="s">нажмите «Провести сверку»</div></div>
+    </div>
+    <div class="tablebox"><table><thead><tr><th>#</th><th>Пригласил</th><th>Клиент</th><th>Лид · оплата</th><th>Первый источник номера</th><th>Сверка</th><th>Бонус</th></tr></thead><tbody>
+    ${rows.map((x) => `<tr class="click" data-ref="${x.id}"><td class="num">#${x.id}</td>
+      <td>${esc(x.ref_name || "—")} ${chip(KIND, x.referrer_kind)}<div class="small muted">ID ${esc(x.referrer_tg)}</div></td>
+      <td>${esc(x.friend_name || "—")}<div class="small num">${esc(phone(x.friend_phone))}</div></td>
+      <td class="small">${d0(x.created_at)}<div>${d0(x.paid_at)} · <span class="num">${money(x.payment_amount)}</span></div></td>
+      <td class="small">${x.first_verdict ? chip(FIRST, x.first_verdict) : ""} ${esc(x.first_source || "")}${x.first_seen_at ? `<div class="muted">${d0(x.first_seen_at)} · ${esc(SYSTEM[x.first_system] || x.first_system || "")}</div>` : ""}</td>
+      <td>${x.recon_status ? chip(RECON, x.recon_status) : `<span class="muted small">не проводилась</span>`}${x.recon_note ? `<div class="small muted" style="max-width:240px">${esc(x.recon_note)}</div>` : ""}</td>
+      <td>${chip(STATUS, x.status)}${x.bonus_amount ? `<div class="small num">${money(x.bonus_amount)}</div>` : ""}${x.paid_out_at ? `<div><span class="chip good">выплачено</span></div>` : ""}</td></tr>`).join("") || `<tr><td colspan="7" class="muted">За этот месяц оплат по программе нет</td></tr>`}
+    </tbody></table></div>
+    <p class="muted small">Нажмите на строку — откроется карточка лида. Для отказа менеджеру там есть «Засчитать вручную» (с причиной). Повторная сверка не меняет ручные решения.</p>
+    ${r.runs.length ? `<div class="card" style="margin-top:12px"><h3>Проведённые сверки</h3><ul class="timeline">${r.runs.map((x) => `<li><span class="muted small num">${dt(x.run_at)}</span> · за ${esc(monthName(x.month))} — ${esc(x.first_name || "")}: оплат ${x.stats?.total ?? 0}, без бонуса ${x.stats?.denied ?? 0}, внимание ${x.stats?.flag ?? 0}</li>`).join("")}</ul></div>` : ""}`;
+  $("#rMonth").onchange = (e) => { S.reconMonth = e.target.value; render(); };
+  $("#rRun").onclick = () => doAction("/recon", { action: "run", month: S.reconMonth }, async () => { await refreshCounts(); render(); });
+  $("#rXls").onclick = () => download(`/export?kind=recon&month=${S.reconMonth}`, `newton-sverka-${S.reconMonth}.xlsx`);
+  $("#rCsv").onclick = () => download(`/export?kind=recon&month=${S.reconMonth}&format=csv`, `newton-sverka-${S.reconMonth}.csv`);
+  v.querySelectorAll("tr[data-ref]").forEach((tr) => tr.onclick = () => openRef(tr.dataset.ref));
+  v.querySelectorAll("[data-imp]").forEach((b) => b.onclick = async () => {
+    const kind = b.dataset.imp, f = v.querySelector(`[data-file="${kind}"]`).files[0];
+    if (!f) return toast("Выберите файл", true);
+    b.disabled = true; b.textContent = "Загружаю…";
+    try { await doAction("/import", await fileBody(kind, f), () => render()); } catch (e) { toast(e.message, true); }
+    b.disabled = false; b.textContent = "Загрузить";
   });
 }
 
