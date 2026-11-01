@@ -83,6 +83,12 @@ th{color:var(--muted);font-weight:600;font-size:12px;white-space:nowrap;backgrou
 tr:last-child td{border-bottom:0}
 tbody tr.click{cursor:pointer}
 tbody tr.click:hover{background:var(--soft)}
+td select.tsel{padding:5px 8px;font-size:13px;min-width:124px}
+td select.tsel.yes{border-color:var(--good);color:var(--good);font-weight:600}
+td select.tsel.no-auth{border-color:var(--bad);color:var(--bad);font-weight:600}
+.payform{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.payform input{width:120px;padding:5px 8px;font-size:13px}
+.ppl td:first-child{min-width:150px}.ppl td:nth-child(5){min-width:150px}
 .num{font-variant-numeric:tabular-nums;white-space:nowrap}
 .muted{color:var(--muted)}.small{font-size:12px}
 .chip{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap;background:var(--soft);color:var(--muted)}
@@ -296,22 +302,24 @@ $("#logoutBtn").addEventListener("click", async () => { try { await api("/auth/l
 
 // ---------- shell ----------
 const NAV = [
-  ["Работа", [["dash", "Обзор"], ["refs", "Лиды"], ["verify", "Проверка звонком", "verify_queue"], ["requests", "Заявки", "requests"],
-    ["payouts", "Реферальные выплаты", "payouts_open"], ["recon", "Сверка", "recon_waiting"]]],
-  ["Люди", [["members", "Участники клуба"], ["users", "Все пользователи"], ["managers", "Менеджеры"]]],
+  ["Работа", [["dash", "Обзор"], ["people", "Пользователи и заявки", "people_todo"]]],
+  ["Люди", [["members", "Участники клуба"]]],
   ["Коммуникации", [["broadcasts", "Рассылки", "broadcasts_sending"], ["texts", "Тексты бота"]]],
   ["Управление", [["protection", "Защита и базы"], ["settings", "Настройки"], ["access", "Админы и доступ"], ["system", "Система"], ["log", "Журнал"]]],
 ];
 const TABS = NAV.flatMap(([, items]) => items);
 function renderTabs() {
   $("#tabs").innerHTML = NAV.map(([g, items]) => `<div class="gl">${esc(g)}</div>` + items.map(([k, t, c]) => {
-    const n = c === "requests" ? (S.counts.join_requests || 0) + (S.counts.pay_reports || 0) : (c ? S.counts[c] || 0 : 0);
+    const n = c === "people_todo" ? (S.counts.auth_queue || 0) + (S.counts.payouts_open || 0) + (S.counts.join_requests || 0) : (c ? S.counts[c] || 0 : 0);
     return `<button data-tab="${k}" class="${S.tab === k ? "on" : ""}">${esc(t)}${n ? `<span class="badge">${n}</span>` : ""}</button>`;
   }).join("")).join("");
   const on = $("#tabs button.on"); if (on && window.innerWidth < 960) on.scrollIntoView({ block: "nearest", inline: "nearest" });
 }
 $("#tabs").addEventListener("click", (e) => { const b = e.target.closest("button[data-tab]"); if (b) go(b.dataset.tab); });
+// sections that were merged into «Пользователи и заявки» or removed
+const OLD_TAB = { refs: "people", verify: "people", requests: "people", users: "people", payouts: "people", recon: "dash", managers: "dash" };
 function go(tab, opts) {
+  tab = OLD_TAB[tab] || tab;
   S.tab = tab; store.set("nlc_tab", tab);
   if (opts && opts.status !== undefined) S.refFilter.status = opts.status;
   renderTabs(); closeDrawer(); render();
@@ -324,7 +332,7 @@ function render() {
   v.innerHTML = `<div class="loading">Загрузка…</div>`;
   S.bcLoop = false;
   ({ dash: viewDash, refs: viewRefs, verify: viewVerify, requests: viewRequests, members: viewMembers, managers: viewManagers,
-     users: viewUsers, broadcasts: viewBroadcasts, texts: viewTexts, access: viewAccess, system: viewSystem,
+     users: viewUsers, people: viewPeople, broadcasts: viewBroadcasts, texts: viewTexts, access: viewAccess, system: viewSystem,
      protection: viewProtection, settings: viewSettings, log: viewLog, payouts: viewPayouts, recon: viewRecon }[S.tab] || viewDash)(v).catch((e) => { v.innerHTML = `<div class="note">${esc(e.message)}</div>`; });
 }
 
@@ -334,19 +342,12 @@ async function viewDash(v) {
   const k = r.kpi;
   const conv = k.leads_all ? Math.round(k.paid_all / k.leads_all * 100) : 0;
   const alerts = [
-    ["pay_reports", "Подтвердить оплаты", "менеджеры сообщили об оплате", "requests"],
-    ["verify_queue", "Проверка звонком", "позвонить другу перед начислением", "verify"],
-    ["reviews", "Бонусы на проверке", "сработали защитные флаги", "refs:review"],
-    ["join_requests", "Запросы на вступление", "номера нет в списке учеников", "requests"],
-    ["payouts_open", "Ждут выплаты", "карта указана — переведите и нажмите «Выплачено»", "payouts"],
-    ["payouts_card", "Ждут реквизитов", "участник ещё не указал карту — можно напомнить", "payouts"],
-    ["recon_waiting", "Бонусы менеджеров ждут сверки", "загрузите выгрузки и проведите сверку", "recon"],
-    ["not_accepted", "Лиды не приняты", "менеджер ещё не нажал «Принял»", "refs:open"],
-    ["manager_flags_30", "Менеджер: «уже был у нас»", "за 30 дней — проверьте пригласивших", "refs:flagged"],
+    ["auth_queue", "Подтвердить подлинность", "клиент оплатил — подтвердите рекомендацию, и бонус начислится", "people:to_verify"],
+    ["payouts_open", "Выплатить бонус", "карта указана — переведите и нажмите «Выплачено»", "people:to_pay"],
+    ["payouts_card", "Ждут карту промоутера", "бонус заработан, карта ещё не указана — можно напомнить", "people:to_card"],
+    ["join_requests", "Ждут подтверждения участия", "номера нет в списке учеников", "people:join"],
   ];
   const warn = [];
-  if (!k.managers) warn.push(`Ни один менеджер не подключён — лиды идут в группу продаж без очереди. Раздел «Менеджеры» → код подключения.`);
-  else if (!k.managers_on) warn.push(`Сейчас нет менеджеров «на смене» — новые лиды не назначаются.`);
   const baseAge = k.base_updated_at ? Math.floor((Date.now() - new Date(k.base_updated_at)) / 864e5) : null;
   if (!S.crm && (baseAge === null || baseAge > 7)) warn.push(baseAge === null
     ? `База клиентов из CRM не загружена. Без неё бот не узнает рекламных лидов — загрузите выгрузку в «Защита и базы».`
@@ -356,7 +357,7 @@ async function viewDash(v) {
   v.innerHTML = `
     <h2>Обзор</h2>
     ${warn.map((w) => `<div class="note">${esc(w)}</div>`).join("")}
-    <div class="grid g3" style="margin-bottom:14px">
+    <div class="grid g4" style="margin-bottom:14px">
       ${alerts.map(([key, t, d, to]) => `<button class="alert ${k[key] ? "hot" : ""}" data-go="${to}">
         <span class="n">${k[key] || 0}</span><span><div class="t">${t}</div><div class="d">${d}</div></span></button>`).join("")}
     </div>
@@ -365,17 +366,16 @@ async function viewDash(v) {
       <div class="card kpi"><div class="l">Друзья за 30 дней</div><div class="v">${k.friends_30}</div><div class="s">новые лиды ${k.leads_30} · уже в базе ${k.dups_30}</div></div>
       <div class="card kpi"><div class="l">Оплатили за 30 дней</div><div class="v">${k.paid_30}</div><div class="s">${money(k.paid_sum_30)} сум</div></div>
       <div class="card kpi"><div class="l">Конверсия лид → оплата</div><div class="v">${conv}%</div><div class="s">${k.paid_all} из ${k.leads_all} за всё время</div></div>
-      <div class="card kpi"><div class="l">Бонусы в холде</div><div class="v num">${money(k.hold_sum)}</div><div class="s">ждут 30 дней и звонка</div></div>
+      <div class="card kpi"><div class="l">Бонусы ждут подтверждения</div><div class="v num">${money(k.hold_sum)}</div><div class="s">клиент оплатил, подлинность ещё не подтверждена</div></div>
       <div class="card kpi"><div class="l">Начислено бонусов</div><div class="v num">${money(k.accrued)}</div><div class="s">выплачено ${money(k.paid_out)}${k.redeemed ? ` · в оплату ${money(k.redeemed)}` : ""} · на балансах ${money(k.balances)}</div></div>
-      <div class="card kpi"><div class="l">Открытые лиды</div><div class="v">${k.open_leads}</div><div class="s">не приняты: ${k.not_accepted}</div></div>
-      <div class="card kpi"><div class="l">Менеджеры на смене</div><div class="v">${k.managers_on}<span class="muted" style="font-size:15px"> / ${k.managers}</span></div><div class="s">своих клиентов за 30 дней: ${k.manager_refs_30 || 0}</div></div>
+      <div class="card kpi"><div class="l">Рекомендации ждут оплаты</div><div class="v">${k.open_leads}</div><div class="s">подлинность не проверена: ${k.auth_open || 0}</div></div>
     </div>
     <div class="grid g4" style="margin-bottom:14px">
-      <button class="card kpi alert" data-go="users" style="display:block"><div class="l">Пользователи бота</div><div class="v">${k.users_total || 0}</div><div class="s">зарегистрированы: ${k.registered || 0} · за 7 дней +${k.registered_7 || 0}</div></button>
-      <button class="card kpi alert" data-go="users:parent" style="display:block"><div class="l">Родители</div><div class="v">${k.parents || 0}</div><div class="s">диагностика: ${k.svc_diagnostic || 0} · профтест: ${k.svc_career || 0}</div></button>
-      <button class="card kpi alert" data-go="users:student" style="display:block"><div class="l">Ученики</div><div class="v">${k.students || 0}</div><div class="s">рассказали родителям: ${k.told_yes || 0} · пока нет: ${k.told_not_yet || 0}</div></button>
-      <button class="card kpi alert" data-go="users:unfinished" style="display:block"><div class="l">Не завершили анкету</div><div class="v">${k.unfinished || 0}</div><div class="s">пришли по ссылке: ${k.by_link || 0}</div></button>
-      <button class="card kpi alert" data-go="users:bot_blocked" style="display:block"><div class="l">Остановили бота</div><div class="v">${k.bot_blocked || 0}</div><div class="s">рассылки им не приходят</div></button>
+      <button class="card kpi alert" data-go="people" style="display:block"><div class="l">Пользователи бота</div><div class="v">${k.users_total || 0}</div><div class="s">зарегистрированы: ${k.registered || 0} · за 7 дней +${k.registered_7 || 0}</div></button>
+      <button class="card kpi alert" data-go="people:parent" style="display:block"><div class="l">Родители</div><div class="v">${k.parents || 0}</div><div class="s">диагностика: ${k.svc_diagnostic || 0} · профтест: ${k.svc_career || 0}</div></button>
+      <button class="card kpi alert" data-go="people:student" style="display:block"><div class="l">Ученики</div><div class="v">${k.students || 0}</div><div class="s">рассказали родителям: ${k.told_yes || 0} · пока нет: ${k.told_not_yet || 0}</div></button>
+      <button class="card kpi alert" data-go="people:unfinished" style="display:block"><div class="l">Не завершили анкету</div><div class="v">${k.unfinished || 0}</div><div class="s">пришли по ссылке: ${k.by_link || 0}</div></button>
+      <button class="card kpi alert" data-go="people:bot_blocked" style="display:block"><div class="l">Остановили бота</div><div class="v">${k.bot_blocked || 0}</div><div class="s">рассылки им не приходят</div></button>
       <button class="card kpi alert" data-go="broadcasts" style="display:block"><div class="l">Рассылки</div><div class="v">${k.broadcasts_sending ? "идёт" : "—"}</div><div class="s">${k.broadcasts_sending ? "отправка в процессе" : "сейчас нет активных"}</div></button>
     </div>
     <div class="grid g2">
@@ -396,7 +396,7 @@ async function viewDash(v) {
     </div>`;
   v.querySelectorAll("[data-go]").forEach((b) => b.addEventListener("click", () => {
     const [t, st] = b.dataset.go.split(":");
-    if (t === "users") { S.userF = { filter: st || "all", q: "" }; return go("users"); }
+    if (t === "people" || t === "users") { S.peopleF = { filter: st || "all", q: "" }; return go("people"); }
     go(t, st !== undefined ? { status: st } : undefined);
   }));
 }
@@ -546,7 +546,7 @@ async function openRef(id) {
         <dt>Первый источник номера</dt><dd>${x.first_verdict ? `${chip(FIRST, x.first_verdict)} ${esc(x.first_source || "")}${x.first_seen_at ? ` · ${d0(x.first_seen_at)}` : ""}${x.first_system ? ` <span class="muted small">(${esc(SYSTEM[x.first_system] || x.first_system)})</span>` : ""}` : `<span class="muted">не проверялся</span>`}</dd>
         ${x.recon_status ? `<dt>Сверка</dt><dd>${chip(RECON, x.recon_status)} ${esc(x.recon_note || "")}<div class="muted small">${dt(x.recon_at)}</div></dd>` : ""}
         ${x.sale_source ? `<dt>Продажа</dt><dd>${esc(SALE_SRC[x.sale_source] || x.sale_source)} · ${d0(x.sale_paid_on)}</dd>` : ""}
-        ${x.payout_id ? `<dt>Выплата</dt><dd>${chip(PAY_ST, x.payout_status)}${x.payout_last4 ? ` <span class="num">•••• ${esc(x.payout_last4)}</span>` : ""}${x.payout_status === "paid" ? ` · ${dt(x.payout_handled_at)}` : ""} <a href="#" data-gotab="payouts">#${esc(x.payout_id)}</a></dd>`
+        ${x.payout_id ? `<dt>Выплата</dt><dd>${chip(PAY_ST, x.payout_status)}${x.payout_last4 ? ` <span class="num">•••• ${esc(x.payout_last4)}</span>` : ""}${x.payout_status === "paid" ? ` · ${dt(x.payout_handled_at)}` : ""}</dd>`
           : x.paid_out_at ? `<dt>Выплата</dt><dd>выплачено ${dt(x.paid_out_at)} · заявка #${esc(x.payout_request_id)}</dd>` : ""}
         <dt>Менеджер</dt><dd>${esc(x.mgr_name || x.taken_by_name || "—")}${x.assigned_at ? `<div class="muted small">назначен ${dt(x.assigned_at)} · ${x.accepted_at ? "принял " + dt(x.accepted_at) : "<span class=red>не принял</span>"}${x.reassign_count ? ` · передавался ${x.reassign_count} раз` : ""}</div>` : ""}</dd>
         <dt>Создан</dt><dd>${dt(x.created_at)}</dd>
@@ -739,14 +739,10 @@ const SETTINGS = [
     ["bonus_pct", "Бонус в % от первой оплаты (если сумма выше пустая)", "num"], ["ambassador_pct", "Бонус Амбассадора в %", "num"],
     ["ambassador_threshold", "Амбассадор после N оплативших друзей за учебный год", "num"], ["hold_days", "Холд — защита от возврата оплаты, дней", "num"],
     ["ref_code_length", "Длина кода участника (символов)", "num"]]],
-  ["Менеджеры и сверка", [
-    ["manager_referrals", "Менеджеры могут приглашать клиентов по своей ссылке", "bool"],
-    ["manager_needs_recon", "Бонус менеджера — только после ежемесячной сверки", "bool"],
-    ["member_prior_rule", "Клиент участника уже был в базе раньше", "enum", [["pay", "Платить как обычно (по ТЗ)"], ["review", "Отправлять бонус на проверку"], ["block", "Не засчитывать (старое правило 180 дней)"]]]]],
   ["Защита", [
-    ["require_verification", "Проверка звонком обязательна перед начислением", "bool"], ["dedupe_days", "Номер в базе за последние N дней — не новый друг", "num"],
-    ["velocity_limit", "Больше N друзей за 30 дней у одного человека — на проверку", "num"], ["accept_sla_minutes", "Минут на «Принял» (рабочее время)", "num"],
-    ["work_hours", "Рабочее время (Ташкент)", "hours"]]],
+    ["member_prior_rule", "Клиент промоутера уже был в базе раньше", "enum", [["pay", "Платить как обычно (по ТЗ)"], ["review", "Отправлять бонус на проверку"], ["block", "Не засчитывать (старое правило 180 дней)"]]],
+    ["require_verification", "Бонус начисляется только после «Подлинность: подтверждена»", "bool"], ["dedupe_days", "Номер в базе за последние N дней — не новый друг", "num"],
+    ["velocity_limit", "Больше N друзей за 30 дней у одного человека — на проверку", "num"]]],
   ["Тексты для друга", [["friend_gift_uz", "Подарок другу (узб.)", "text"], ["friend_gift_ru", "Подарок другу (рус.)", "text"]]],
   ["Участие, заявки и выплаты", [
     ["open_membership", "«Хочу участвовать» — ссылка выдаётся сразу любому (Нет — только ученикам, остальные через подтверждение)", "bool"],
@@ -855,6 +851,134 @@ function questSummary(u) {
   if (u.service) l.push(`<span class="chip good">${SERVICE[u.service] || esc(u.service)}</span>${u.told_parents ? ` <span class="chip ${u.told_parents === "yes" ? "good" : "warn"}">${TOLD[u.told_parents]}</span>` : ""}`);
   if (u.referred_by_name) l.push(`<span class="muted">по ссылке: ${esc(u.referred_by_name)}</span>`);
   return l.join("<br>") || `<span class="muted">—</span>`;
+}
+
+// ---------- one list: users, applications, recommendations, payments, bonuses ----------
+const REF_REASON = { already_student: "уже учился в Newton", referred_before: "уже приглашали", self_referral: "свой номер", staff_referrer: "ссылка сотрудника",
+  crm_history: "уже был в базе", verify_failed: "не подтверждена", admin_rejected: "отклонена", payout_declined: "выплата отклонена", manager_prior_source: "пришёл из рекламы" };
+const LIVE_REF = ["pending_check", "lead_created", "in_progress", "hold", "review"];
+async function viewPeople(v) {
+  const f = S.peopleF || (S.peopleF = { filter: "all", q: "" });
+  v.innerHTML = `<h2>Пользователи и заявки</h2>
+    <p class="sub">Все, кто пришёл в бот. Статус: зарегистрировался или оставил заявку на диагностику / профтест. Промоутер — тот, чей рекомендованный уже оставил заявку.
+      Подлинность и оплату отмечайте прямо в строке: когда клиент по рекомендации оплатил и рекомендация подтверждена, промоутеру начисляется бонус и бот просит карту.</p>
+    <div class="chips" id="pChips"></div>
+    <div class="toolbar"><input id="pQ" type="search" placeholder="Имя, ребёнок, телефон (в т.ч. родителя), @username, кто рекомендовал" value="${esc(f.q)}" style="flex:1;min-width:200px">
+      <button class="btn" id="pSale">💳 Оплата по номеру</button></div>
+    <div id="pList"><div class="loading">Загрузка…</div></div>`;
+  let t; $("#pQ").oninput = (e) => { clearTimeout(t); t = setTimeout(() => { f.q = e.target.value.trim(); loadPeople(0); }, 350); };
+  $("#pSale").onclick = () => openSale();
+  await loadPeople(0);
+}
+function personCells(u) {
+  const name = `<a href="#" data-user="${u.tg_id}"><b>${esc(u.name || "—")}</b></a>${u.username ? ` <span class="muted small">@${esc(u.username)}</span>` : ""}
+    <div class="num small">${esc(phone(u.phone))}</div><div class="small muted">${esc(LANG[u.lang] || u.lang || "")} · ${d0(u.registered_at || u.created_at)}</div>
+    ${u.blocked ? `<span class="chip bad">заблокирован</span>` : ""}${u.bot_blocked_at ? ` <span class="chip bad">остановил бота</span>` : ""}`;
+  const quest = u.user_kind === "parent"
+    ? `Родитель<div class="small">ребёнок: <b>${esc(u.child_name || "—")}</b>${u.child_grade ? `, ${u.child_grade} кл.` : ""}</div>`
+    : u.user_kind === "student"
+    ? `Ученик${u.child_grade ? `, ${u.child_grade} кл.` : ""}${u.parent_name || u.parent_phone ? `<div class="small">родитель: ${esc(u.parent_name || "—")}${u.parent_phone ? ` · <span class="num">${esc(phone(u.parent_phone))}</span>` : ""}</div>` : ""}`
+    : `<span class="muted">—</span>`;
+  const status = !u.registered_at ? (u.is_admin || u.is_manager ? `<span class="muted">—</span>` : `<span class="chip">не завершил регистрацию</span>`)
+    : u.service === "career" ? `<span class="chip good">Заявка: профтест</span>`
+    : u.service === "diagnostic" ? `<span class="chip good">Заявка: диагностика</span>`
+    : `<span class="chip acc">Зарегистрировался</span>`;
+  const role = u.is_admin ? `<span class="chip acc">Админ</span>`
+    : u.promo_n > 0 ? `<span class="chip warn">Промоутер</span><div class="small muted">привёл с заявкой: ${u.promo_n}</div>`
+    : `<span class="chip">Клиент</span>${u.is_manager ? `<div class="small muted">менеджер</div>` : ""}`;
+  // the recommendation the person came by and its authenticity
+  let rec = `<span class="muted">—</span>`;
+  if (u.ref_id || u.referred_by) {
+    const who = u.referrer_tg || u.referred_by, whoName = u.referrer_name || u.referred_by_name || "—";
+    let auth = "";
+    if (!u.ref_id) auth = `<div class="small muted">рекомендация не оформлена</div>`;
+    else if (u.ref_status === "duplicate") auth = `<div class="small muted">без бонуса: клиент уже был в базе</div>`;
+    else if (u.ref_status === "refunded") auth = `<div class="small muted">оплата отменена</div>`;
+    else if (u.verify_status === "fail") auth = `<div><span class="chip bad">Не подтверждена</span></div>`;
+    else if (u.ref_status === "rejected") auth = `<div class="small muted">без бонуса: ${esc(REF_REASON[u.ref_reason] || u.ref_reason || "отклонена")}</div>`;
+    else if (u.ref_status === "credited" || u.paid_out_at) auth = `<div><span class="chip good">Подтверждена</span></div>`;
+    else {
+      const val = u.verify_status === "ok" ? "ok" : "";
+      auth = `<div style="margin-top:4px"><select class="tsel ${val ? "yes" : ""}" data-auth="${u.ref_id}" data-was="${val}" aria-label="Подлинность рекомендации">
+        <option value="" ${val ? "" : "selected"}>Не проверена</option><option value="ok" ${val ? "selected" : ""}>Подтверждена</option><option value="fail">Не подтверждена</option></select></div>`;
+    }
+    rec = `от <a href="#" data-user="${who}">${esc(whoName)}</a>${auth}`;
+  }
+  // the client's payment
+  const pay = !u.phone ? `<span class="muted small">нет телефона</span>`
+    : `<select class="tsel ${u.paid ? "yes" : ""}" data-pay="${u.tg_id}" data-was="${u.paid ? "yes" : "no"}" aria-label="Оплата">
+        <option value="no" ${u.paid ? "" : "selected"}>Нет</option><option value="yes" ${u.paid ? "selected" : ""}>Да</option></select>
+      ${u.paid && u.pay_amount ? `<div class="num small" style="margin-top:4px"><b>${money(u.pay_amount)}</b> сум · ${d0(u.pay_date)}</div>` : ""}
+      <div class="payform hidden" data-form="${u.tg_id}"><input type="text" inputmode="numeric" class="num" placeholder="Сумма, сум" data-amt>
+        <input type="date" data-day value="${new Date(Date.now() + 5 * 3600e3).toISOString().slice(0, 10)}"><button class="btn sm good" data-paysave="${u.tg_id}">Сохранить</button></div>`;
+  // the promoter's bonus for this client
+  let bonus = `<span class="muted">—</span>`;
+  if (u.ref_id && !["duplicate"].includes(u.ref_status)) {
+    if (u.payout_status === "awaiting_payout") bonus = `<b class="num">${money(u.bonus_amount)}</b> к выплате<div class="num small">карта •••• ${esc(u.payout_last4 || "")}</div>
+      <div class="actions" style="margin-top:4px"><button class="btn sm good" data-ppaid="${u.payout_id}" data-sum="${u.bonus_amount}" data-l4="${esc(u.payout_last4 || "")}">Выплачено</button>
+      <button class="btn sm" data-preveal="${u.payout_id}">Показать карту</button></div><div class="num small" data-card="${u.payout_id}"></div>`;
+    else if (u.payout_status === "awaiting_card") bonus = `<b class="num">${money(u.bonus_amount)}</b> заработан<div class="small muted">ждём карту промоутера</div>
+      <button class="btn sm" data-premind="${u.payout_id}" style="margin-top:4px">Напомнить</button>`;
+    else if (u.payout_status === "paid" || u.paid_out_at) bonus = `<span class="chip good">Выплачено</span><div class="num small">${money(u.bonus_amount)}</div>`;
+    else if (u.payout_status === "declined") bonus = `<span class="chip bad">Выплата отклонена</span>`;
+    else if (["hold", "review"].includes(u.ref_status)) bonus = `<b class="num">${money(u.bonus_amount)}</b><div class="small muted">${u.verify_status === "ok" ? "начисляется…" : "ждёт подтверждения подлинности"}</div>`;
+    else if (["pending_check", "lead_created", "in_progress", "lost"].includes(u.ref_status)) bonus = `<span class="small muted">после оплаты</span>`;
+    else if (u.ref_status === "rejected" || u.ref_status === "refunded") bonus = `<span class="small muted">нет</span>`;
+  }
+  return `<td>${name}</td><td class="small">${quest}</td><td>${status}</td><td>${role}</td><td class="small">${rec}</td><td>${pay}</td><td class="small">${bonus}</td>`;
+}
+async function loadPeople(offset) {
+  const f = S.peopleF;
+  const r = await api("/people?" + new URLSearchParams({ filter: f.filter, q: f.q, offset, limit: 50 }));
+  const chips = $("#pChips"); if (!chips) return;
+  chips.innerHTML = Object.entries(r.filters).map(([k, label]) => `<button data-f="${k}" class="${f.filter === k ? "on" : ""}">${esc(label)}<span class="c">${r.counts[k] ?? 0}</span></button>`).join("");
+  chips.querySelectorAll("[data-f]").forEach((b) => b.onclick = () => { f.filter = b.dataset.f; loadPeople(0); });
+  const rows = r.rows.map((u) => `<tr data-tg="${u.tg_id}">${personCells(u)}</tr>`).join("");
+  const box = $("#pList");
+  if (offset === 0) {
+    box.innerHTML = `<div class="tablebox"><table class="ppl"><thead><tr><th>Пользователь</th><th>Анкета</th><th>Статус</th><th>Кто</th><th>Рекомендация · подлинность</th><th>Оплата</th><th>Бонус промоутеру</th></tr></thead>
+      <tbody>${rows || `<tr><td colspan="7" class="muted">Никого не найдено</td></tr>`}</tbody></table></div>
+      <div class="toolbar" style="margin-top:10px" id="pFoot"></div>`;
+  } else box.querySelector("tbody").insertAdjacentHTML("beforeend", rows);
+  const more = offset + r.rows.length < r.total ? `<button class="btn sm" id="moreP">Показать ещё</button>` : "";
+  $("#pFoot").innerHTML = `<span class="muted small">Показано ${Math.min(offset + r.rows.length, r.total)} из ${r.total}</span> ${more}`;
+  const m = $("#moreP"); if (m) m.onclick = () => loadPeople(offset + 50);
+  bindPeople(box);
+}
+function bindPeople(box) {
+  const reload = async () => { await loadPeople(0); refreshCounts(); };
+  box.querySelectorAll("[data-user]").forEach((a) => a.onclick = (e) => { e.preventDefault(); openUser(a.dataset.user); });
+  box.querySelectorAll("select[data-auth]").forEach((sel) => sel.onchange = async () => {
+    const v = sel.value;
+    if (v === "fail" && !confirm("Рекомендация не подлинная? Бонус не будет начислен, промоутер получит сообщение. Отменить это нельзя.")) { sel.value = sel.dataset.was; return; }
+    await doAction("/people", { action: "auth", ref: Number(sel.dataset.auth), value: v || "reset" }, reload);
+    if (sel.isConnected) sel.value = sel.dataset.was;
+  });
+  box.querySelectorAll("select[data-pay]").forEach((sel) => sel.onchange = async () => {
+    const tg = sel.dataset.pay, form = box.querySelector(`[data-form="${tg}"]`);
+    if (sel.value === "yes" && sel.dataset.was === "no") { form.classList.remove("hidden"); form.querySelector("[data-amt]").focus(); return; }
+    if (sel.value === "no" && sel.dataset.was === "no") { form.classList.add("hidden"); return; }
+    if (sel.value === "no") {
+      if (!confirm("Отменить оплату? Если бонус промоутеру уже начислен, он тоже отменится.")) { sel.value = "yes"; return; }
+      await doAction("/people", { action: "unpay", tg: Number(tg) }, reload);
+      if (sel.isConnected) sel.value = sel.dataset.was;
+    }
+  });
+  box.querySelectorAll("[data-paysave]").forEach((b) => b.onclick = () => {
+    const form = b.closest(".payform");
+    const amount = form.querySelector("[data-amt]").value.replace(/\D/g, ""), day = form.querySelector("[data-day]").value;
+    if (!amount) return toast("Введите сумму оплаты", true);
+    doAction("/people", { action: "pay", tg: Number(b.dataset.paysave), amount, paid_on: day }, reload);
+  });
+  box.querySelectorAll("[data-ppaid]").forEach((b) => b.onclick = () => {
+    if (!confirm(`Перевели ${money(b.dataset.sum)} сум на карту •••• ${b.dataset.l4}? Промоутер получит сообщение о выплате.`)) return;
+    doAction("/payouts", { action: "paid", id: Number(b.dataset.ppaid) }, reload);
+  });
+  box.querySelectorAll("[data-premind]").forEach((b) => b.onclick = () => doAction("/payouts", { action: "remind", id: Number(b.dataset.premind) }));
+  box.querySelectorAll("[data-preveal]").forEach((b) => b.onclick = async () => {
+    try { const r = await api("/payouts", { action: "reveal", id: Number(b.dataset.preveal) }); const c = box.querySelector(`[data-card="${b.dataset.preveal}"]`); if (c) c.textContent = r.card || ""; }
+    catch (e) { toast(e.message, true); }
+  });
 }
 
 // ---------- all users ----------
@@ -968,7 +1092,7 @@ async function openUser(tg) {
   $("#drawer [data-close]").onclick = closeDrawer;
   $("#drawer").querySelectorAll("[data-ref]").forEach((a) => a.onclick = (e) => { e.preventDefault(); openRef(a.dataset.ref); });
   $("#drawer").querySelectorAll("[data-user]").forEach((a) => a.onclick = (e) => { e.preventDefault(); openUser(a.dataset.user); });
-  const after = async () => { await openUser(tg); if (S.tab === "users") loadUsers(0); if (S.tab === "members") loadMembers(); refreshCounts(); };
+  const after = async () => { await openUser(tg); if (S.tab === "users") loadUsers(0); if (S.tab === "people") loadPeople(0); if (S.tab === "members") loadMembers(); refreshCounts(); };
   const U = (body) => doAction("/user", { tg: Number(tg), ...body }, after);
   $("#uLang").onchange = (e) => U({ action: "set_lang", lang: e.target.value });
   const CONFIRM = {
@@ -1302,14 +1426,14 @@ async function openSale() {
       const r = await api("/sales", body);
       $("#slRes").innerHTML = `<div class="note ${r.result === "linked" ? "info" : ""}">${esc(r.msg)}</div>`;
       toast(r.result === "linked" ? "Продажа связана с рекомендацией" : "Продажа записана");
-      await refreshCounts(); await loadList(); if (S.tab === "refs") loadRefs(0);
+      await refreshCounts(); await loadList(); if (S.tab === "people") loadPeople(0);
     } catch (e) { $("#slRes").innerHTML = `<div class="note">${esc(e.message)}</div>`; }
     $("#slGo").disabled = false;
   };
   $("#slUp").onclick = async () => {
     const f = $("#slFile").files[0];
     if (!f) return toast("Выберите файл", true);
-    try { await doAction("/import", await fileBody("sales", f), async () => { await loadList(); if (S.tab === "refs") loadRefs(0); }); } catch (e) { toast(e.message, true); }
+    try { await doAction("/import", await fileBody("sales", f), async () => { await loadList(); if (S.tab === "people") loadPeople(0); }); } catch (e) { toast(e.message, true); }
   };
   await loadList();
 }
@@ -1389,6 +1513,7 @@ async function boot() {
     $("#app").classList.remove("hidden");
     if (TG) { try { TG.ready(); TG.expand(); } catch {} }
     S.tab = store.get("nlc_tab") || "dash";
+    S.tab = OLD_TAB[S.tab] || S.tab;
     if (!TABS.some(([k]) => k === S.tab)) S.tab = "dash";
     renderTabs();
     render();
