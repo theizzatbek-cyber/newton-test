@@ -88,7 +88,55 @@ td select.tsel.yes{border-color:var(--good);color:var(--good);font-weight:600}
 td select.tsel.no-auth{border-color:var(--bad);color:var(--bad);font-weight:600}
 .payform{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
 .payform input{width:120px;padding:5px 8px;font-size:13px}
-.ppl td:first-child{min-width:150px}.ppl td:nth-child(5){min-width:150px}
+.phead{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.phead h2{margin:0}
+.live{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+.live i{width:8px;height:8px;border-radius:50%;background:var(--good);box-shadow:0 0 0 3px var(--good-soft);animation:livepulse 2s infinite}
+.live.off i{background:var(--bad);box-shadow:0 0 0 3px var(--bad-soft);animation:none}
+@keyframes livepulse{50%{opacity:.35}}
+.ptabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-bottom:12px}
+.ptabs button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;border:1px solid var(--line);background:var(--card);border-radius:var(--radius);padding:10px 12px;cursor:pointer;color:var(--text)}
+.ptabs button .n{font-size:22px;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums}
+.ptabs button .t{font-size:13px;color:var(--muted);font-weight:600}
+.ptabs button:hover{border-color:var(--accent)}
+.ptabs button.hot{border-color:var(--warn);background:var(--warn-soft)}
+.ptabs button.hot .n{color:var(--warn)}
+.ptabs button.on{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);background:var(--accent-soft)}
+.ptabs button.on .t{color:var(--accent)}
+.ptools input[type=search]{flex:1;min-width:220px}
+.ptools select.on{border-color:var(--accent);color:var(--accent);font-weight:600}
+.phint{font-size:13px;color:var(--muted);margin:-4px 0 10px}
+.ppl .pc{min-width:190px}.ppl td:nth-child(4){min-width:150px}
+.ppl .pname{font-weight:700;font-size:14px}
+.ppl tr.todo-row td:first-child{box-shadow:inset 3px 0 0 var(--warn)}
+.ppl .todo{margin-top:6px;font-size:12px;font-weight:600;color:var(--warn)}
+.ppl tr.fresh td{animation:freshrow 2.5s ease-out}
+@keyframes freshrow{0%{background:var(--accent-soft)}100%{background:transparent}}
+.ppl td .actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.ppl td select.tsel{margin-top:4px}
+.pempty{padding:24px 12px!important;text-align:center}
+.pfoot{margin-top:10px}
+details.howto{margin-top:14px;font-size:13px;color:var(--muted)}
+details.howto summary{cursor:pointer;font-weight:600;color:var(--text)}
+details.howto ol{margin:8px 0;padding-left:20px}details.howto li{margin:3px 0}
+@media (max-width:900px){.ptabs{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:760px){
+  .ptabs{display:flex;overflow-x:auto;scrollbar-width:none;margin:0 -16px 12px;padding:0 16px}
+  .ptabs button{flex:0 0 auto;min-width:118px}
+  .ptools select,.ptools .btn{flex:1 1 45%}
+  .ppl thead{display:none}
+  .ppl,.ppl tbody,.ppl tr,.ppl td{display:block;width:100%}
+  .ppl tr{border-bottom:1px solid var(--line);padding:8px 0}
+  .ppl tr:last-child{border-bottom:0}
+  .ppl td{border:0;padding:5px 14px;display:grid;grid-template-columns:118px minmax(0,1fr);gap:8px;min-width:0!important}
+  .ppl td::before{content:attr(data-l);color:var(--muted);font-size:12px;font-weight:600;padding-top:2px}
+  .ppl td.pc{display:block;padding-top:8px}
+  .ppl td.pc::before{display:none}
+  .ppl tr.todo-row{box-shadow:inset 3px 0 0 var(--warn)}
+  .ppl tr.todo-row td:first-child{box-shadow:none}
+  .ppl .pempty{display:block}
+  .ppl .pempty::before{display:none}
+}
 .num{font-variant-numeric:tabular-nums;white-space:nowrap}
 .muted{color:var(--muted)}.small{font-size:12px}
 .chip{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap;background:var(--soft);color:var(--muted)}
@@ -310,7 +358,7 @@ const NAV = [
 const TABS = NAV.flatMap(([, items]) => items);
 function renderTabs() {
   $("#tabs").innerHTML = NAV.map(([g, items]) => `<div class="gl">${esc(g)}</div>` + items.map(([k, t, c]) => {
-    const n = c === "people_todo" ? (S.counts.auth_queue || 0) + (S.counts.payouts_open || 0) + (S.counts.join_requests || 0) : (c ? S.counts[c] || 0 : 0);
+    const n = c === "people_todo" ? (S.counts.people_todo ?? (S.counts.auth_queue || 0) + (S.counts.payouts_open || 0) + (S.counts.join_requests || 0)) : (c ? S.counts[c] || 0 : 0);
     return `<button data-tab="${k}" class="${S.tab === k ? "on" : ""}">${esc(t)}${n ? `<span class="badge">${n}</span>` : ""}</button>`;
   }).join("")).join("");
   const on = $("#tabs button.on"); if (on && window.innerWidth < 960) on.scrollIntoView({ block: "nearest", inline: "nearest" });
@@ -330,7 +378,7 @@ async function refreshCounts() {
 function render() {
   const v = $("#view");
   v.innerHTML = `<div class="loading">Загрузка…</div>`;
-  S.bcLoop = false;
+  S.bcLoop = false; clearInterval(S.pplTimer); S.pplHold = 0;
   ({ dash: viewDash, refs: viewRefs, verify: viewVerify, requests: viewRequests, members: viewMembers, managers: viewManagers,
      users: viewUsers, people: viewPeople, broadcasts: viewBroadcasts, texts: viewTexts, access: viewAccess, system: viewSystem,
      protection: viewProtection, settings: viewSettings, log: viewLog, payouts: viewPayouts, recon: viewRecon }[S.tab] || viewDash)(v).catch((e) => { v.innerHTML = `<div class="note">${esc(e.message)}</div>`; });
@@ -342,7 +390,7 @@ async function viewDash(v) {
   const k = r.kpi;
   const conv = k.leads_all ? Math.round(k.paid_all / k.leads_all * 100) : 0;
   const alerts = [
-    ["auth_queue", "Подтвердить подлинность", "клиент оплатил — подтвердите рекомендацию, и бонус начислится", "people:to_verify"],
+    ["auth_queue", "Подтвердить подлинность", "клиент оплатил — подтвердите рекомендацию, и бонус начислится", "people:todo"],
     ["payouts_open", "Выплатить бонус", "карта указана — переведите и нажмите «Выплачено»", "people:to_pay"],
     ["payouts_card", "Ждут карту промоутера", "бонус заработан, карта ещё не указана — можно напомнить", "people:to_card"],
     ["join_requests", "Ждут подтверждения участия", "номера нет в списке учеников", "people:join"],
@@ -743,7 +791,6 @@ const SETTINGS = [
     ["member_prior_rule", "Клиент промоутера уже был в базе раньше", "enum", [["pay", "Платить как обычно (по ТЗ)"], ["review", "Отправлять бонус на проверку"], ["block", "Не засчитывать (старое правило 180 дней)"]]],
     ["require_verification", "Бонус начисляется только после «Подлинность: подтверждена»", "bool"], ["dedupe_days", "Номер в базе за последние N дней — не новый друг", "num"],
     ["velocity_limit", "Больше N друзей за 30 дней у одного человека — на проверку", "num"]]],
-  ["Тексты для друга", [["friend_gift_uz", "Подарок другу (узб.)", "text"], ["friend_gift_ru", "Подарок другу (рус.)", "text"]]],
   ["Участие, заявки и выплаты", [
     ["open_membership", "«Хочу участвовать» — ссылка выдаётся сразу любому (Нет — только ученикам, остальные через подтверждение)", "bool"],
     ["hold_applies_to", "Холд", "enum", [["payout", "Бонус заработан сразу после проверок, холд — «выплачивать не раньше»"], ["credit", "Бонус начисляется только после холда (старое правило)"]]]]],
@@ -856,102 +903,197 @@ function questSummary(u) {
 // ---------- one list: users, applications, recommendations, payments, bonuses ----------
 const REF_REASON = { already_student: "уже учился в Newton", referred_before: "уже приглашали", self_referral: "свой номер", staff_referrer: "ссылка сотрудника",
   crm_history: "уже был в базе", verify_failed: "не подтверждена", admin_rejected: "отклонена", payout_declined: "выплата отклонена", manager_prior_source: "пришёл из рекламы" };
-const LIVE_REF = ["pending_check", "lead_created", "in_progress", "hold", "review"];
+// the five main tabs; every other filter is in «Другие фильтры»
+const PPL_TABS = ["all", "todo", "applied", "by_link", "paid"];
+const PPL_HINT = {
+  all: "Все, кто пришёл в бот. Новые появляются сверху сами — список обновляется каждые 3 секунды.",
+  todo: "Здесь то, что ждёт Вас: клиент оплатил по рекомендации — подтвердите подлинность; промоутер указал карту — переведите бонус и нажмите «Выплачено».",
+  applied: "Оставили заявку: диагностика знаний (1–8 класс) или профориентационный тест (9–11 класс). Свяжитесь с ними.",
+  by_link: "Пришли по ссылке промоутера. Проверьте подлинность рекомендации в колонке «Рекомендация».",
+  paid: "Клиенты с отмеченной оплатой. Отметить оплату — в колонке «Оплата» (Да → сумма и дата) или кнопкой «💳 Оплата по номеру».",
+};
 async function viewPeople(v) {
   const f = S.peopleF || (S.peopleF = { filter: "all", q: "" });
-  v.innerHTML = `<h2>Пользователи и заявки</h2>
-    <p class="sub">Все, кто пришёл в бот. Статус: зарегистрировался или оставил заявку на диагностику / профтест. Промоутер — тот, чей рекомендованный уже оставил заявку.
-      Подлинность и оплату отмечайте прямо в строке: когда клиент по рекомендации оплатил и рекомендация подтверждена, промоутеру начисляется бонус и бот просит карту.</p>
-    <div class="chips" id="pChips"></div>
-    <div class="toolbar"><input id="pQ" type="search" placeholder="Имя, ребёнок, телефон (в т.ч. родителя), @username, кто рекомендовал" value="${esc(f.q)}" style="flex:1;min-width:200px">
-      <button class="btn" id="pSale">💳 Оплата по номеру</button></div>
-    <div id="pList"><div class="loading">Загрузка…</div></div>`;
-  let t; $("#pQ").oninput = (e) => { clearTimeout(t); t = setTimeout(() => { f.q = e.target.value.trim(); loadPeople(0); }, 350); };
+  f.shown = 50; f.sig = "";
+  v.innerHTML = `<div class="phead"><h2>Пользователи и заявки</h2><span class="live" id="pLive" title="Список обновляется каждые 3 секунды"><i></i><span>Обновляется автоматически</span></span></div>
+    <div class="ptabs" id="pTabs" role="tablist"></div>
+    <div class="toolbar ptools">
+      <input id="pQ" type="search" placeholder="Поиск: имя, телефон, ребёнок, @username" value="${esc(f.q)}" aria-label="Поиск">
+      <select id="pMore" aria-label="Другие фильтры"><option value="">Другие фильтры…</option></select>
+      <button class="btn" id="pSale">💳 Оплата по номеру</button>
+    </div>
+    <div class="phint" id="pHint"></div>
+    <div id="pList"><div class="loading">Загрузка…</div></div>
+    <details class="howto"><summary>Как работать со списком</summary>
+      <ol>
+        <li><b>Статус</b> — что сделал человек: только зарегистрировался или оставил заявку на диагностику / профтест.</li>
+        <li><b>Кто</b> — Клиент, Промоутер (его рекомендованный уже оставил заявку) или Админ.</li>
+        <li><b>Рекомендация</b> — от кого пришёл клиент. Позвоните и выберите «Подтверждена» или «Не подтверждена».</li>
+        <li><b>Оплата</b> — выберите «Да», укажите сумму и дату. Если рекомендация подтверждена, промоутер сразу получает бонус, и бот просит у него карту.</li>
+        <li><b>Бонус промоутеру</b> — когда карта указана, переведите деньги и нажмите «Выплачено». Промоутер получит сообщение.</li>
+      </ol>
+      Строки с жёлтой полосой слева ждут Вашего действия — все они собраны во вкладке «Требуют действия».
+    </details>`;
+  let t; $("#pQ").oninput = (e) => { clearTimeout(t); t = setTimeout(() => { f.q = e.target.value.trim(); f.shown = 50; pplLoad(); }, 350); };
+  $("#pMore").onchange = (e) => { f.filter = e.target.value || "all"; f.shown = 50; pplLoad(); };
   $("#pSale").onclick = () => openSale();
-  await loadPeople(0);
+  await loadPeople(false);
+  clearInterval(S.pplTimer);
+  S.pplTimer = setInterval(pplTick, 3000);
+}
+function pplLoad() { loadPeople(false).catch((e) => toast(e.message, true)); }
+/** The user is doing something in the list: an open dropdown, a typed amount, a focused field — don't redraw under them. */
+function pplBusy() {
+  const box = $("#pList"); if (!box) return true;
+  const a = document.activeElement;
+  if (a && box.contains(a) && /^(SELECT|INPUT|TEXTAREA)$/.test(a.tagName)) return true;
+  if (S.pplHold && Date.now() < S.pplHold) return true;
+  return !!box.querySelector(".payform:not(.hidden)") || !!box.querySelector(".tsel.changing");
+}
+function pplTick() {
+  if (S.tab !== "people" || !$("#pList") || !S.token) { clearInterval(S.pplTimer); return; }
+  if (document.visibilityState !== "visible" || pplBusy()) return;
+  loadPeople(true);
+}
+async function loadPeople(silent) {
+  const f = S.peopleF;
+  if (silent && S.pplLoading) return;
+  const seq = S.pplSeq = (S.pplSeq || 0) + 1;
+  S.pplLoading = true;
+  let r;
+  try { r = await api("/people?" + new URLSearchParams({ filter: f.filter, q: f.q, offset: 0, limit: f.shown })); }
+  catch (e) {
+    if (seq === S.pplSeq) S.pplLoading = false;
+    if (silent) { pplLive(false); return; }
+    throw e;
+  }
+  if (seq !== S.pplSeq) return; // a newer request (a click, a search) replaced this one
+  S.pplLoading = false;
+  if (!$("#pList")) return;
+  pplLive(true);
+  const sig = JSON.stringify([f.filter, f.q, r.counts, r.total, r.rows]);
+  if (silent && (sig === f.sig || pplBusy())) return;
+  f.sig = sig;
+  if (S.counts.people_todo !== r.counts.todo) { S.counts.people_todo = r.counts.todo; renderTabs(); }
+  pplFilters(r);
+  pplRows(r, silent);
+}
+function pplLive(ok) {
+  const el = $("#pLive"); if (!el) return;
+  el.classList.toggle("off", !ok);
+  el.querySelector("span").textContent = ok ? `Обновлено ${new Date().toLocaleTimeString("ru-RU")}` : "Нет связи — пробуем снова…";
+}
+function pplFilters(r) {
+  const f = S.peopleF;
+  $("#pTabs").innerHTML = PPL_TABS.map((k) => {
+    const n = r.counts[k] ?? 0;
+    return `<button role="tab" data-f="${k}" class="${f.filter === k ? "on" : ""} ${k === "todo" && n ? "hot" : ""}" aria-selected="${f.filter === k}">
+      <span class="n">${n}</span><span class="t">${esc(r.filters[k])}</span></button>`;
+  }).join("");
+  $("#pTabs").querySelectorAll("[data-f]").forEach((b) => b.onclick = () => { f.filter = b.dataset.f; f.shown = 50; pplLoad(); });
+  const more = $("#pMore");
+  if (document.activeElement !== more) {
+    more.innerHTML = `<option value="">Другие фильтры…</option>` + Object.entries(r.filters).filter(([k]) => !PPL_TABS.includes(k))
+      .map(([k, label]) => `<option value="${k}" ${f.filter === k ? "selected" : ""}>${esc(label)} — ${r.counts[k] ?? 0}</option>`).join("");
+    more.classList.toggle("on", !PPL_TABS.includes(f.filter));
+  }
+  const reset = f.q || !PPL_TABS.includes(f.filter);
+  $("#pHint").innerHTML = `${esc(PPL_HINT[f.filter] || `Фильтр: ${r.filters[f.filter] || ""}.`)}${f.q ? ` Поиск: «${esc(f.q)}».` : ""}
+    ${reset ? ` <a href="#" id="pReset">Показать всех</a>` : ""}`;
+  const rs = $("#pReset"); if (rs) rs.onclick = (e) => { e.preventDefault(); f.filter = "all"; f.q = ""; $("#pQ").value = ""; f.shown = 50; pplLoad(); };
+}
+/** What marketing has to do with this row, if anything. */
+function pplTodo(u) {
+  if (u.payout_status === "awaiting_payout") return "Переведите бонус промоутеру";
+  if (u.ref_status === "review" || (u.ref_status === "hold" && u.verify_status === "pending")) return "Клиент оплатил — подтвердите подлинность";
+  if (u.join_requested_at && u.role !== "member") return "Ждёт подтверждения участия";
+  return "";
 }
 function personCells(u) {
-  const name = `<a href="#" data-user="${u.tg_id}"><b>${esc(u.name || "—")}</b></a>${u.username ? ` <span class="muted small">@${esc(u.username)}</span>` : ""}
-    <div class="num small">${esc(phone(u.phone))}</div><div class="small muted">${esc(LANG[u.lang] || u.lang || "")} · ${d0(u.registered_at || u.created_at)}</div>
-    ${u.blocked ? `<span class="chip bad">заблокирован</span>` : ""}${u.bot_blocked_at ? ` <span class="chip bad">остановил бота</span>` : ""}`;
-  const quest = u.user_kind === "parent"
-    ? `Родитель<div class="small">ребёнок: <b>${esc(u.child_name || "—")}</b>${u.child_grade ? `, ${u.child_grade} кл.` : ""}</div>`
+  const kind = u.user_kind === "parent"
+    ? `Родитель · ребёнок: <b>${esc(u.child_name || "—")}</b>${u.child_grade ? `, ${u.child_grade} кл.` : ""}`
     : u.user_kind === "student"
-    ? `Ученик${u.child_grade ? `, ${u.child_grade} кл.` : ""}${u.parent_name || u.parent_phone ? `<div class="small">родитель: ${esc(u.parent_name || "—")}${u.parent_phone ? ` · <span class="num">${esc(phone(u.parent_phone))}</span>` : ""}</div>` : ""}`
-    : `<span class="muted">—</span>`;
-  const status = !u.registered_at ? (u.is_admin || u.is_manager ? `<span class="muted">—</span>` : `<span class="chip">не завершил регистрацию</span>`)
+    ? `Ученик${u.child_grade ? `, ${u.child_grade} кл.` : ""}${u.parent_name || u.parent_phone ? ` · родитель: ${esc(u.parent_name || "—")}${u.parent_phone ? ` <span class="num">${esc(phone(u.parent_phone))}</span>` : ""}` : ""}`
+    : "";
+  const client = `<a href="#" data-user="${u.tg_id}" class="pname">${esc(u.name || "—")}</a>${u.username ? ` <span class="muted small">@${esc(u.username)}</span>` : ""}
+    <div class="num">${esc(phone(u.phone))}</div>${kind ? `<div class="small">${kind}</div>` : ""}
+    <div class="small muted">${d0(u.registered_at || u.created_at)} · ${esc(LANG[u.lang] || u.lang || "")}${u.bot_blocked_at ? ` · <span class="chip bad">остановил бота</span>` : ""}${u.blocked ? ` · <span class="chip bad">заблокирован</span>` : ""}</div>`;
+  const todo = pplTodo(u);
+  const status = (!u.registered_at ? (u.is_admin || u.is_manager ? `<span class="muted">—</span>` : `<span class="chip">Не завершил регистрацию</span>`)
     : u.service === "career" ? `<span class="chip good">Заявка: профтест</span>`
     : u.service === "diagnostic" ? `<span class="chip good">Заявка: диагностика</span>`
-    : `<span class="chip acc">Зарегистрировался</span>`;
+    : `<span class="chip acc">Зарегистрировался</span>`) + (todo ? `<div class="todo">⚠️ ${esc(todo)}</div>` : "");
   const role = u.is_admin ? `<span class="chip acc">Админ</span>`
-    : u.promo_n > 0 ? `<span class="chip warn">Промоутер</span><div class="small muted">привёл с заявкой: ${u.promo_n}</div>`
-    : `<span class="chip">Клиент</span>${u.is_manager ? `<div class="small muted">менеджер</div>` : ""}`;
+    : u.promo_n > 0 ? `<span class="chip warn">Промоутер</span><div class="small muted">привёл: ${u.promo_n}</div>`
+    : `<span class="chip">Клиент</span>`;
   // the recommendation the person came by and its authenticity
-  let rec = `<span class="muted">—</span>`;
+  let rec = `<span class="muted small">сам пришёл</span>`;
   if (u.ref_id || u.referred_by) {
     const who = u.referrer_tg || u.referred_by, whoName = u.referrer_name || u.referred_by_name || "—";
     let auth = "";
-    if (!u.ref_id) auth = `<div class="small muted">рекомендация не оформлена</div>`;
-    else if (u.ref_status === "duplicate") auth = `<div class="small muted">без бонуса: клиент уже был в базе</div>`;
+    if (!u.ref_id) auth = `<div class="small muted">без анкеты — бонуса нет</div>`;
+    else if (u.ref_status === "duplicate") auth = `<div class="small muted">уже был в базе — без бонуса</div>`;
     else if (u.ref_status === "refunded") auth = `<div class="small muted">оплата отменена</div>`;
     else if (u.verify_status === "fail") auth = `<div><span class="chip bad">Не подтверждена</span></div>`;
     else if (u.ref_status === "rejected") auth = `<div class="small muted">без бонуса: ${esc(REF_REASON[u.ref_reason] || u.ref_reason || "отклонена")}</div>`;
     else if (u.ref_status === "credited" || u.paid_out_at) auth = `<div><span class="chip good">Подтверждена</span></div>`;
     else {
-      const val = u.verify_status === "ok" ? "ok" : "";
-      auth = `<div style="margin-top:4px"><select class="tsel ${val ? "yes" : ""}" data-auth="${u.ref_id}" data-was="${val}" aria-label="Подлинность рекомендации">
-        <option value="" ${val ? "" : "selected"}>Не проверена</option><option value="ok" ${val ? "selected" : ""}>Подтверждена</option><option value="fail">Не подтверждена</option></select></div>`;
+      // a bonus on review is decided by picking «Подтверждена»
+      const val = u.verify_status === "ok" && u.ref_status !== "review" ? "ok" : "";
+      auth = `<select class="tsel ${val ? "yes" : ""}" data-auth="${u.ref_id}" data-was="${val}" aria-label="Подлинность рекомендации">
+        <option value="" ${val ? "" : "selected"}>Не проверена</option><option value="ok" ${val ? "selected" : ""}>Подтверждена</option><option value="fail">Не подтверждена</option></select>`;
     }
-    rec = `от <a href="#" data-user="${who}">${esc(whoName)}</a>${auth}`;
+    rec = `<div class="small">от <a href="#" data-user="${who}">${esc(whoName)}</a></div>${auth}`;
   }
   // the client's payment
   const pay = !u.phone ? `<span class="muted small">нет телефона</span>`
     : `<select class="tsel ${u.paid ? "yes" : ""}" data-pay="${u.tg_id}" data-was="${u.paid ? "yes" : "no"}" aria-label="Оплата">
         <option value="no" ${u.paid ? "" : "selected"}>Нет</option><option value="yes" ${u.paid ? "selected" : ""}>Да</option></select>
-      ${u.paid && u.pay_amount ? `<div class="num small" style="margin-top:4px"><b>${money(u.pay_amount)}</b> сум · ${d0(u.pay_date)}</div>` : ""}
+      ${u.paid && u.pay_amount ? `<div class="num small"><b>${money(u.pay_amount)}</b> сум · ${d0(u.pay_date)}</div>` : ""}
       <div class="payform hidden" data-form="${u.tg_id}"><input type="text" inputmode="numeric" class="num" placeholder="Сумма, сум" data-amt>
-        <input type="date" data-day value="${new Date(Date.now() + 5 * 3600e3).toISOString().slice(0, 10)}"><button class="btn sm good" data-paysave="${u.tg_id}">Сохранить</button></div>`;
+        <input type="date" data-day value="${new Date(Date.now() + 5 * 3600e3).toISOString().slice(0, 10)}">
+        <button class="btn sm good" data-paysave="${u.tg_id}">Сохранить</button><button class="btn sm" data-paycancel="${u.tg_id}">Отмена</button></div>`;
   // the promoter's bonus for this client
   let bonus = `<span class="muted">—</span>`;
-  if (u.ref_id && !["duplicate"].includes(u.ref_status)) {
+  if (u.ref_id && u.ref_status !== "duplicate") {
     if (u.payout_status === "awaiting_payout") bonus = `<b class="num">${money(u.bonus_amount)}</b> к выплате<div class="num small">карта •••• ${esc(u.payout_last4 || "")}</div>
-      <div class="actions" style="margin-top:4px"><button class="btn sm good" data-ppaid="${u.payout_id}" data-sum="${u.bonus_amount}" data-l4="${esc(u.payout_last4 || "")}">Выплачено</button>
+      <div class="actions"><button class="btn sm good" data-ppaid="${u.payout_id}" data-sum="${u.bonus_amount}" data-l4="${esc(u.payout_last4 || "")}">Выплачено</button>
       <button class="btn sm" data-preveal="${u.payout_id}">Показать карту</button></div><div class="num small" data-card="${u.payout_id}"></div>`;
     else if (u.payout_status === "awaiting_card") bonus = `<b class="num">${money(u.bonus_amount)}</b> заработан<div class="small muted">ждём карту промоутера</div>
-      <button class="btn sm" data-premind="${u.payout_id}" style="margin-top:4px">Напомнить</button>`;
+      <button class="btn sm" data-premind="${u.payout_id}">Напомнить</button>`;
     else if (u.payout_status === "paid" || u.paid_out_at) bonus = `<span class="chip good">Выплачено</span><div class="num small">${money(u.bonus_amount)}</div>`;
     else if (u.payout_status === "declined") bonus = `<span class="chip bad">Выплата отклонена</span>`;
-    else if (["hold", "review"].includes(u.ref_status)) bonus = `<b class="num">${money(u.bonus_amount)}</b><div class="small muted">${u.verify_status === "ok" ? "начисляется…" : "ждёт подтверждения подлинности"}</div>`;
+    else if (["hold", "review"].includes(u.ref_status)) bonus = `<b class="num">${money(u.bonus_amount)}</b><div class="small muted">${u.verify_status === "ok" && u.ref_status !== "review" ? "начисляется…" : "после подтверждения подлинности"}</div>`;
     else if (["pending_check", "lead_created", "in_progress", "lost"].includes(u.ref_status)) bonus = `<span class="small muted">после оплаты</span>`;
     else if (u.ref_status === "rejected" || u.ref_status === "refunded") bonus = `<span class="small muted">нет</span>`;
   }
-  return `<td>${name}</td><td class="small">${quest}</td><td>${status}</td><td>${role}</td><td class="small">${rec}</td><td>${pay}</td><td class="small">${bonus}</td>`;
+  return `<td data-l="Клиент" class="pc">${client}</td><td data-l="Статус"><div>${status}</div></td><td data-l="Кто"><div>${role}</div></td>
+    <td data-l="Рекомендация"><div>${rec}</div></td><td data-l="Оплата"><div>${pay}</div></td><td data-l="Бонус промоутеру" class="small"><div>${bonus}</div></td>`;
 }
-async function loadPeople(offset) {
-  const f = S.peopleF;
-  const r = await api("/people?" + new URLSearchParams({ filter: f.filter, q: f.q, offset, limit: 50 }));
-  const chips = $("#pChips"); if (!chips) return;
-  chips.innerHTML = Object.entries(r.filters).map(([k, label]) => `<button data-f="${k}" class="${f.filter === k ? "on" : ""}">${esc(label)}<span class="c">${r.counts[k] ?? 0}</span></button>`).join("");
-  chips.querySelectorAll("[data-f]").forEach((b) => b.onclick = () => { f.filter = b.dataset.f; loadPeople(0); });
-  const rows = r.rows.map((u) => `<tr data-tg="${u.tg_id}">${personCells(u)}</tr>`).join("");
-  const box = $("#pList");
-  if (offset === 0) {
-    box.innerHTML = `<div class="tablebox"><table class="ppl"><thead><tr><th>Пользователь</th><th>Анкета</th><th>Статус</th><th>Кто</th><th>Рекомендация · подлинность</th><th>Оплата</th><th>Бонус промоутеру</th></tr></thead>
-      <tbody>${rows || `<tr><td colspan="7" class="muted">Никого не найдено</td></tr>`}</tbody></table></div>
-      <div class="toolbar" style="margin-top:10px" id="pFoot"></div>`;
-  } else box.querySelector("tbody").insertAdjacentHTML("beforeend", rows);
-  const more = offset + r.rows.length < r.total ? `<button class="btn sm" id="moreP">Показать ещё</button>` : "";
-  $("#pFoot").innerHTML = `<span class="muted small">Показано ${Math.min(offset + r.rows.length, r.total)} из ${r.total}</span> ${more}`;
-  const m = $("#moreP"); if (m) m.onclick = () => loadPeople(offset + 50);
+function pplRows(r, silent) {
+  const f = S.peopleF, box = $("#pList");
+  const before = new Set([...box.querySelectorAll("tbody tr[data-tg]")].map((tr) => tr.dataset.tg));
+  const rows = r.rows.map((u) => `<tr data-tg="${u.tg_id}" class="${pplTodo(u) ? "todo-row" : ""} ${silent && before.size && !before.has(String(u.tg_id)) ? "fresh" : ""}">${personCells(u)}</tr>`).join("");
+  const empty = `<tr><td colspan="6" class="muted pempty">${f.q ? "По запросу никого не найдено." : f.filter === "todo" ? "Всё сделано — действий не требуется ✅" : "Пока никого нет."}</td></tr>`;
+  if (!box.querySelector("table.ppl")) {
+    box.innerHTML = `<div class="tablebox"><table class="ppl"><thead><tr><th>Клиент</th><th>Статус</th><th>Кто</th><th>Рекомендация · подлинность</th><th>Оплата</th><th>Бонус промоутеру</th></tr></thead>
+      <tbody></tbody></table></div><div class="toolbar pfoot" id="pFoot"></div>`;
+  }
+  box.querySelector("tbody").innerHTML = rows || empty;
+  const more = r.rows.length < r.total ? `<button class="btn sm" id="moreP">Показать ещё</button>` : "";
+  $("#pFoot").innerHTML = `<span class="muted small">Показано ${r.rows.length} из ${r.total}</span> ${more}`;
+  const m = $("#moreP"); if (m) m.onclick = () => { f.shown += 50; pplLoad(); };
   bindPeople(box);
 }
 function bindPeople(box) {
-  const reload = async () => { await loadPeople(0); refreshCounts(); };
+  const reload = async () => { await loadPeople(false); refreshCounts(); };
   box.querySelectorAll("[data-user]").forEach((a) => a.onclick = (e) => { e.preventDefault(); openUser(a.dataset.user); });
   box.querySelectorAll("select[data-auth]").forEach((sel) => sel.onchange = async () => {
     const v = sel.value;
     if (v === "fail" && !confirm("Рекомендация не подлинная? Бонус не будет начислен, промоутер получит сообщение. Отменить это нельзя.")) { sel.value = sel.dataset.was; return; }
+    sel.classList.add("changing");
     await doAction("/people", { action: "auth", ref: Number(sel.dataset.auth), value: v || "reset" }, reload);
+    sel.classList.remove("changing");
     if (sel.isConnected) sel.value = sel.dataset.was;
   });
   box.querySelectorAll("select[data-pay]").forEach((sel) => sel.onchange = async () => {
@@ -960,15 +1102,23 @@ function bindPeople(box) {
     if (sel.value === "no" && sel.dataset.was === "no") { form.classList.add("hidden"); return; }
     if (sel.value === "no") {
       if (!confirm("Отменить оплату? Если бонус промоутеру уже начислен, он тоже отменится.")) { sel.value = "yes"; return; }
+      sel.classList.add("changing");
       await doAction("/people", { action: "unpay", tg: Number(tg) }, reload);
+      sel.classList.remove("changing");
       if (sel.isConnected) sel.value = sel.dataset.was;
     }
   });
-  box.querySelectorAll("[data-paysave]").forEach((b) => b.onclick = () => {
+  box.querySelectorAll("[data-paycancel]").forEach((b) => b.onclick = () => {
+    b.closest(".payform").classList.add("hidden");
+    const sel = box.querySelector(`select[data-pay="${b.dataset.paycancel}"]`); if (sel) sel.value = sel.dataset.was;
+  });
+  box.querySelectorAll("[data-paysave]").forEach((b) => b.onclick = async () => {
     const form = b.closest(".payform");
     const amount = form.querySelector("[data-amt]").value.replace(/\D/g, ""), day = form.querySelector("[data-day]").value;
     if (!amount) return toast("Введите сумму оплаты", true);
-    doAction("/people", { action: "pay", tg: Number(b.dataset.paysave), amount, paid_on: day }, reload);
+    b.disabled = true;
+    await doAction("/people", { action: "pay", tg: Number(b.dataset.paysave), amount, paid_on: day }, async () => { form.classList.add("hidden"); await reload(); });
+    b.disabled = false;
   });
   box.querySelectorAll("[data-ppaid]").forEach((b) => b.onclick = () => {
     if (!confirm(`Перевели ${money(b.dataset.sum)} сум на карту •••• ${b.dataset.l4}? Промоутер получит сообщение о выплате.`)) return;
@@ -976,8 +1126,12 @@ function bindPeople(box) {
   });
   box.querySelectorAll("[data-premind]").forEach((b) => b.onclick = () => doAction("/payouts", { action: "remind", id: Number(b.dataset.premind) }));
   box.querySelectorAll("[data-preveal]").forEach((b) => b.onclick = async () => {
-    try { const r = await api("/payouts", { action: "reveal", id: Number(b.dataset.preveal) }); const c = box.querySelector(`[data-card="${b.dataset.preveal}"]`); if (c) c.textContent = r.card || ""; }
-    catch (e) { toast(e.message, true); }
+    try {
+      const r = await api("/payouts", { action: "reveal", id: Number(b.dataset.preveal) });
+      // keep the shown card on screen for a minute: the auto-refresh waits
+      const c = box.querySelector(`[data-card="${b.dataset.preveal}"]`); if (c) c.textContent = r.card || "";
+      S.pplHold = Date.now() + 60_000;
+    } catch (e) { toast(e.message, true); }
   });
 }
 
