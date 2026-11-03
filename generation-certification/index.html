@@ -88,6 +88,27 @@ main{margin-top:-64px;padding-bottom:48px}
 @keyframes spin{to{transform:rotate(360deg)}}
 .btns2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
 .btns2 .btn{font-size:14px;height:44px;padding:0 10px}
+.seg-tall{height:46px}
+.seg-tall button{height:auto}
+.gender-hint{margin:-6px 0 14px}
+.course-field>label{display:block;font-size:13px;font-weight:600;color:var(--ink-2);margin-bottom:6px}
+.course-field>label i{color:var(--violet);font-style:normal}
+.courses{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;align-items:center}
+.courses:empty{display:none}
+.courses .lbl{font-size:12px;color:var(--muted);margin-right:2px}
+.chip{display:inline-flex;align-items:center;gap:2px;max-width:100%;border:1.5px solid var(--line);background:#fff;border-radius:999px;font-size:13px;font-weight:500;color:var(--ink-2);cursor:pointer;padding:0 4px 0 12px;height:32px;transition:border-color .15s,background .15s}
+.chip:hover{border-color:#cfcae6}
+.chip.on{border-color:var(--violet);background:var(--violet-soft);color:var(--violet)}
+.chip .t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:240px}
+.chip .x{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;color:var(--muted);font-size:15px;line-height:1}
+.chip .x:hover{background:var(--err-soft);color:var(--err)}
+.chip.add{border-style:dashed;border-color:var(--violet);color:var(--violet);padding:0 12px;font-weight:600}
+.chip.add:hover{background:var(--violet-soft)}
+.chip:focus-visible{outline:3px solid var(--lime);outline-offset:2px}
+.gpill{border:0;font:inherit;font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px;cursor:pointer;background:var(--violet-soft);color:var(--violet)}
+.gpill.f{background:#FFE8F4;color:#C2187A}
+.gpill.auto{opacity:.65}
+.gpill.none{background:var(--bg);color:var(--muted)}
 .signline{margin-top:16px;padding-top:14px;border-top:1px dashed var(--line);font-size:13px;color:var(--muted);line-height:1.7}
 .signline b{color:var(--ink-2);font-weight:600}
 .link{background:none;border:0;padding:0;color:var(--violet);font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:3px;font-size:13px}
@@ -165,7 +186,7 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:8px 0 28px}
   .hero{padding:20px 0 84px}
   .tab{padding:10px 12px;font-size:13px}
   .btns2{grid-template-columns:1fr}
-  th:nth-child(6),td:nth-child(6){display:none}
+  th:nth-child(7),td:nth-child(7){display:none}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
@@ -216,16 +237,22 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:8px 0 28px}
           <label class="field"><span><span data-i18n="name">Имя</span> <i>*</i></span>
             <input class="input" id="f-name" data-i18n-ph="phName" placeholder="Акромбек" maxlength="60"></label>
         </div>
-        <label class="field"><span data-i18n="cls">Класс</span>
-          <input class="input" id="f-cls" data-i18n-ph="phCls" placeholder="4 или 4А" maxlength="12"></label>
-        <label class="field"><span><span data-i18n="course">Курс</span> <i>*</i></span>
-          <input class="input" id="f-course" data-i18n-ph="phCourse" placeholder="Почемучка" maxlength="80" list="courses"></label>
-        <datalist id="courses">
-          <option value="Почемучка"><option value="Pochemuchka">
-          <option value="Подготовка к Президентским школам"><option value="Prezident maktablariga tayyorlov">
-          <option value="Подготовка к специализированным школам"><option value="Ixtisoslashgan maktablarga tayyorlov">
-          <option value="Олимпиадная математика"><option value="Olimpiada matematikasi">
-        </datalist>
+        <div class="row2">
+          <label class="field"><span data-i18n="cls">Класс</span>
+            <input class="input" id="f-cls" data-i18n-ph="phCls" placeholder="4 или 4А" maxlength="12"></label>
+          <div class="field"><span data-i18n="gender">Пол</span>
+            <div class="seg seg-tall" id="single-gender" role="group">
+              <button type="button" data-v="m" aria-pressed="false" data-i18n="boy">Мальчик</button>
+              <button type="button" data-v="f" aria-pressed="false" data-i18n="girl">Девочка</button>
+            </div>
+          </div>
+        </div>
+        <p class="hint gender-hint" id="gender-hint" data-i18n="genderHint">Определяется по фамилии — можно поменять</p>
+        <div class="field course-field">
+          <label for="f-course"><span data-i18n="course">Курс</span> <i>*</i></label>
+          <input class="input" id="f-course" data-i18n-ph="phCourse" placeholder="Впишите название курса" maxlength="80" autocomplete="off">
+          <div class="courses" data-input="#f-course"></div>
+        </div>
         <div class="field"><span data-i18n="certLang">Язык сертификата</span>
           <div class="seg" id="single-lang" role="group">
             <button type="button" data-v="ru" aria-pressed="true" data-i18n="langRu">Русский</button>
@@ -278,8 +305,11 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:8px 0 28px}
       <span class="step-n">3</span>
       <h2 data-i18n="step3">Проверьте и скачайте</h2>
       <div class="opts" style="margin-top:12px">
-        <label class="field" style="margin:0"><span data-i18n="defCourse">Курс, если в таблице пусто</span>
-          <input class="input" id="def-course" list="courses" maxlength="80" data-i18n-ph="phCourse" placeholder="Почемучка"></label>
+        <div class="field course-field" style="margin:0">
+          <label for="def-course" data-i18n="defCourse">Курс, если в таблице пусто</label>
+          <input class="input" id="def-course" maxlength="80" data-i18n-ph="phCourse" placeholder="Впишите название курса" autocomplete="off">
+          <div class="courses" data-input="#def-course"></div>
+        </div>
         <div class="field" style="margin:0"><span data-i18n="defLang">Язык, если в таблице пусто</span>
           <div class="seg" id="bulk-lang" role="group">
             <button type="button" data-v="ru" aria-pressed="true" data-i18n="langRu">Русский</button>
@@ -291,7 +321,7 @@ footer{color:var(--muted);font-size:12px;text-align:center;padding:8px 0 28px}
         <div>
           <div class="tbl-wrap">
             <table>
-              <thead><tr><th>№</th><th data-i18n="thSurname">Фамилия</th><th data-i18n="thName">Имя</th><th data-i18n="thCls">Класс</th><th data-i18n="thCourse">Курс</th><th data-i18n="thLang">Язык</th><th></th><th></th></tr></thead>
+              <thead><tr><th>№</th><th data-i18n="thSurname">Фамилия</th><th data-i18n="thName">Имя</th><th data-i18n="thCls">Класс</th><th data-i18n="thGender">Пол</th><th data-i18n="thCourse">Курс</th><th data-i18n="thLang">Язык</th><th></th><th></th></tr></thead>
               <tbody id="bulk-tbody"></tbody>
             </table>
           </div>

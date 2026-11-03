@@ -35,14 +35,18 @@
       heroSub: 'Введите данные ученика или загрузите Excel — получите готовые PDF в фирменном шаблоне. Без регистрации. Данные не покидают ваш браузер.',
       tabSingle: 'Один сертификат', tabBulk: 'Массово из Excel',
       surname: 'Фамилия', name: 'Имя', cls: 'Класс', course: 'Курс', certLang: 'Язык сертификата',
-      phSurname: 'Анваров', phName: 'Акромбек', phCls: '4 или 4А', phCourse: 'Почемучка',
+      phSurname: 'Анваров', phName: 'Акромбек', phCls: '4 или 4А', phCourse: 'Впишите название курса', demoCourse: 'Почемучка',
+      gender: 'Пол', boy: 'Мальчик', girl: 'Девочка', thGender: 'Пол',
+      genderHint: 'Определяется по фамилии — можно поменять',
+      myCourses: 'Мои курсы:', saveCourse: 'Сохранить в мои курсы', removeCourse: 'Удалить из списка',
+      courseSaved: 'Курс добавлен в список', gM: 'М', gF: 'Ж', gToggle: 'Нажмите, чтобы поменять пол', gAuto: 'определено по фамилии',
       generate: 'Сгенерировать сертификат', jpg: 'Картинка JPG', print: 'Печать',
       preview: 'Предпросмотр', previewHint: 'Обновляется по мере ввода',
       signature: 'Подпись', edit: 'изменить',
       settingsTitle: 'Подпись на сертификатах', sRuName: 'ФИО (русский)', sRuTitle: 'Должность (русский)',
       sUzName: 'ФИО (узбекский)', sUzTitle: 'Должность (узбекский)', save: 'Сохранить', reset: 'Вернуть по умолчанию', close: 'Закрыть',
       settingsNote: 'Сохраняется только в этом браузере.',
-      step1: 'Скачайте шаблон Excel', step1Sub: 'Колонки: Фамилия, Имя, Класс, Курс, Язык. Можно загрузить и свою таблицу с такими заголовками.',
+      step1: 'Скачайте шаблон Excel', step1Sub: 'Колонки: Фамилия, Имя, Класс, Пол (м/ж), Курс, Язык. Можно загрузить и свою таблицу с такими заголовками.',
       downloadTpl: 'Скачать шаблон .xlsx',
       step2: 'Загрузите заполненную таблицу', drop: 'Перетащите файл сюда или нажмите, чтобы выбрать', dropSub: '.xlsx или .csv',
       step3: 'Проверьте и скачайте', defCourse: 'Курс, если в таблице пусто', defLang: 'Язык, если в таблице пусто',
@@ -65,14 +69,18 @@
       heroSub: 'O‘quvchi ma’lumotlarini kiriting yoki Excel yuklang — brend shablonida tayyor PDF oling. Ro‘yxatdan o‘tish shart emas. Ma’lumotlar brauzeringizdan chiqmaydi.',
       tabSingle: 'Bitta sertifikat', tabBulk: 'Excel orqali ommaviy',
       surname: 'Familiya', name: 'Ism', cls: 'Sinf', course: 'Kurs', certLang: 'Sertifikat tili',
-      phSurname: 'Anvarov', phName: 'Akrombek', phCls: '4 yoki 4A', phCourse: 'Pochemuchka',
+      phSurname: 'Anvarov', phName: 'Akrombek', phCls: '4 yoki 4A', phCourse: 'Kurs nomini yozing', demoCourse: 'Pochemuchka',
+      gender: 'Jinsi', boy: 'O‘g‘il bola', girl: 'Qiz bola', thGender: 'Jinsi',
+      genderHint: 'Familiyadan aniqlanadi — o‘zgartirish mumkin',
+      myCourses: 'Mening kurslarim:', saveCourse: 'Kurslarimga saqlash', removeCourse: 'Ro‘yxatdan o‘chirish',
+      courseSaved: 'Kurs ro‘yxatga qo‘shildi', gM: 'O‘', gF: 'Q', gToggle: 'Jinsini o‘zgartirish uchun bosing', gAuto: 'familiyadan aniqlandi',
       generate: 'Sertifikat yaratish', jpg: 'JPG rasm', print: 'Chop etish',
       preview: 'Oldindan ko‘rish', previewHint: 'Yozganingiz sari yangilanadi',
       signature: 'Imzo', edit: 'o‘zgartirish',
       settingsTitle: 'Sertifikatdagi imzo', sRuName: 'F.I.Sh. (rus tilida)', sRuTitle: 'Lavozim (rus tilida)',
       sUzName: 'F.I.Sh. (o‘zbek tilida)', sUzTitle: 'Lavozim (o‘zbek tilida)', save: 'Saqlash', reset: 'Standartga qaytarish', close: 'Yopish',
       settingsNote: 'Faqat shu brauzerda saqlanadi.',
-      step1: 'Excel shablonini yuklab oling', step1Sub: 'Ustunlar: Familiya, Ism, Sinf, Kurs, Til. Shunday sarlavhali o‘z jadvalingizni ham yuklash mumkin.',
+      step1: 'Excel shablonini yuklab oling', step1Sub: 'Ustunlar: Familiya, Ism, Sinf, Jinsi (o‘g‘il/qiz), Kurs, Til. Shunday sarlavhali o‘z jadvalingizni ham yuklash mumkin.',
       downloadTpl: '.xlsx shablonni yuklab olish',
       step2: 'To‘ldirilgan jadvalni yuklang', drop: 'Faylni shu yerga tashlang yoki tanlash uchun bosing', dropSub: '.xlsx yoki .csv',
       step3: 'Tekshiring va yuklab oling', defCourse: 'Jadvalda bo‘sh bo‘lsa, kurs', defLang: 'Jadvalda bo‘sh bo‘lsa, til',
@@ -128,6 +136,25 @@
     return lang === 'uz' ? s + ' sinf' : s + ' класса';
   }
 
+  /* ---------- Пол: 'm' / 'f' / '' (не определён) ---------- */
+  function guessGender(surname, name) {
+    var full = (clean(surname) + ' ' + clean(name)).toLowerCase().replace(/[‘’'ʻʼ`]/g, '');
+    if (/(^|\s)(qizi|kizi|қизи|кизи)(\s|$)/.test(full)) return 'f';
+    if (/(^|\s)(ogli|ugli|ўғли|угли|огли)(\s|$)/.test(full)) return 'm';
+    var s = clean(surname).toLowerCase().replace(/[‘’'ʻʼ`]/g, '').split(/[\s-]/).pop() || '';
+    if (s.length < 3) return '';
+    if (/(ова|ева|ёва|ина|ына|ая|яя)$/.test(s) || /(ova|eva|yova|ina|aya|yaya)$/.test(s)) return 'f';
+    if (/(ов|ев|ёв|ин|ын|ий|ый|ой)$/.test(s) || /(ov|ev|yov|in|iy|yy|oy)$/.test(s)) return 'm';
+    return '';
+  }
+  function genderOf(v) {
+    var s = String(v == null ? '' : v).toLowerCase().replace(/[^a-zа-яёўқғҳ]+/g, '');
+    if (!s) return '';
+    if (/^(ж|f|дев|girl|qiz|қиз|киз|ayol|аёл|д$|q$|к$)/.test(s)) return 'f';
+    if (/^(м|m|boy|ogil|ўғил|угил|огил|erkak|эркак|o$|у$|ў$)/.test(s)) return 'm';
+    return '';
+  }
+
   /* ---------- Модель текста сертификата ---------- */
   function sign(lang) {
     var st = getSign();
@@ -148,7 +175,9 @@
         [B('«' + course + '»'), R(' kursini muvaffaqiyatli tamomladi hamda tirishqoqlik, qiziquvchanlik va bilimga intilishni namoyon etdi.')]
       ];
     } else {
-      intro = 'Настоящим подтверждается, что ученик(ца)' + (cls ? ' ' + cls : '');
+      var g = d.gender === 'm' || d.gender === 'f' ? d.gender : guessGender(d.surname, d.name);
+      var who = g === 'f' ? 'ученица' : g === 'm' ? 'ученик' : 'ученик(ца)';
+      intro = 'Настоящим подтверждается, что ' + who + (cls ? ' ' + cls : '');
       segs = [
         [R('за успешное окончание курса '), B('«' + course + '»'), R(',')],
         [R('проявленные старание, любознательность')],
@@ -338,7 +367,7 @@
     $$('[data-i18n]').forEach(function (el) { el.textContent = t(el.getAttribute('data-i18n')); });
     $$('[data-i18n-ph]').forEach(function (el) { el.placeholder = t(el.getAttribute('data-i18n-ph')); });
     $$('[data-ui-lang]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-ui-lang') === uiLang)); });
-    updateSignLine(); renderTable();
+    updateSignLine(); renderTable(); renderCourses();
   }
   function seg(groupSel) {
     var g = $(groupSel);
@@ -353,18 +382,72 @@
     clearTimeout(toast._t); toast._t = setTimeout(function () { el.className = 'toast'; }, 3800);
   }
 
+  /* ---- Мои курсы: свой список, хранится в этом браузере ---- */
+  var COURSES_KEY = 'na-cert-courses';
+  function getCourses() {
+    var raw = store(COURSES_KEY), list = null;
+    try { list = raw ? JSON.parse(raw) : null; } catch (e) { list = null; }
+    if (!Array.isArray(list)) list = ['Почемучка'];
+    return list.map(clean).filter(Boolean);
+  }
+  function setCourses(list) {
+    var seen = {}, out = [];
+    list.forEach(function (c) { c = stripQuotes(c); var k = c.toLowerCase(); if (c && !seen[k]) { seen[k] = 1; out.push(c); } });
+    store(COURSES_KEY, JSON.stringify(out.slice(0, 40)));
+    renderCourses();
+  }
+  function rememberCourse(name) {
+    var c = stripQuotes(name); if (!c) return;
+    var list = getCourses();
+    if (!list.some(function (v) { return v.toLowerCase() === c.toLowerCase(); })) setCourses(list.concat([c]));
+  }
+  function renderCourses() {
+    var list = getCourses();
+    $$('.courses[data-input]').forEach(function (box) {
+      var input = $(box.getAttribute('data-input'));
+      var cur = stripQuotes(input.value).toLowerCase();
+      var has = list.some(function (c) { return c.toLowerCase() === cur; });
+      var html = list.length ? '<span class="lbl">' + esc(t('myCourses')) + '</span>' : '';
+      html += list.map(function (c) {
+        return '<span class="chip' + (c.toLowerCase() === cur ? ' on' : '') + '" role="button" tabindex="0" data-c="' + esc(c) + '">' +
+          '<span class="t">' + esc(c) + '</span>' +
+          '<span class="x" role="button" tabindex="0" title="' + esc(t('removeCourse')) + '" aria-label="' + esc(t('removeCourse') + ': ' + c) + '">×</span></span>';
+      }).join('');
+      if (cur && !has) html += '<button type="button" class="chip add" data-add="1">＋ ' + esc(t('saveCourse')) + '</button>';
+      box.innerHTML = html;
+    });
+  }
+  function onCourseChip(e) {
+    var box = e.target.closest('.courses[data-input]'); if (!box) return;
+    var input = $(box.getAttribute('data-input'));
+    var chip = e.target.closest('.chip'); if (!chip) return;
+    e.preventDefault();
+    if (e.target.closest('.x')) {
+      var c = chip.getAttribute('data-c');
+      setCourses(getCourses().filter(function (v) { return v !== c; }));
+      return;
+    }
+    if (chip.hasAttribute('data-add')) { rememberCourse(input.value); toast(t('courseSaved'), 'ok'); return; }
+    input.value = chip.getAttribute('data-c');
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+
   /* ---- Один сертификат ---- */
   var singleLang = seg('#single-lang');
   singleLang.set(store('na-cert-lang') === 'uz' ? 'uz' : 'ru');
+  var genderManual = false;
+  function getGender() { var b = $('#single-gender button[aria-pressed="true"]'); return b ? b.getAttribute('data-v') : ''; }
+  function setGender(v) { $$('#single-gender button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-v') === v)); }); }
+  function autoGender() { if (!genderManual) setGender(guessGender($('#f-surname').value, $('#f-name').value)); }
   function singleData() {
-    return { surname: $('#f-surname').value, name: $('#f-name').value, cls: $('#f-cls').value, course: $('#f-course').value, lang: singleLang.get() };
+    return { surname: $('#f-surname').value, name: $('#f-name').value, cls: $('#f-cls').value, gender: getGender(), course: $('#f-course').value, lang: singleLang.get() };
   }
   var previewTimer;
   function schedulePreview() { clearTimeout(previewTimer); previewTimer = setTimeout(renderSinglePreview, 60); }
   async function renderSinglePreview() {
     await assetsReady;
     var d = singleData();
-    var m = buildModel({ surname: d.surname || t('phSurname'), name: d.name || (d.surname ? '' : t('phName')), cls: d.cls, course: d.course || t('phCourse'), lang: d.lang });
+    var m = buildModel({ surname: d.surname || t('phSurname'), name: d.name || (d.surname ? '' : t('phName')), cls: d.cls, gender: d.gender, course: d.course || t('demoCourse'), lang: d.lang });
     drawCanvas($('#single-canvas'), layout(m));
     $('#single-canvas').classList.toggle('is-demo', !(clean(d.surname) || clean(d.name)));
   }
@@ -379,6 +462,7 @@
       return null;
     }
     $$('.invalid').forEach(function (el) { el.classList.remove('invalid'); });
+    rememberCourse(d.course);
     return d;
   }
   function fileBase(d) {
@@ -402,11 +486,13 @@
     fio: ['фио', 'фиоученика', 'фиоребенка', 'fio', 'fish', 'ismfamiliya', 'familiyaism', 'fullname', 'ученик', 'oquvchi', 'фамилияимя', 'имяфамилия', 'фиш'],
     cls: ['класс', 'sinf', 'class', 'grade', 'синф', 'sinfi'],
     course: ['курс', 'kurs', 'course', 'программа', 'dastur', 'направление', 'kursnomi', 'названиекурса'],
-    lang: ['язык', 'til', 'lang', 'language', 'tili', 'языксертификата', 'sertifikattili']
+    lang: ['язык', 'til', 'lang', 'language', 'tili', 'языксертификата', 'sertifikattili'],
+    gender: ['пол', 'полмж', 'полученика', 'jins', 'jinsi', 'gender', 'sex', 'жинси', 'жинс']
   };
   function normHead(v) { return String(v == null ? '' : v).toLowerCase().replace(/ё/g, 'е').replace(/[^a-zа-яўқғҳ0-9]+/g, ''); }
   function headKey(v) {
     var h = normHead(v); if (!h) return null;
+    if (/^(полное|полнфио)/.test(h)) return 'fio';
     for (var k in HEAD) { if (HEAD[k].some(function (x) { return h === x || h.indexOf(x) === 0; })) return k; }
     return null;
   }
@@ -431,7 +517,7 @@
       table[i].forEach(function (c, j) { var k = headKey(c); if (k && m[k] === undefined) { m[k] = j; n++; } });
       if (n >= 2 || m.fio !== undefined) { map = m; start = i + 1; break; }
     }
-    if (!map) map = { surname: 0, name: 1, cls: 2, course: 3, lang: 4 };
+    if (!map) map = { surname: 0, name: 1, cls: 2, gender: 3, course: 4, lang: 5 };
     var g = function (r, k) { return map[k] === undefined ? '' : cellStr(r[map[k]]); };
     return table.slice(start).map(function (r) {
       var surname = g(r, 'surname'), name = g(r, 'name');
@@ -439,7 +525,7 @@
         var parts = g(r, 'fio').split(' ').filter(Boolean);
         surname = parts.shift() || ''; name = parts.join(' ');
       }
-      return { surname: surname, name: name, cls: g(r, 'cls'), course: g(r, 'course'), lang: langOf(g(r, 'lang')) };
+      return { surname: surname, name: name, cls: g(r, 'cls'), course: g(r, 'course'), lang: langOf(g(r, 'lang')), gender: genderOf(g(r, 'gender')) };
     });
   }
   function parseCSV(text) {
@@ -483,7 +569,13 @@
     return p;
   }
   function rowData(r) {
-    return { surname: r.surname, name: r.name, cls: r.cls, course: clean(r.course) || clean($('#def-course').value), lang: r.lang || bulkLang.get() };
+    return { surname: r.surname, name: r.name, cls: r.cls, gender: r.gender || '', course: clean(r.course) || clean($('#def-course').value), lang: r.lang || bulkLang.get() };
+  }
+  function genderPill(r) {
+    var g = r.gender || guessGender(r.surname, r.name);
+    if (!g) return '<button type="button" class="gpill none" title="' + esc(t('gToggle')) + '">—</button>';
+    return '<button type="button" class="gpill ' + g + (r.gender ? '' : ' auto') + '" title="' + esc(t('gToggle') + (r.gender ? '' : ' · ' + t('gAuto'))) + '">' +
+      esc(g === 'f' ? t('gF') : t('gM')) + '</button>';
   }
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function renderTable() {
@@ -497,6 +589,7 @@
       return '<tr data-i="' + i + '" class="' + (p.length ? 'bad' : '') + (i === selectedRow ? ' sel' : '') + '">' +
         '<td class="num">' + (i + 1) + '</td>' +
         '<td>' + esc(r.surname) + '</td><td>' + esc(r.name) + '</td><td>' + esc(r.cls) + '</td>' +
+        '<td>' + genderPill(r) + '</td>' +
         '<td>' + (r.course ? esc(r.course) : '<span class="muted">' + esc(clean($('#def-course').value) || '—') + '</span>') + '</td>' +
         '<td><span class="pill">' + lang.toUpperCase() + '</span></td>' +
         '<td class="st">' + (p.length ? '<span class="errtxt">' + esc(p.join(', ')) + '</span>' : '<span class="oktxt">✓</span>') + '</td>' +
@@ -512,7 +605,7 @@
     selectedRow = i;
     $$('#bulk-tbody tr').forEach(function (tr) { tr.classList.toggle('sel', Number(tr.getAttribute('data-i')) === i); });
     var d = rowData(r);
-    drawCanvas($('#bulk-canvas'), layout(buildModel({ surname: d.surname, name: d.name, cls: d.cls, course: d.course || '…', lang: d.lang })));
+    drawCanvas($('#bulk-canvas'), layout(buildModel({ surname: d.surname, name: d.name, cls: d.cls, gender: d.gender, course: d.course || '…', lang: d.lang })));
     $('#bulk-preview').hidden = false;
   }
   async function loadFile(file) {
@@ -582,6 +675,10 @@
         download(blob, safeFile(t('certs') + ' ' + course + ' ' + stamp) + (kind === 'jpg' ? ' JPG' : '') + '.zip');
       }
       setProgress(list.length, list.length, t('done')); toast(t('done'), 'ok');
+      var used = {};
+      list.forEach(function (d) { var c = stripQuotes(d.course); if (c) used[c.toLowerCase()] = c; });
+      var uniq = Object.keys(used).map(function (k) { return used[k]; });
+      if (uniq.length <= 8) uniq.forEach(rememberCourse);
     } catch (e) {
       if (e === 'cancel') { setProgress(0, 1, t('canceled')); }
       else { console.error(e); toast(String(e && e.message || e), 'err'); }
@@ -628,6 +725,17 @@
     ['#f-surname', '#f-name', '#f-cls', '#f-course'].forEach(function (s) {
       $(s).addEventListener('input', function () { this.classList.remove('invalid'); schedulePreview(); });
     });
+    ['#f-surname', '#f-name'].forEach(function (s) { $(s).addEventListener('input', autoGender); });
+    $('#f-course').addEventListener('input', renderCourses);
+    $('#single-gender').addEventListener('click', function (e) {
+      var b = e.target.closest('button[data-v]'); if (!b) return;
+      genderManual = true; setGender(b.getAttribute('data-v')); schedulePreview();
+    });
+    document.addEventListener('click', onCourseChip);
+    document.addEventListener('keydown', function (e) {
+      if ((e.key === 'Enter' || e.key === ' ') && e.target.closest && e.target.closest('.courses .chip, .courses .x') && e.target.tagName !== 'BUTTON') onCourseChip(e);
+    });
+    renderCourses();
     singleLang.on(function (v) { store('na-cert-lang', v); updateSignLine(); schedulePreview(); });
     $('#single-form').addEventListener('submit', function (e) {
       e.preventDefault();
@@ -689,7 +797,8 @@
     drop.addEventListener('drop', function (e) { var f = e.dataTransfer.files[0]; if (f) loadFile(f); });
 
     $('#def-course').value = store('na-cert-defcourse') || '';
-    $('#def-course').addEventListener('input', function () { store('na-cert-defcourse', this.value); renderTable(); if (selectedRow >= 0) previewRow(selectedRow); });
+    renderCourses();
+    $('#def-course').addEventListener('input', function () { store('na-cert-defcourse', this.value); renderCourses(); renderTable(); if (selectedRow >= 0) previewRow(selectedRow); });
     bulkLang.on(function (v) { store('na-cert-lang', v); renderTable(); if (selectedRow >= 0) previewRow(selectedRow); });
     $('#bulk-tbody').addEventListener('click', function (e) {
       var tr = e.target.closest('tr'); if (!tr) return;
@@ -702,6 +811,11 @@
         else if (selectedRow >= 0) previewRow(selectedRow);
         return;
       }
+      if (e.target.closest('.gpill')) {
+        var r = rows[i], g = r.gender || guessGender(r.surname, r.name);
+        r.gender = g === 'm' ? 'f' : 'm';
+        renderTable();
+      }
       previewRow(i);
     });
     $('#btn-zip-pdf').addEventListener('click', function () { runBulk('pdf', this); });
@@ -711,5 +825,5 @@
   });
 
   // для автотестов
-  window.NewtonCert = { buildModel: buildModel, layout: layout, ready: assetsReady, classPhrase: classPhrase, mapRows: mapRows, normName: normName };
+  window.NewtonCert = { buildModel: buildModel, layout: layout, ready: assetsReady, classPhrase: classPhrase, mapRows: mapRows, normName: normName, guessGender: guessGender, genderOf: genderOf, getCourses: getCourses };
 })();
