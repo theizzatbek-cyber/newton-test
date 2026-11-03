@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Генератор сертификатов — Newton Academy</title>
+<meta name="description" content="Сертификаты Newton Academy за минуту: по одному или массово из Excel. Без регистрации.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#644BEF">
+<meta property="og:title" content="Генератор сертификатов — Newton Academy">
+<meta property="og:description" content="По одному или массово из Excel. PDF в фирменном шаблоне, без регистрации.">
+<meta property="og:image" content="assets/og.jpg">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='32' fill='%23644BEF'/%3E%3Cpath d='M20 46V18h6l12 17V18h6v28h-6L26 29v17z' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="preload" href="assets/fonts/Montserrat-Regular.ttf" as="font" type="font/ttf" crossorigin>
+<link rel="preload" href="assets/fonts/Montserrat-Medium.ttf" as="font" type="font/ttf" crossorigin>
+<link rel="preload" href="assets/fonts/Montserrat-Bold.ttf" as="font" type="font/ttf" crossorigin>
+<link rel="preload" href="assets/template.pdf" as="fetch" crossorigin>
+<style>
+@font-face{font-family:"Montserrat";src:url(assets/fonts/Montserrat-Regular.ttf) format("truetype");font-weight:400;font-display:swap}
+@font-face{font-family:"Montserrat";src:url(assets/fonts/Montserrat-Medium.ttf) format("truetype");font-weight:500 600;font-display:swap}
+@font-face{font-family:"Montserrat";src:url(assets/fonts/Montserrat-Bold.ttf) format("truetype");font-weight:700 800;font-display:swap}
+:root{
+  --violet:#644BEF; --violet-2:#5139e0; --violet-soft:#EEEBFF; --lime:#D4FA33; --dark:#181424;
+  --ink:#181424; --ink-2:#4B4763; --muted:#8A86A3; --line:#E6E3F2; --bg:#F6F5FB; --card:#FFFFFF;
+  --ok:#12A150; --err:#E5484D; --err-soft:#FFF0F0; --radius:20px;
+  --shadow:0 1px 2px rgba(24,20,36,.04),0 8px 24px rgba(24,20,36,.06);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.5 "Montserrat",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit;color:inherit}
+.wrap{max-width:1240px;margin:0 auto;padding:0 20px}
+/* header */
+.top{background:var(--dark);color:#fff}
+.top .wrap{display:flex;align-items:center;gap:16px;height:64px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:#fff}
+.brand-mark{width:34px;height:34px;border-radius:50%;background:#fff;display:grid;place-items:center}
+.brand-mark svg{width:20px;height:20px}
+.brand-word{font-weight:700;font-size:22px;letter-spacing:-.02em}
+.brand-sub{color:#B7B2D6;font-size:13px;font-weight:500;padding-left:14px;margin-left:4px;border-left:1px solid #3A3550}
+.spacer{flex:1}
+.langsw{display:flex;background:#2A2538;border-radius:999px;padding:3px}
+.langsw button{border:0;background:transparent;color:#C9C4E6;font-weight:600;font-size:13px;padding:6px 12px;border-radius:999px;cursor:pointer}
+.langsw button[aria-pressed="true"]{background:var(--lime);color:var(--dark)}
+/* hero */
+.hero{background:var(--dark);color:#fff;padding:28px 0 92px}
+.hero h1{margin:0 0 10px;font-size:clamp(26px,3.4vw,40px);line-height:1.12;font-weight:700;letter-spacing:-.02em;max-width:760px}
+.hero h1 .hl{background:var(--lime);color:var(--dark);padding:0 .18em;border-radius:8px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.hero p{margin:0;color:#C9C4E6;max-width:720px;font-size:15px}
+main{margin-top:-64px;padding-bottom:48px}
+/* tabs */
+.tabs{display:inline-flex;gap:4px;background:var(--card);padding:5px;border-radius:16px;box-shadow:var(--shadow);margin-bottom:16px;max-width:100%;overflow-x:auto}
+.tab{border:0;background:transparent;padding:11px 18px;border-radius:12px;font-weight:600;font-size:14px;color:var(--ink-2);cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:8px}
+.tab svg{width:18px;height:18px;flex:none}
+.tab[aria-selected="true"]{background:var(--violet);color:#fff}
+.tab:focus-visible,.btn:focus-visible,.seg button:focus-visible,.drop:focus-visible,.langsw button:focus-visible,.link:focus-visible{outline:3px solid var(--lime);outline-offset:2px}
+/* layout */
+.grid{display:grid;grid-template-columns:minmax(300px,400px) 1fr;gap:16px;align-items:start}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px}
+.card h2{margin:0 0 4px;font-size:17px;font-weight:700}
+.card .sub{margin:0 0 16px;color:var(--muted);font-size:13px}
+/* form */
+.field{display:block;margin-bottom:14px}
+.field>span{display:block;font-size:13px;font-weight:600;color:var(--ink-2);margin-bottom:6px}
+.field>span i{color:var(--violet);font-style:normal}
+.input{width:100%;height:46px;border:1.5px solid var(--line);border-radius:12px;padding:0 14px;background:#FCFCFE;outline:0;transition:border-color .15s,box-shadow .15s;font-size:15px}
+.input:hover{border-color:#D3CFE6}
+.input:focus{border-color:var(--violet);box-shadow:0 0 0 4px var(--violet-soft);background:#fff}
+.input.invalid{border-color:var(--err);box-shadow:0 0 0 4px var(--err-soft)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.seg{display:flex;background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:3px}
+.seg button{flex:1;border:0;background:transparent;border-radius:9px;height:36px;font-weight:600;font-size:14px;color:var(--ink-2);cursor:pointer}
+.seg button[aria-pressed="true"]{background:#fff;color:var(--violet);box-shadow:0 1px 3px rgba(24,20,36,.12)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:48px;padding:0 18px;border-radius:12px;border:0;font-weight:700;font-size:15px;cursor:pointer;text-decoration:none;transition:background .15s,transform .05s;position:relative;white-space:nowrap}
+.btn:active{transform:translateY(1px)}
+.btn svg{width:18px;height:18px;flex:none}
+.btn-primary{background:var(--violet);color:#fff;width:100%}
+.btn-primary:hover{background:var(--violet-2)}
+.btn-lime{background:var(--lime);color:var(--dark)}
+.btn-lime:hover{background:#c6ee1f}
+.btn-ghost{background:var(--bg);color:var(--ink);border:1.5px solid var(--line)}
+.btn-ghost:hover{border-color:#cfcae6}
+.btn[disabled]{opacity:.55;cursor:not-allowed}
+.btn.loading{color:transparent!important}
+.btn.loading::after{content:"";position:absolute;width:20px;height:20px;border-radius:50%;border:2.5px solid currentColor;border-color:rgba(255,255,255,.9) rgba(255,255,255,.9) rgba(255,255,255,.9) transparent;animation:spin .7s linear infinite}
+.btn-lime.loading::after,.btn-ghost.loading::after{border-color:var(--dark) var(--dark) var(--dark) transparent}
+@keyframes spin{to{transform:rotate(360deg)}}
+.btns2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.btns2 .btn{font-size:14px;height:44px;padding:0 10px}
+.signline{margin-top:16px;padding-top:14px;border-top:1px dashed var(--line);font-size:13px;color:var(--muted);line-height:1.7}
+.signline b{color:var(--ink-2);font-weight:600}
+.link{background:none;border:0;padding:0;color:var(--violet);font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:3px;font-size:13px}
+/* preview */
+.pv-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:12px}
+.pv-head h2{margin:0}
+.pv-head small{color:var(--muted);font-size:12px}
+.sheet{position:relative;border-radius:10px;overflow:hidden;background:#fff;box-shadow:0 0 0 1px var(--line),0 12px 32px rgba(24,20,36,.10);aspect-ratio:842/595}
+.sheet canvas{display:block;width:100%;height:100%;transition:opacity .2s}
+.sheet canvas.is-demo{opacity:.55}
+.sheet .skeleton{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);font-size:13px;background:linear-gradient(90deg,#f4f3fa 25%,#eceaf5 37%,#f4f3fa 63%);background-size:400% 100%;animation:sh 1.4s ease infinite}
+body.ready .sheet .skeleton{display:none}
+@keyframes sh{0%{background-position:100% 50%}100%{background-position:0 50%}}
+/* bulk */
+.steps{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.step-n{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--lime);color:var(--dark);font-weight:700;font-size:14px;margin-bottom:10px}
+.drop{border:2px dashed #CFCAE8;border-radius:16px;padding:26px 16px;text-align:center;cursor:pointer;background:#FCFCFE;transition:border-color .15s,background .15s}
+.drop:hover,.drop.over{border-color:var(--violet);background:var(--violet-soft)}
+.drop svg{width:34px;height:34px;color:var(--violet);margin-bottom:6px}
+.drop b{display:block;font-size:14px;font-weight:600}
+.drop small{color:var(--muted);font-size:12px}
+.drop .fname{display:none;margin-top:8px;font-size:13px;font-weight:600;color:var(--violet);word-break:break-all}
+.drop.has-file .fname{display:block}
+#bulk-result{margin-top:16px}
+.opts{display:grid;grid-template-columns:1fr 240px;gap:12px;margin-bottom:14px}
+.bulk-grid{display:grid;grid-template-columns:1.25fr 1fr;gap:16px;align-items:start}
+.tbl-wrap{border:1px solid var(--line);border-radius:14px;overflow:auto;max-height:440px}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th{position:sticky;top:0;background:#FAF9FD;text-align:left;font-weight:600;color:var(--ink-2);padding:10px;border-bottom:1px solid var(--line);white-space:nowrap;z-index:1}
+td{padding:9px 10px;border-bottom:1px solid #F0EEF7;vertical-align:middle}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:#FAF9FE}
+tbody tr.sel{background:var(--violet-soft)}
+tbody tr.bad td{background:var(--err-soft)}
+td.num{color:var(--muted);font-variant-numeric:tabular-nums;width:36px}
+td.st{white-space:nowrap}
+.pill{display:inline-block;font-size:11px;font-weight:700;padding:2px 7px;border-radius:6px;background:var(--bg);color:var(--ink-2)}
+.muted{color:var(--muted);font-style:italic}
+.errtxt{color:var(--err);font-weight:600}
+.oktxt{color:var(--ok);font-weight:700}
+.rm{border:0;background:transparent;color:var(--muted);font-size:18px;line-height:1;cursor:pointer;width:26px;height:26px;border-radius:8px}
+.rm:hover{background:#fff;color:var(--err)}
+.count{font-size:13px;color:var(--ink-2);margin:12px 0}
+#bulk-actions{display:grid;gap:10px}
+#bulk-actions .btn{width:100%}
+.progress{margin-top:14px}
+.bar{height:8px;background:var(--bg);border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--violet),#9B87FF);border-radius:99px;transition:width .15s}
+.progress-row{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:8px;font-size:13px;color:var(--ink-2)}
+.hint{font-size:12px;color:var(--muted);margin-top:8px}
+/* dialog */
+dialog{border:0;border-radius:var(--radius);padding:0;width:min(520px,calc(100vw - 32px));box-shadow:0 24px 64px rgba(24,20,36,.28)}
+dialog::backdrop{background:rgba(24,20,36,.5)}
+dialog form{padding:24px}
+dialog h3{margin:0 0 4px;font-size:18px}
+dialog .note{margin:0 0 16px;color:var(--muted);font-size:13px}
+.dlg-btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+.dlg-btns .btn{height:44px;font-size:14px}
+.dlg-btns .btn-primary{width:auto;flex:1}
+/* toast */
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);background:var(--dark);color:#fff;padding:12px 18px;border-radius:12px;font-size:14px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:50;max-width:calc(100vw - 32px);box-shadow:0 12px 32px rgba(24,20,36,.3)}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.toast.err{background:var(--err)}
+.toast.ok::before{content:"✓ ";color:var(--lime)}
+footer{color:var(--muted);font-size:12px;text-align:center;padding:8px 0 28px}
+#status{font-size:12px;color:#B7B2D6}
+@media (max-width:960px){
+  .grid,.bulk-grid,.steps{grid-template-columns:1fr}
+  .grid .preview-card{order:-1}
+  .opts{grid-template-columns:1fr}
+}
+@media (max-width:560px){
+  .brand-sub{display:none}
+  .card{padding:16px}
+  .hero{padding:20px 0 84px}
+  .tab{padding:10px 12px;font-size:13px}
+  .btns2{grid-template-columns:1fr}
+  th:nth-child(6),td:nth-child(6){display:none}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="./" aria-label="Newton Academy">
+      <span class="brand-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3B82F6"/><stop offset=".55" stop-color="#644BEF"/><stop offset="1" stop-color="#E64BEF"/></linearGradient></defs><path d="M5 20V4h3.6l6.8 9.6V4H19v16h-3.6L8.6 10.4V20z" fill="url(#g)"/></svg></span>
+      <span class="brand-word">newton</span>
+      <span class="brand-sub" data-i18n="title">Генератор сертификатов</span>
+    </a>
+    <span class="spacer"></span>
+    <span id="status" aria-live="polite"></span>
+    <div class="langsw" role="group" aria-label="Language">
+      <button type="button" data-ui-lang="ru" aria-pressed="true">RU</button>
+      <button type="button" data-ui-lang="uz" aria-pressed="false">UZ</button>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <h1 data-i18n="heroTitle">Сертификаты Newton за минуту</h1>
+    <p data-i18n="heroSub">Введите данные ученика или загрузите Excel — получите готовые PDF в фирменном шаблоне.</p>
+  </div>
+</section>
+
+<main class="wrap">
+  <div class="tabs" role="tablist">
+    <button class="tab" id="tab-single" role="tab" aria-selected="true" aria-controls="panel-single">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 10h6M7 14h10"/></svg>
+      <span data-i18n="tabSingle">Один сертификат</span>
+    </button>
+    <button class="tab" id="tab-bulk" role="tab" aria-selected="false" aria-controls="panel-bulk">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/></svg>
+      <span data-i18n="tabBulk">Массово из Excel</span>
+    </button>
+  </div>
+
+  <!-- Один сертификат -->
+  <section id="panel-single" class="panel" role="tabpanel" aria-labelledby="tab-single">
+    <div class="grid">
+      <form id="single-form" class="card" novalidate autocomplete="off">
+        <div class="row2">
+          <label class="field"><span><span data-i18n="surname">Фамилия</span> <i>*</i></span>
+            <input class="input" id="f-surname" data-i18n-ph="phSurname" placeholder="Анваров" maxlength="60"></label>
+          <label class="field"><span><span data-i18n="name">Имя</span> <i>*</i></span>
+            <input class="input" id="f-name" data-i18n-ph="phName" placeholder="Акромбек" maxlength="60"></label>
+        </div>
+        <label class="field"><span data-i18n="cls">Класс</span>
+          <input class="input" id="f-cls" data-i18n-ph="phCls" placeholder="4 или 4А" maxlength="12"></label>
+        <label class="field"><span><span data-i18n="course">Курс</span> <i>*</i></span>
+          <input class="input" id="f-course" data-i18n-ph="phCourse" placeholder="Почемучка" maxlength="80" list="courses"></label>
+        <datalist id="courses">
+          <option value="Почемучка"><option value="Pochemuchka">
+          <option value="Подготовка к Президентским школам"><option value="Prezident maktablariga tayyorlov">
+          <option value="Подготовка к специализированным школам"><option value="Ixtisoslashgan maktablarga tayyorlov">
+          <option value="Олимпиадная математика"><option value="Olimpiada matematikasi">
+        </datalist>
+        <div class="field"><span data-i18n="certLang">Язык сертификата</span>
+          <div class="seg" id="single-lang" role="group">
+            <button type="button" data-v="ru" aria-pressed="true" data-i18n="langRu">Русский</button>
+            <button type="button" data-v="uz" aria-pressed="false" data-i18n="langUz">O‘zbekcha</button>
+          </div>
+        </div>
+        <button class="btn btn-primary" id="btn-pdf" type="submit">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0l-5-5m5 5l5-5M5 21h14"/></svg>
+          <span data-i18n="generate">Сгенерировать сертификат</span>
+        </button>
+        <div class="btns2">
+          <button class="btn btn-ghost" id="btn-jpg" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/></svg><span data-i18n="jpg">JPG</span></button>
+          <button class="btn btn-ghost" id="btn-print" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 9V3h10v6M7 18H5a2 2 0 01-2-2v-5a2 2 0 012-2h14a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="7" y="14" width="10" height="7"/></svg><span data-i18n="print">Печать</span></button>
+        </div>
+        <div class="signline"><span data-i18n="signature">Подпись</span>: <b id="sign-line"></b> · <button class="link" type="button" id="sign-edit" data-i18n="edit">изменить</button></div>
+      </form>
+
+      <div class="card preview-card">
+        <div class="pv-head"><h2 data-i18n="preview">Предпросмотр</h2><small data-i18n="previewHint">Обновляется по мере ввода</small></div>
+        <div class="sheet"><canvas id="single-canvas" width="1684" height="1190" aria-label="Certificate preview"></canvas><div class="skeleton" data-i18n="loading">Загружаю шаблон…</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Массово -->
+  <section id="panel-bulk" class="panel" role="tabpanel" aria-labelledby="tab-bulk" hidden>
+    <div class="steps">
+      <div class="card">
+        <span class="step-n">1</span>
+        <h2 data-i18n="step1">Скачайте шаблон Excel</h2>
+        <p class="sub" data-i18n="step1Sub">Колонки: Фамилия, Имя, Класс, Курс, Язык.</p>
+        <a class="btn btn-lime" href="assets/shablon-sertifikatov.xlsx" download="Шаблон сертификатов Newton.xlsx">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0l-5-5m5 5l5-5M5 21h14"/></svg>
+          <span data-i18n="downloadTpl">Скачать шаблон .xlsx</span></a>
+      </div>
+      <div class="card">
+        <span class="step-n">2</span>
+        <h2 data-i18n="step2">Загрузите заполненную таблицу</h2>
+        <div class="drop" id="drop" tabindex="0" role="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4m0 0L7 9m5-5l5 5"/><path d="M4 16v3a2 2 0 002 2h12a2 2 0 002-2v-3"/></svg>
+          <b data-i18n="drop">Перетащите файл сюда или нажмите, чтобы выбрать</b>
+          <small data-i18n="dropSub">.xlsx или .csv</small>
+          <div class="fname" id="file-name"></div>
+        </div>
+        <input type="file" id="file" accept=".xlsx,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv" hidden>
+      </div>
+    </div>
+
+    <div id="bulk-result" class="card" hidden>
+      <span class="step-n">3</span>
+      <h2 data-i18n="step3">Проверьте и скачайте</h2>
+      <div class="opts" style="margin-top:12px">
+        <label class="field" style="margin:0"><span data-i18n="defCourse">Курс, если в таблице пусто</span>
+          <input class="input" id="def-course" list="courses" maxlength="80" data-i18n-ph="phCourse" placeholder="Почемучка"></label>
+        <div class="field" style="margin:0"><span data-i18n="defLang">Язык, если в таблице пусто</span>
+          <div class="seg" id="bulk-lang" role="group">
+            <button type="button" data-v="ru" aria-pressed="true" data-i18n="langRu">Русский</button>
+            <button type="button" data-v="uz" aria-pressed="false" data-i18n="langUz">O‘zbekcha</button>
+          </div>
+        </div>
+      </div>
+      <div class="bulk-grid">
+        <div>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>№</th><th data-i18n="thSurname">Фамилия</th><th data-i18n="thName">Имя</th><th data-i18n="thCls">Класс</th><th data-i18n="thCourse">Курс</th><th data-i18n="thLang">Язык</th><th></th><th></th></tr></thead>
+              <tbody id="bulk-tbody"></tbody>
+            </table>
+          </div>
+          <p class="hint" data-i18n="clickRow">Нажмите на строку, чтобы посмотреть сертификат</p>
+        </div>
+        <div>
+          <div id="bulk-preview" hidden>
+            <div class="sheet"><canvas id="bulk-canvas" width="1684" height="1190" aria-label="Certificate preview"></canvas></div>
+          </div>
+          <div class="count" id="bulk-count"></div>
+          <div id="bulk-actions">
+            <button class="btn btn-primary" id="btn-zip-pdf" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0l-5-5m5 5l5-5M5 21h14"/></svg><span data-i18n="zipPdf">ZIP: отдельный PDF на каждого</span></button>
+            <button class="btn btn-lime" id="btn-one-pdf" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 9V3h10v6M7 18H5a2 2 0 01-2-2v-5a2 2 0 012-2h14a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="7" y="14" width="10" height="7"/></svg><span data-i18n="onePdf">Один PDF для печати</span></button>
+            <button class="btn btn-ghost" id="btn-zip-jpg" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/></svg><span data-i18n="zipJpg">ZIP: картинки JPG</span></button>
+          </div>
+          <div class="progress" id="progress" hidden>
+            <div class="bar"><i id="progress-bar"></i></div>
+            <div class="progress-row"><span id="progress-text"></span><button class="link" type="button" id="cancel" hidden data-i18n="cancel">Отменить</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer data-i18n="footer">Newton Academy · Данные обрабатываются только в вашем браузере</footer>
+
+<dialog id="settings">
+  <form id="settings-form" method="dialog">
+    <h3 data-i18n="settingsTitle">Подпись на сертификатах</h3>
+    <p class="note" data-i18n="settingsNote">Сохраняется только в этом браузере.</p>
+    <label class="field"><span data-i18n="sRuName">ФИО (русский)</span><input class="input" id="s-ru-name" maxlength="80"></label>
+    <label class="field"><span data-i18n="sRuTitle">Должность (русский)</span><input class="input" id="s-ru-title" maxlength="60"></label>
+    <label class="field"><span data-i18n="sUzName">ФИО (узбекский)</span><input class="input" id="s-uz-name" maxlength="80"></label>
+    <label class="field"><span data-i18n="sUzTitle">Должность (узбекский)</span><input class="input" id="s-uz-title" maxlength="60"></label>
+    <div class="dlg-btns">
+      <button class="btn btn-primary" type="submit" data-i18n="save">Сохранить</button>
+      <button class="btn btn-ghost" type="button" id="s-reset" data-i18n="reset">Вернуть по умолчанию</button>
+      <button class="btn btn-ghost" type="button" id="s-close" data-i18n="close">Закрыть</button>
+    </div>
+  </form>
+</dialog>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script src="vendor/pdf-lib.min.js" defer></script>
+<script src="vendor/fontkit.umd.min.js" defer></script>
+<script src="vendor/jszip.min.js" defer></script>
+<script src="vendor/read-excel-file.min.js" defer></script>
+<script src="app.js" defer></script>
+</body>
+</html>
